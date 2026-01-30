@@ -71,6 +71,81 @@ const ProductsSection = () => {
     },
   ];
 
+  const productImages = {
+    sensorModule: "https://picsum.photos/seed/sensor-module/600/600",
+    pcbAssembly: "https://picsum.photos/seed/pcb-assembly/600/600",
+    waterproofConnector: "https://picsum.photos/seed/waterproof-connector/600/600",
+    multimeter: "https://picsum.photos/seed/digital-multimeter/600/600",
+  }
+
+  const prods = [
+    {
+      id: 1,
+      name: "Advanced Industrial Optical Sensor Module",
+      priceRange: { min: 1.20, max: 1.50 },
+      currency: "USD",
+      unit: "unit",
+      minOrder: 500,
+      supplier: "Shenzhen Tech Manufacturing",
+      category: "Sensors",
+      tag: "Hot Sale",
+      image: productImages.sensorModule,
+      imageAlt: "Industrial optical sensor module PCB",
+      price: 410.0,
+      oldPrice: 560.0,
+      quantity: 1000,
+      quantity_sold: 762
+    },
+    {
+      id: 2,
+      name: "Custom Multi-Layer PCB Assembly with Lead-Free Finish",
+      priceRange: { min: 0.45, max: 0.85 },
+      currency: "USD",
+      unit: "piece",
+      minOrder: 1000,
+      supplier: "Precision Circuits Ltd.",
+      category: "PCBs",
+      image: productImages.pcbAssembly,
+      imageAlt: "Multi-layer PCB close-up",
+      price: 410.0,
+      oldPrice: 560.0,
+      quantity: 1000,
+      quantity_sold: 762
+    },
+    {
+      id: 3,
+      name: "Heavy Duty Waterproof Connector IP68",
+      priceRange: { min: 5.50, max: 7.20 },
+      currency: "USD",
+      unit: "pair",
+      minOrder: 200,
+      supplier: "Global Connect Solutions",
+      category: "Connectors",
+      image: productImages.waterproofConnector,
+      imageAlt: "Gold-plated waterproof connectors",
+      price: 410.0,
+      oldPrice: 560.0,
+      quantity: 1000,
+      quantity_sold: 762
+    },
+    {
+      id: 4,
+      name: "Digital Multimeter High Accuracy for Maintenance Engineers",
+      priceRange: { min: 32.00, max: 45.00 },
+      currency: "USD",
+      unit: "unit",
+      minOrder: 10,
+      supplier: "Industrial Tooling Corp",
+      category: "Testing Equipment",
+      image: productImages.multimeter,
+      imageAlt: "Digital multimeter with probes",
+      price: 410.0,
+      oldPrice: 560.0,
+      quantity: 1000,
+      quantity_sold: 762
+    }
+  ]
+
   return (
     <section className='my-10 md:my-20'>
       <div className="px-4 md:px-10 lg:px-20">
@@ -86,12 +161,12 @@ const ProductsSection = () => {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-8 my-4">
           {
-            products.map(product => (
+            prods.map(product => (
               <Card 
                 key={product.id}
                 className='p-0!'
               >
-                <Image src={product.image} alt='' className='w-full aspect-square rounded-t-2xl' />
+                <Image src={product.image} alt='' width={0} height={0} className='w-full aspect-square rounded-t-2xl' />
                 <div className="p-2 md:p-4">
                   <p className="md:text-lg font-bold truncate">{product.name}</p>
                   <div className="mt-1">
@@ -112,9 +187,11 @@ const ProductsSection = () => {
                       className='my-0!'
                     />
                   </div>
-                  <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
-                    Join Pool
-                  </Button>
+                  <Link href={`/products/${product.id}`}>
+                    <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
+                      Join Pool
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             ))

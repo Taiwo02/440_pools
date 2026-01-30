@@ -8,13 +8,15 @@ type DropdownProps<T extends string | number> = {
   value: T;
   onChange: (value: T) => void;
   className?: string;
+  dropClass?: string;
 };
 
 function Dropdown<T extends string | number>({
   options,
   value,
   onChange,
-  className
+  className,
+  dropClass
 }: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
 
@@ -25,12 +27,12 @@ function Dropdown<T extends string | number>({
         onClick={() => setOpen((o) => !o)}
         className={cn("w-full bg-(--bg-surface) border border-slate-200 px-3 py-2 rounded-md flex justify-between items-center", className)}
       >
-        <span>{value}</span>
+        <span className="truncate">{value}</span>
         <span><RiArrowDownSLine /></span>
       </button>
 
       {open && (
-        <ul className="absolute z-10 mt-2 p-2 w-full bg-(--bg-surface) border border-(--border-muted) rounded-md shadow-lg overflow-auto h-100">
+        <ul className={cn("absolute z-10 mt-2 p-2 w-full bg-(--bg-surface) border border-(--border-muted) rounded-md shadow-lg overflow-auto h-100", dropClass)}>
           {options.map((opt) => (
             <li
               key={opt}

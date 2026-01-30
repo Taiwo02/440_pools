@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge, Button, Input, Progress } from "@/components/ui"
+import { Alert, Badge, Button, Input, Progress } from "@/components/ui"
 import { Tabs } from "@/components/ui/tabs"
 import Image from "next/image"
 import { useState } from "react"
@@ -39,10 +39,8 @@ const ProductDetails = () => {
 
   const [formValues, setFormValues] = useState({
     sizes: [],
-    quantity: 0,
+    slots: 0,
   })
-  const [sizes, setSizes] = useState<string[]>([])
-  const [quantity, setQuantity] = useState(0)
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
 
@@ -83,7 +81,7 @@ const ProductDetails = () => {
   return (
     <section className='pt-24 mb-10 md:mb-16'>
       <div className="px-4 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
-        <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full">
+        <div className="p-4 rounded-lg bg-(--bg-surface) hidden md:flex flex-col md:flex-row justify-between gap-4 items-center w-full">
           <div className="flex items-center gap-4">
             <Image src={supplierInfo.logo} alt="" width={0} height={0} className="w-20 aspect-square rounded-full" />
             <div>
@@ -177,8 +175,8 @@ const ProductDetails = () => {
                     <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Bale Progress</h2>
                   </div>
                   <p className="text-(--text-muted)">
-                    <span className="text-lg md:text-2xl text-(--text-primary) font-bold">750 </span>
-                    / 1000 units
+                    <span className="text-lg md:text-2xl text-(--text-primary) font-bold">7 </span>
+                    / 10 slots
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -192,11 +190,14 @@ const ProductDetails = () => {
                 </div>
               </div>
               <Progress
-                totalQty={1000}
-                currentQty={750}
+                totalQty={10}
+                currentQty={7}
                 className='my-0!'
                 progClass="bg-(--bg-page)/70!"
               />
+              <Alert type="success" className="mt-3 py-2! px-4! w-fit! text-sm!">
+                * 1 slot contains 20 products
+              </Alert>
             </div>
             <div className="mb-4">
               <p className="text-(--text-muted) uppercase font-semibold">Sizes</p>
@@ -212,15 +213,41 @@ const ProductDetails = () => {
             </div>
             <div className="mb-4 flex flex-col md:flex-row md:items-end gap-4">
               <div>
-                <p className="text-(--text-muted) uppercase font-semibold">Quantity</p>
-                <Input
-                  element="input"
-                  input_type="number"
-                  name="quantity"
-                  value={formValues.quantity}
-                  handler={handleChange}
-                  genStyle="my-0!"
-                />
+                <p className="text-(--text-muted) uppercase font-semibold">Slots</p>
+                <div className="flex items-stretch">
+                  <Button 
+                    className="rounded-r-none"
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={() => 
+                      setFormValues(prev => ({
+                        ...prev,
+                        slots: prev.slots == 0 ? 0 : prev.slots - 1
+                      }))
+                    }
+                  >
+                    -
+                  </Button>
+                  <Input
+                    element="input"
+                    input_type="number"
+                    name="quantity"
+                    value={formValues.slots}
+                    handler={handleChange}
+                    genStyle="my-0!"
+                    styling="rounded-none"
+                  />
+                  <Button 
+                    className="rounded-l-none"
+                    onClick={() =>
+                      setFormValues(prev => ({
+                        ...prev,
+                        slots: prev.slots + 1
+                      }))
+                    }
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
               <div>
                 <p className="text-(--text-muted) uppercase font-semibold">Total Estimated Price</p>

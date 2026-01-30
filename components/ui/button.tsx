@@ -16,7 +16,7 @@ const Button = ({ className, children, primary, isFullWidth, ...props }: ButtonP
         } text-white ${primary
           ? "hover:bg-(--primary-soft) hover:text-black"
           : "hover:bg-(--secondary-hover)"
-        } transition-all cursor-pointer ${isFullWidth && 'w-full'}`,
+        } transition-all cursor-pointer ${isFullWidth && 'w-full'} disabled:opacity-50 disabled:cursor-not-allowed`,
         className
       )}
       {...props}
