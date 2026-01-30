@@ -1,9 +1,5 @@
 import Link from 'next/link';
 import { RiArrowRightSLine } from 'react-icons/ri';
-import PowerBank from "@/assets/images/download.png";
-import Inverter from "@/assets/images/inverter.jpg";
-import Steel from "@/assets/images/steel.jpg";
-import Watch from "@/assets/images/watch.jpg";
 import { Button, Card, Progress } from '../ui';
 import Image from 'next/image';
 import products from "./data"
@@ -30,7 +26,7 @@ const ProductsSection = () => {
                 key={product.id}
                 className='p-0!'
               >
-                <Image src={product.image} alt='' className='w-full aspect-square rounded-t-2xl' />
+                <Image src={product.image} alt='' width={0} height={0} className='w-full aspect-square rounded-t-2xl' />
                 <div className="p-2 md:p-4">
                   <p className="md:text-lg font-bold truncate">{product.name}</p>
                   <div className="mt-1">
@@ -51,9 +47,11 @@ const ProductsSection = () => {
                       className='my-0!'
                     />
                   </div>
-                  <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
-                    Join Pool
-                  </Button>
+                  <Link href={`/products/${product.id}`}>
+                    <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
+                      Join Pool
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             ))

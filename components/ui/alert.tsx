@@ -3,7 +3,7 @@ import { cn } from './utils'
 type AlertProps = {
   children: string,
   type: 'error' | 'success',
-  className: string
+  className?: string
 }
 
 const Alert = ({ children, className = '', type }: AlertProps) => {

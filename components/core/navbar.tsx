@@ -9,7 +9,7 @@ import { AnimatePresence, Variants, motion } from "framer-motion";
 import { usePathname } from 'next/navigation'
 
 const Navbar = () => {
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState('Electronics')
   const pathname = usePathname() ?? "/";
   const [isVisible, setIsVisible] = useState(false);
 
@@ -128,10 +128,11 @@ const Navbar = () => {
         <Link href={'/'} className="text-2xl font-bold shrink-0">E-<span className='text-(--primary)'>commerce</span></Link>
         <form className="hidden lg:flex items-stretch flex-1 min-w-0 border-2 border-(--primary) rounded-full">
           <Dropdown
-            value={productCategories[0]}
+            value={category}
             onChange={value => setCategory(value)}
             options={productCategories}
             className='p-3! rounded-l-full!'
+            dropClass='w-50!'
           />
           <input
             className='w-full p-3 bg-(--bg-surface) border border-slate-200 focus:border focus:outline-(--primary) placeholder:text(--muted)'
