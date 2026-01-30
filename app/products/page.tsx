@@ -4,7 +4,7 @@ import { Button, Card, Pagination } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiMoneyDollarBoxFill, RiStarFill } from "react-icons/ri";
 
 const Products = () => {
@@ -12,6 +12,7 @@ const Products = () => {
   const [jumpPage, setJumpPage] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
+  
 
   const productImages = {
     sensorModule: "https://picsum.photos/seed/sensor-module/600/600",
