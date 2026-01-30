@@ -1,26 +1,113 @@
+@import url('https://fonts.cdnfonts.com/css/coolvetica');
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --secondary: #1a73e8;
+  --secondary-hover: #1558b0;
+
+  --primary: #f97316;
+  --primary-soft: #ffedd5;
+
+  /* Backgrounds */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+
+  /* Borders & dividers */
+  --border-default: #e5e7eb;
+  --border-muted: #cbd5e1;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  /* Status */
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --error: #dc2626;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+.dark {
+  /* Brand */
+  --secondary: #3b82f6;
+  --secondary-hover: #60a5fa;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary: #fb923c;
+  --primary-soft: #431407;
+
+  /* Backgrounds */
+  --bg-page: #020617;
+  --bg-surface: #020617;
+  --bg-muted: #020617;
+
+  /* Borders & dividers */
+  --border-default: #1e293b;
+  --border-muted: #334155;
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --text-muted: #94a3b8;
+  --text-inverse: #020617;
+
+  /* Status */
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --error: #ef4444;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.6);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Onest';
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Coolvetica';
+}
+
+.navBar li a {
+  position: relative;
+}
+
+.navBar li a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  border-radius: 4px;
+  background: var(--primary);
+  bottom: -10;
+  left: 0;
+  transition: all ease .5s;
+}
+
+.smallNav li a::after {
+  bottom: 0 !important;
+}
+
+.navBar li a.active::after {
+  width: 50%;
+  left: 25%;
+}
+
+.navBar li a.active:hover::after {
+  left: 0;
+  width: 50%;
+}
+
+.navBar li a:hover::after {
+  width: 50%;
 }
