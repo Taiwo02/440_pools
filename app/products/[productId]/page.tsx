@@ -1,9 +1,11 @@
 "use client"
 
+import { useGetSingleBale } from "@/api/bale"
 import { Alert, Badge, Button, Input, Progress } from "@/components/ui"
 import { Tabs } from "@/components/ui/tabs"
 import Image from "next/image"
-import { useState } from "react"
+import { useParams } from "next/navigation"
+import { useEffect, useEffectEvent, useState } from "react"
 import { RiGroup2Fill, RiGroupFill, RiRocket2Fill, RiShieldCheckFill, RiShip2Fill, RiStarFill, RiStarHalfFill, RiTimeFill } from "react-icons/ri"
 
 const ProductDetails = () => {
@@ -41,7 +43,21 @@ const ProductDetails = () => {
     sizes: [],
     slots: 0,
     colors: []
-  })
+  });
+
+  const params = useParams<{ productId: string }>();
+  const id = params?.productId;
+  const { data: bale, isPending, error } = useGetSingleBale(id as string);
+
+  useEffect(() => {
+    if(bale) console.log(bale)
+    console.log(id)
+  }, [bale])
+
+  useEffect(() => {
+    console.log(id)
+  }, [])
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
 
@@ -255,8 +271,9 @@ const ProductDetails = () => {
                 <p className="text-(--text-muted) uppercase font-semibold">Colors</p>
                 <div className="flex gap-1">
                   {
-                    colorsInput.map(color => (
+                    colorsInput.map((color, index) => (
                       <Input
+                        key={index}
                         element="input"
                         input_type="checkbox"
                         name="colors"

@@ -1,296 +1,29 @@
 "use client"
 
-import { Button, Card, Pagination } from "@/components/ui";
+import { useGetBales } from "@/api/bale";
+import { Button, Card, Pagination, Progress } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiMoneyDollarBoxFill, RiStarFill } from "react-icons/ri";
+import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiStarFill } from "react-icons/ri";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [jumpPage, setJumpPage] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
-  
 
-  const productImages = {
-    sensorModule: "https://picsum.photos/seed/sensor-module/600/600",
-    pcbAssembly: "https://picsum.photos/seed/pcb-assembly/600/600",
-    waterproofConnector: "https://picsum.photos/seed/waterproof-connector/600/600",
-    multimeter: "https://picsum.photos/seed/digital-multimeter/600/600",
-    heatSink: "https://picsum.photos/seed/aluminum-heat-sink/600/600",
-    ledDisplay: "https://picsum.photos/seed/led-matrix-display/600/600",
+  const { data: allBales = [], isPending } = useGetBales();
 
-    proximitySensor: "https://picsum.photos/seed/proximity-sensor/600/600",
-    powerSupply: "https://picsum.photos/seed/power-supply/600/600",
-    relayModule: "https://picsum.photos/seed/relay-module/600/600",
-    controlPanel: "https://picsum.photos/seed/control-panel/600/600",
-    cableHarness: "https://picsum.photos/seed/cable-harness/600/600",
-    terminalBlock: "https://picsum.photos/seed/terminal-block/600/600",
-    industrialSwitch: "https://picsum.photos/seed/industrial-switch/600/600",
-    motorDriver: "https://picsum.photos/seed/motor-driver/600/600",
-    smdResistor: "https://picsum.photos/seed/smd-resistor/600/600",
-    capacitorBank: "https://picsum.photos/seed/capacitor-bank/600/600",
-    panelMeter: "https://picsum.photos/seed/panel-meter/600/600",
-    encoder: "https://picsum.photos/seed/rotary-encoder/600/600",
-    plcModule: "https://picsum.photos/seed/plc-module/600/600",
-    coolingFan: "https://picsum.photos/seed/industrial-fan/600/600"
-  };
-
-  const products = [
-    {
-      id: 1,
-      name: "Advanced Industrial Optical Sensor Module",
-      priceRange: { min: 1.20, max: 1.50 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 500,
-      supplier: "Shenzhen Tech Manufacturing",
-      category: "Sensors",
-      tag: "Hot Sale",
-      image: productImages.sensorModule,
-      imageAlt: "Industrial optical sensor module PCB"
-    },
-    {
-      id: 2,
-      name: "Custom Multi-Layer PCB Assembly with Lead-Free Finish",
-      priceRange: { min: 0.45, max: 0.85 },
-      currency: "USD",
-      unit: "piece",
-      minOrder: 1000,
-      supplier: "Precision Circuits Ltd.",
-      category: "PCBs",
-      image: productImages.pcbAssembly,
-      imageAlt: "Multi-layer PCB close-up"
-    },
-    {
-      id: 3,
-      name: "Heavy Duty Waterproof Connector IP68",
-      priceRange: { min: 5.50, max: 7.20 },
-      currency: "USD",
-      unit: "pair",
-      minOrder: 200,
-      supplier: "Global Connect Solutions",
-      category: "Connectors",
-      image: productImages.waterproofConnector,
-      imageAlt: "Gold-plated waterproof connectors"
-    },
-    {
-      id: 4,
-      name: "Digital Multimeter High Accuracy for Maintenance Engineers",
-      priceRange: { min: 32.00, max: 45.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 10,
-      supplier: "Industrial Tooling Corp",
-      category: "Testing Equipment",
-      image: productImages.multimeter,
-      imageAlt: "Digital multimeter with probes"
-    },
-    {
-      id: 5,
-      name: "CNC Machined Aluminum Heat Sink with Blue Anodized Coating",
-      priceRange: { min: 2.10, max: 3.40 },
-      currency: "USD",
-      unit: "piece",
-      minOrder: 300,
-      supplier: "Eastern Machining Hub",
-      category: "Thermal Management",
-      image: productImages.heatSink,
-      imageAlt: "Aluminum heat sink component"
-    },
-    {
-      id: 6,
-      name: "Ultra-Bright LED Matrix Display for Machine Information Panels",
-      priceRange: { min: 8.80, max: 12.50 },
-      currency: "USD",
-      unit: "set",
-      minOrder: 50,
-      supplier: "Lumin Optoelectronics",
-      category: "Displays",
-      image: productImages.ledDisplay,
-      imageAlt: "LED matrix display module"
-    },
-    {
-      id: 7,
-      name: "Inductive Proximity Sensor M12 Housing",
-      priceRange: { min: 3.20, max: 4.80 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 200,
-      supplier: "SenseCore Automation",
-      category: "Sensors",
-      image: productImages.proximitySensor,
-      imageAlt: "Inductive proximity sensor"
-    },
-    {
-      id: 8,
-      name: "Industrial Switching Power Supply 24V",
-      priceRange: { min: 18.00, max: 25.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 20,
-      supplier: "VoltEdge Systems",
-      category: "Power Supplies",
-      image: productImages.powerSupply,
-      imageAlt: "Industrial power supply unit"
-    },
-    {
-      id: 9,
-      name: "8-Channel Relay Control Module",
-      priceRange: { min: 4.50, max: 6.00 },
-      currency: "USD",
-      unit: "board",
-      minOrder: 100,
-      supplier: "ControlLogic Ltd.",
-      category: "Control Modules",
-      image: productImages.relayModule,
-      imageAlt: "Relay control module PCB"
-    },
-    {
-      id: 10,
-      name: "Industrial Touch Control Panel HMI",
-      priceRange: { min: 95.00, max: 130.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 5,
-      supplier: "HMI Systems Co.",
-      category: "Automation",
-      image: productImages.controlPanel,
-      imageAlt: "Industrial HMI control panel"
-    },
-    {
-      id: 11,
-      name: "Custom Industrial Cable Harness Assembly",
-      priceRange: { min: 6.00, max: 9.50 },
-      currency: "USD",
-      unit: "set",
-      minOrder: 100,
-      supplier: "WireTech Assemblies",
-      category: "Cables",
-      image: productImages.cableHarness,
-      imageAlt: "Industrial cable harness"
-    },
-    {
-      id: 12,
-      name: "DIN Rail Terminal Block Connector",
-      priceRange: { min: 0.60, max: 1.10 },
-      currency: "USD",
-      unit: "piece",
-      minOrder: 1000,
-      supplier: "ConnectPro Manufacturing",
-      category: "Connectors",
-      image: productImages.terminalBlock,
-      imageAlt: "Terminal block connector"
-    },
-    {
-      id: 13,
-      name: "Industrial Ethernet Network Switch",
-      priceRange: { min: 55.00, max: 75.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 10,
-      supplier: "NetWorks Industrial",
-      category: "Networking",
-      image: productImages.industrialSwitch,
-      imageAlt: "Industrial ethernet switch"
-    },
-    {
-      id: 14,
-      name: "High Power DC Motor Driver Module",
-      priceRange: { min: 14.00, max: 19.50 },
-      currency: "USD",
-      unit: "board",
-      minOrder: 50,
-      supplier: "MotionDrive Tech",
-      category: "Motor Control",
-      image: productImages.motorDriver,
-      imageAlt: "Motor driver module"
-    },
-    {
-      id: 15,
-      name: "SMD Resistor Assortment Kit",
-      priceRange: { min: 3.00, max: 5.00 },
-      currency: "USD",
-      unit: "kit",
-      minOrder: 100,
-      supplier: "PassiveParts Co.",
-      category: "Electronic Components",
-      image: productImages.smdResistor,
-      imageAlt: "SMD resistor assortment"
-    },
-    {
-      id: 16,
-      name: "High Voltage Capacitor Bank Module",
-      priceRange: { min: 22.00, max: 30.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 20,
-      supplier: "Capacitek Industries",
-      category: "Electronic Components",
-      image: productImages.capacitorBank,
-      imageAlt: "Capacitor bank module"
-    },
-    {
-      id: 17,
-      name: "Digital Panel Meter Voltage Display",
-      priceRange: { min: 6.50, max: 9.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 100,
-      supplier: "MeterWorks Ltd.",
-      category: "Displays",
-      image: productImages.panelMeter,
-      imageAlt: "Digital panel meter"
-    },
-    {
-      id: 18,
-      name: "Incremental Rotary Encoder Industrial Grade",
-      priceRange: { min: 12.00, max: 16.50 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 50,
-      supplier: "EncoderTech",
-      category: "Sensors",
-      image: productImages.encoder,
-      imageAlt: "Rotary encoder sensor"
-    },
-    {
-      id: 19,
-      name: "PLC Expansion I/O Module",
-      priceRange: { min: 38.00, max: 52.00 },
-      currency: "USD",
-      unit: "module",
-      minOrder: 10,
-      supplier: "AutoLogic Systems",
-      category: "Automation",
-      image: productImages.plcModule,
-      imageAlt: "PLC I/O expansion module"
-    },
-    {
-      id: 20,
-      name: "Industrial Cooling Fan 120mm",
-      priceRange: { min: 4.80, max: 7.00 },
-      currency: "USD",
-      unit: "unit",
-      minOrder: 100,
-      supplier: "CoolFlow Manufacturing",
-      category: "Thermal Management",
-      image: productImages.coolingFan,
-      imageAlt: "Industrial cooling fan"
-    }
-  ];
-
-  if (!products || products.length === 0) {
+  if (!allBales || allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;
   }
 
   // FILTER before pagination
-  const filteredData = products.filter((row) => {
+  const filteredData = allBales.filter((row) => {
     // check first 2 available columns
-    const col1 = row.name.toLowerCase() || "";
-    const col2 = row.supplier.toLowerCase() || "";
+    const col1 = row.product.name.toLowerCase() || "";
+    const col2 = row.product.description.toLowerCase() || "";
 
     return (
       col1.includes(searchQuery.toLowerCase()) ||
@@ -466,41 +199,50 @@ const Products = () => {
               </div>
             </div>
             <div className="p-4 rounded-xl bg-(--bg-surface)">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-8">
-                {
-                  visibleData.map((product, index) => (
-                    <Card
-                      key={product.id}
-                      className='p-0!'
-                    >
-                      <Image src={product.image} alt='' width={0} height={0} className='w-full aspect-square rounded-t-2xl' />
-                      <div className="p-2 md:p-4">
-                        <p className="md:text-lg font-bold line-clamp-2">{product.name}</p>
-                        <div className="mt-1">
-                          <div className="flex flex-wrap items-center md:gap-2">
-                            <p className="text-lg md:text-2xl text-(--primary) font-bold">${product.priceRange.min} - ${product.priceRange.max}</p>
-                            <p className="text-(--text-muted) text-xs">/ unit</p>
+              {
+                isPending ?
+                <div className="flex justify-center items-center w-full my-16">
+                  <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
+                </div> :
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-8">
+                    {
+                      visibleData.map(bale => (
+                        <Card
+                          key={bale.id}
+                          className='p-0!'
+                        >
+                          <Image src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 aspect-square rounded-t-2xl object-cover' unoptimized />
+                          <div className="p-2 md:p-4">
+                            <p className="md:text-lg font-bold truncate">{bale.product.name}</p>
+                            <div className="mt-1">
+                              <div className="flex flex-wrap items-end">
+                                <p className="text-lg md:text-2xl text-(--primary) font-bold">&#8358;{bale.price}</p>
+                                <p className="text-(--text-muted) line-through">&#8358;{bale.oldPrice}</p>
+                              </div>
+                              <p className="uppercase text-sm hidden md:block">Unit Price (At Goal)</p>
+                            </div>
+                            <div className="my-2">
+                              <div className="flex justify-between flex-wrap">
+                                <p className="font-bold text-sm hidden md:block">Goal: {bale.quantity} units</p>
+                                <p className="font-bold text-(--primary) text-sm">{Math.ceil((bale.filledSlot / bale.slot) * 100)}% joined</p>
+                              </div>
+                              <Progress
+                                totalQty={bale.slot}
+                                currentQty={bale.filledSlot}
+                                className='my-0!'
+                              />
+                            </div>
+                            <Link href={`/products/${bale.id}`}>
+                              <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
+                                Join Pool
+                              </Button>
+                            </Link>
                           </div>
-                        </div>
-                        <div className="md:my-2">
-                          <div className="flex justify-between flex-wrap">
-                            <p className="font-bold text-sm">Min Order: {product.minOrder} units</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-1 items-center">
-                          <p className="font-bold text-sm truncate">{product.supplier}</p>
-                          <RiCheckboxCircleFill size={12} className="text-(--primary)" />
-                        </div>
-                        <Link href={`/products/${product.id}`}>
-                          <Button primary isFullWidth className='mt-2 py-2! md:py-3! rounded-xl! md:rounded-2xl!'>
-                            View Product
-                          </Button>
-                        </Link>
-                      </div>
-                    </Card>
-                  ))
-                }
-              </div>
+                        </Card>
+                      ))
+                    }
+                  </div>
+              }
             </div>
             <Pagination
               currentPage={currentPage}

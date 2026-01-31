@@ -18,7 +18,3 @@ export const useLoginMutation = () => {
     },
   });
 };
-
-export const useProfileMutation = () => {
-  
-}

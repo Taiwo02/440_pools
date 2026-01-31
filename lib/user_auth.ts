@@ -29,9 +29,6 @@ userHttp.interceptors.request.use((config) => {
 
   startProgress();
 
-  const token = '';
-  if (token) config.headers.authorization = `Bearer ${token}`;
-
   return config;
 });
 
