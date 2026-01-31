@@ -1,21 +1,123 @@
-import { Badge, Button } from '@/components/ui'
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@/components/ui/table/TableWrapper'
+"use client"
+
+import { Badge, Button, Card, Input } from '@/components/ui'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 import { BsGraphDownArrow } from 'react-icons/bs'
-import { LuGitGraph } from 'react-icons/lu'
 import { RiArrowRightLine, RiCheckboxCircleFill, RiCurrencyFill, RiMessage2Line, RiShieldCheckFill } from 'react-icons/ri'
 
 const Cart = () => {
   const image = "https://picsum.photos/seed/sensor-module/600/600"
+  const [formValues, setFormValues] = useState({
+    quantity: 0
+  })
+  
+  const cartItems = [
+    {
+      cartItemId: "cart-001",
+      productId: 1,
+      name: "Advanced Industrial Optical Sensor Module",
+      image: "https://picsum.photos/seed/sensor-module/300/300",
+      supplierId: "sup-001",
+
+      price: 1.35,
+      currency: "USD",
+      quantity: 500,
+      unit: "unit",
+
+      variants: {
+        size: "Standard",
+        color: "Black"
+      },
+
+      minOrder: 500,
+      subtotal: 675.00,
+      inStock: true
+    },
+    {
+      cartItemId: "cart-002",
+      productId: 4,
+      name: "Digital Multimeter High Accuracy for Maintenance Engineers",
+      image: "https://picsum.photos/seed/digital-multimeter/300/300",
+      supplierId: "sup-004",
+
+      price: 38.50,
+      currency: "USD",
+      quantity: 2,
+      unit: "unit",
+
+      variants: {
+        model: "DM-9205A"
+      },
+
+      minOrder: 1,
+      subtotal: 77.00,
+      inStock: true
+    },
+    {
+      cartItemId: "cart-003",
+      productId: 6,
+      name: "Ultra-Bright LED Matrix Display for Machine Information Panels",
+      image: "https://picsum.photos/seed/led-matrix-display/300/300",
+      supplierId: "sup-005",
+
+      price: 10.20,
+      currency: "USD",
+      quantity: 50,
+      unit: "set",
+
+      variants: {
+        resolution: "64×32",
+        color: "Red"
+      },
+
+      minOrder: 50,
+      subtotal: 510.00,
+      inStock: true
+    },
+    {
+      cartItemId: "cart-004",
+      productId: 12,
+      name: "DIN Rail Terminal Block Connector",
+      image: "https://picsum.photos/seed/terminal-block/300/300",
+      supplierId: "sup-003",
+
+      price: 0.85,
+      currency: "USD",
+      quantity: 1000,
+      unit: "piece",
+
+      variants: {
+        pitch: "5.08mm"
+      },
+
+      minOrder: 1000,
+      subtotal: 850.00,
+      inStock: false
+    }
+  ];
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+
+    setFormValues(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   return (
     <section className='pt-24 mb-10 md:mb-16'>
       <div className="px-4 md:px-10 lg:px-20">
         <div className="flex flex-col md:flex-row gap-4 justify-between md:items-end">
           <div>
             <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
-            <p className='text-(--primary)/80'>3 items from 2 suppliers</p>
+            <p className='text-(--primary)/80'>3 item(s)</p>
           </div>
           <div className="flex gap-2 items-center">
             <Button className='bg-red-800'>
@@ -28,138 +130,68 @@ const Cart = () => {
         </div>
         <div className="flex flex-col lg:flex-row gap-8 my-4">
           <div className="w-full lg:basis-3/4 flex flex-col gap-4">
-            <div className="rounded-xl bg-(--bg-surface) mb-4">
-              <div className="py-4 px-6 flex flex-col md:flex-row justify-between md:items-center">
-                <div className="flex gap-2 items-center">
-                  <p className="md:text-xl font-bold">Global Manufacturing Ltd.</p>
-                  <Badge secondary>
-                    Verified
-                  </Badge>
-                </div>
-                <Link href={''} className='text-(--primary) flex items-center gap-2 font-bold'>
-                  Contact Supplier
-                  <RiMessage2Line />
-                </Link>
-              </div>
-              <Table aria-label='Cart Table' selectable>
-                <TableHeader>
-                  <TableRow>
-                    <TableColumn checkbox rowIds={[]} />
-                    <TableColumn>Product</TableColumn>
-                    <TableColumn>Specifications</TableColumn>
-                    <TableColumn>Price Per Unit</TableColumn>
-                    <TableColumn>Quantity</TableColumn>
-                    <TableColumn>Total</TableColumn>
-                    <TableColumn>MOQ Status</TableColumn>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell checkbox rowId={0} />
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Image src={image} alt='' width={0} height={0} className='hidden lg:block w-10 aspect-square rounded-lg object-cover' />
-                        Heavy Duty Industrial Steel Valves
+            <div className="rounded-xl bg-(--bg-surface) mb-4 p-4">
+              {
+                cartItems.map(item => (
+                  <Card className='py-2! px-3! mb-3 shadow-none! rounded-lg! flex justify-between'>
+                    <div className="flex gap-2 items-center">
+                      <Image src={item.image} alt='' width={0} height={0} className='w-15 aspect-square object-cover rounded' />
+                      <div>
+                        <p>
+                          {item.name}
+                        </p>
+                        <div className="flex gap-3">
+                          <Button className='py-2! px-3! text-xs! rounded-lg! bg-red-500!'>
+                            Remove
+                          </Button>
+                          <Button className='py-2! px-3! text-xs! rounded-lg!'>
+                            Update
+                          </Button>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>Grade G30, 250PSI</TableCell>
-                    <TableCell>$45</TableCell>
-                    <TableCell>
-                      <input
-                        type='number'
-                        className='p-2 border border-(--border-default) w-40'
-                        defaultValue={100}
-                      />
-                    </TableCell>
-                    <TableCell>$4500</TableCell>
-                    <TableCell>
-                      <Badge className='inline-flex items-center gap-1' success>
-                        <RiCheckboxCircleFill />
-                        Met
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell checkbox rowId={0} />
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Image src={image} alt='' width={0} height={0} className='hidden lg:block w-10 aspect-square rounded-lg object-cover' />
-                        Heavy Duty Industrial Steel Valves
+                    </div>
+                    <div className="text-end">
+                      <p className="text-xl font-bold">${item.price}</p>
+                      <div className="flex items-stretch">
+                        <Button
+                          className="rounded-r-none rounded-l-xl! py-2! px-4!"
+                          disabled={Boolean(formValues.quantity == 0)}
+                          onClick={() =>
+                            setFormValues(prev => ({
+                              ...prev,
+                              quantity: prev.quantity == 0 ? 0 : prev.quantity - 1
+                            }))
+                          }
+                          primary
+                        >
+                          -
+                        </Button>
+                        <Input
+                          element="input"
+                          input_type="text"
+                          name="quantity"
+                          value={formValues.quantity}
+                          handler={handleChange}
+                          genStyle="my-0!"
+                          styling="rounded-none p-2! focus:outline-none! disabled w-20!"
+                        />
+                        <Button
+                          className="rounded-l-none rounded-r-xl! py-2! px-4!"
+                          onClick={() =>
+                            setFormValues(prev => ({
+                              ...prev,
+                              quantity: prev.quantity + 1
+                            }))
+                          }
+                          primary
+                        >
+                          +
+                        </Button>
                       </div>
-                    </TableCell>
-                    <TableCell>Grade G30, 250PSI</TableCell>
-                    <TableCell>$45</TableCell>
-                    <TableCell>
-                      <input
-                        type='number'
-                        className='p-2 border border-(--border-default) w-40'
-                        defaultValue={100}
-                      />
-                    </TableCell>
-                    <TableCell>$4500</TableCell>
-                    <TableCell>
-                      <Badge className='inline-flex items-center gap-1' success>
-                        <RiCheckboxCircleFill />
-                        Met
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-            <div className="rounded-xl bg-(--bg-surface) mb-4">
-              <div className="py-4 px-6 flex flex-col md:flex-row justify-between md:items-center">
-                <div className="flex gap-2 items-center">
-                  <p className="md:text-xl font-bold">Shenzhen Tech Solutions</p>
-                  <Badge>
-                    Unverified
-                  </Badge>
-                </div>
-                <Link href={''} className='text-(--primary) flex items-center gap-2 font-bold'>
-                  Contact Supplier
-                  <RiMessage2Line />
-                </Link>
-              </div>
-              <Table aria-label='Cart Table' selectable>
-                <TableHeader>
-                  <TableRow>
-                    <TableColumn checkbox rowIds={[]} />
-                    <TableColumn>Product</TableColumn>
-                    <TableColumn>Specifications</TableColumn>
-                    <TableColumn>Price Per Unit</TableColumn>
-                    <TableColumn>Quantity</TableColumn>
-                    <TableColumn>Total</TableColumn>
-                    <TableColumn>MOQ Status</TableColumn>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell checkbox rowId={0} />
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Image src={image} alt='' width={0} height={0} className='hidden lg:block w-10 aspect-square rounded-lg object-cover' />
-                        Heavy Duty Industrial Steel Valves
-                      </div>
-                    </TableCell>
-                    <TableCell>Grade G30, 250PSI</TableCell>
-                    <TableCell>$45</TableCell>
-                    <TableCell>
-                      <input 
-                        type='number' 
-                        className='p-2 border border-(--border-default) w-40' 
-                        defaultValue={100}
-                      />
-                    </TableCell>
-                    <TableCell>$4500</TableCell>
-                    <TableCell>
-                      <Badge className='inline-flex items-center gap-1' success>
-                        <RiCheckboxCircleFill />
-                        Met
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                    </div>
+                  </Card>
+                ))
+              }
             </div>
           </div>
           <div className="w-full lg:basis-1/4 flex flex-col">

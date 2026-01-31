@@ -18,6 +18,7 @@ type Props = {
   selectOptions?: string[];
   radioOptions?: string[];
   checkboxOptions?: string[];
+  invisible?: boolean;
 
   styling?: string;
   genStyle?: string
@@ -36,10 +37,11 @@ const Input = ({
   radioOptions = [],
   checkboxOptions = [],
   styling = "",
-  genStyle = ""
+  genStyle = "",
+  invisible = false
 }: Props) => {
   const [visible, setVisible] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // const inputRef = useRef<HTMLInputElement>(null);
 
   const togglePassword = () => {
     setVisible((prev) => !prev);
@@ -124,11 +126,11 @@ const Input = ({
               return (
                 <label
                   key={option}
-                  className={`w-fit border rounded-md p-3 cursor-pointer transition flex items-center gap-3
+                  className={cn(`${invisible ? 'w-10 h-10' : 'w-fit h-auto'} border rounded-md p-3 cursor-pointer transition flex items-center gap-3
                   ${checked
-                      ? "border-(--primary) bg-(--primary) text-white"
+                    ? `${invisible && 'border-5'} border-(--primary) bg-(--primary) text-white`
                       : "border-gray-300 hover:border-(--primary)"
-                    }`}
+                    }`, styling)}
                 >
                   <input
                     type="checkbox"
@@ -138,7 +140,7 @@ const Input = ({
                     onChange={handler}
                     className="hidden"
                   />
-                  <span className="capitalize">{option}</span>
+                  <span className={`${invisible && 'invisible'} capitalize`}>{option}</span>
                 </label>
               );
             })
