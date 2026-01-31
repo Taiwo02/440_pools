@@ -133,7 +133,7 @@ const Cart = () => {
             <div className="rounded-xl bg-(--bg-surface) mb-4 p-4">
               {
                 cartItems.map(item => (
-                  <Card className='py-2! px-3! mb-3 shadow-none! rounded-lg! flex justify-between'>
+                  <Card key={item.cartItemId} className='py-2! px-3! mb-3 shadow-none! rounded-lg! flex justify-between'>
                     <div className="flex gap-2 items-center">
                       <Image src={item.image} alt='' width={0} height={0} className='w-15 aspect-square object-cover rounded' />
                       <div>

@@ -7,7 +7,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "picsum.photos"
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "static.nike.com",
+        pathname: "/**",
+      },
     ]
   }
 };
