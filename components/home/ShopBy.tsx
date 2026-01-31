@@ -42,17 +42,17 @@ const ShopBy = () => {
   ];
 
   return (
-    <section className='hidden md:block my-20'>
+    <section className='hidden md:block my-10'>
       <div className="px-8 md:px-10 lg:px-20">
-        <h2 className="text-2xl lg:text-3xl">Shop By Industry</h2>
+        <h2 className="text-2xl lg:text-2xl">Shop By Industry</h2>
         <div className="grid grid-cols-2 lg:grid-cols-7 gap-4 my-4">
           {
             industries.map(industry => (
-              <Card key={industry.id} className='text-center aspect-square flex flex-col justify-center items-center gap-2 shadow-sm!'>
+              <Card key={industry.id} className='text-center flex flex-col  items-center gap-2 shadow-sm!'>
                 <div className="p-4 w-fit mx-auto bg-(--primary-soft)/50 rounded-xl">
                   { industry.icon }
                 </div>
-                <p className="text-lg font-bold">{ industry.name }</p>
+                <p className="text-md font-bold">{ industry.name }</p>
               </Card>
             ))
           }

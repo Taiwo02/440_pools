@@ -17,7 +17,7 @@ const ProductsSection = () => {
   }, [allBales]);
 
   return (
-    <section className='my-10 md:my-20'>
+    <section className='my-8 md:my-8'>
       <div className="px-4 md:px-10 lg:px-20">
         <div className="flex flex-col md:flex-row justify-between md:items-end">
           <div>
