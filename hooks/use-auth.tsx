@@ -54,7 +54,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.clear();
     deleteCrossSubdomainCookie("token");
     localStorage.removeItem("merchant");
     window.location.reload();

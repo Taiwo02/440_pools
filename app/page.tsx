@@ -7,13 +7,13 @@ import { Footer, Navbar } from "@/components/core";
 export default function Home() {
   return (
     <>
-      <header className="h-100 md:h-110 relative">
+      <header className="h-90 md:h-100 relative">
         <Image src={BG} alt="" className="w-full h-full object-cover" />
         <div className="w-full h-full bg-black/50 absolute top-0 left-0 flex flex-col justify-center px-4 lg:px-20 text-white pt-20">
-          <h1 className="text-4xl lg:text-6xl">
+          <h1 className="text-3xl lg:text-5xl">
             Efficient <br /> <span className="text-(--primary)">Bulk Purchasing</span> <br /> Solutions
           </h1>
-          <p className="my-2 lg:my-3 md:text-xl max-w-150 font-light">
+          <p className="my-2 lg:my-3 max-w-150 font-light">
             Connect with verified global manufacturers. Reduce costs by up to 40% with high-volume procurement and consolidated shipping
           </p>
           <div className="flex items-center gap-4">
