@@ -7,7 +7,7 @@ import { Footer, Navbar } from "@/components/core";
 export default function Home() {
   return (
     <>
-      <header className="h-100 md:h-140 relative">
+      <header className="h-100 md:h-110 relative">
         <Image src={BG} alt="" className="w-full h-full object-cover" />
         <div className="w-full h-full bg-black/50 absolute top-0 left-0 flex flex-col justify-center px-4 lg:px-20 text-white pt-20">
           <h1 className="text-4xl lg:text-6xl">
