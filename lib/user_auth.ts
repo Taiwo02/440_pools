@@ -1,5 +1,6 @@
 import axios from "axios";
 import NProgress from "nprogress";
+import { getCrossSubdomainCookie } from "./utils";
 
 let activeRequests = 0;
 
@@ -26,10 +27,13 @@ export const userHttp = axios.create({
 
 userHttp.interceptors.request.use((config) => {
   if ((config as any).intercept === false) return config;
-
-  startProgress();
-
-  return config;
+  
+    startProgress();
+  
+    const token = getCrossSubdomainCookie("440_token");
+    if (token) config.headers.authorization = `Bearer ${token}`;
+  
+    return config;
 });
 
 // Response interceptor to stop progress

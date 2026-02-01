@@ -10,7 +10,8 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "shop.4401.live"
+        hostname: "shop.4401.live",
+        pathname: "/**"
       },
       {
         protocol: "https",
@@ -18,7 +19,8 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cbu01.alicdn.com"
+        hostname: "cbu01.alicdn.com",
+        pathname: "/**"
       },
       {
         protocol: "https",

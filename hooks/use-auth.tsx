@@ -49,12 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setAuthenticated(true);
     if (data.token) {
-      setCrossSubdomainCookie("token", data.token, 30);
+      setCrossSubdomainCookie("440_token", data.token, 30);
     }
   };
 
   const logout = () => {
-    deleteCrossSubdomainCookie("token");
+    deleteCrossSubdomainCookie("440_token");
     localStorage.removeItem("merchant");
     window.location.reload();
   }

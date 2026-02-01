@@ -12,7 +12,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
     <div className="p-4 md:p-6 rounded-xl md:mb-8 bg-[--bg-surface]">
       {/* Main image */}
       <div className="mb-4">
-        <Image
+        <img
           src={mainImage}
           alt="Product image"
           width={0}
@@ -30,7 +30,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
               }`}
             onClick={() => setMainImage(image)}
           >
-            <Image
+            <img
               src={image}
               alt={`Thumbnail ${index + 1}`}
               width={0}

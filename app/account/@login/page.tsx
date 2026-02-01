@@ -8,13 +8,27 @@ import { Login } from '@/types/types'
 import { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 
 const AccountLogin = () => {
   const [formValues, setFormValues] = useState<Login>({
     phone: '',
     password: ''
   });
+
+  useEffect(() => {
+    const shouldToast = sessionStorage.getItem("showLoginToast");
+
+    if (shouldToast) {
+      toast({
+        title: "Login required",
+        description: "Please log in to join the pool.",
+        variant: "warning"
+      });
+
+      sessionStorage.removeItem("showLoginToast");
+    }
+  }, []);
 
   const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
   const { toast } = useToast();

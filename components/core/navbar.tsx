@@ -127,7 +127,7 @@ const Navbar = () => {
     <nav className='fixed w-full z-50 shadow-sm'>
       <div className='bg-(--bg-surface) py-2 px-4 md:px-20 flex gap-12 items-center justify-between'>
         <Link href={'/'} className="text-2xl font-bold shrink-0">
-          <Image src="https://shop.4401.live/img/logos/440_Logo_GS-removebg.png" alt="" width={70} height={70} />
+          <img src="https://shop.4401.live/img/logos/440_Logo_GS-removebg.png" alt="" width={70} height={70} />
         </Link>
         <form className="hidden lg:flex items-stretch flex-1 min-w-0 border-2 border-(--primary) rounded-full">
           <Dropdown
