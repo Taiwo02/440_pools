@@ -36,17 +36,17 @@ const AccountLogin = () => {
   const router = useRouter();
 
   const handleChange = (
-    e: React.ChangeEvent
+    e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    setFormValues(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  setFormValues(prevData => ({
+    ...prevData,
+    [name]: value,
+  }));
+};
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

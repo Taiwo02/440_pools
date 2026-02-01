@@ -100,10 +100,10 @@ const ProductDetails = () => {
 
   return (
     <section className='pt-24 mb-10 md:mb-16'>
-      <div className="px-4 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
+      <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
         <div className="flex flex-col md:flex-row gap-8 items-start w-full">
           <div className="w-full md:basis-1/2 lg:basis-4/5">
-            <div className="bg-(--bg-surface) p-4 md:p-6 rounded-xl md:mb-8">
+            <div className="bg-(--bg-surface) p-2 md:p-6 rounded-xl md:mb-8">
               <ProductImages 
                 imageList={imageList} 
               />
