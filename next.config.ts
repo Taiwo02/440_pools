@@ -10,15 +10,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "shop.4401.live"
-      },
-      {
-        protocol: "https",
         hostname: "images.unsplash.com"
       },
       {
         protocol: "https",
-        hostname: "cbu01.alicdn.com"
+        hostname: "cbu01.alicdn.com",
+        pathname: "/**"
       },
       {
         protocol: "https",

@@ -1,3 +1,5 @@
+import { CartItem } from "@/types/types";
+
 export const setCrossSubdomainCookie = (
   name: string,
   value: string,
@@ -25,4 +27,15 @@ export const getCrossSubdomainCookie = (name: string): string | null => {
 
 export const deleteCrossSubdomainCookie = (name: string): void => {
   setCrossSubdomainCookie(name, "", -1);
+};
+
+const CART_KEY = "cart";
+
+export const getStoredCart = (): CartItem[] => {
+  if (typeof window === "undefined") return [];
+  return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+};
+
+export const setStoredCart = (cart: CartItem[]) => {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
 };

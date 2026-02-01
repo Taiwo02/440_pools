@@ -5,9 +5,10 @@ import ProductImages from "@/components/product/ImageGallery"
 import Countdown from "@/components/shared/Countdown"
 import { Alert, Badge, Button, Input, Progress } from "@/components/ui"
 import { Tabs } from "@/components/ui/tabs"
+import { getCrossSubdomainCookie } from "@/lib/utils"
 import { Bale } from "@/types/types"
 import Image from "next/image"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect, useEffectEvent, useRef, useState } from "react"
 import { RiGroup2Fill, RiGroupFill, RiLoader5Line, RiRocket2Fill, RiShieldCheckFill, RiShip2Fill, RiStarFill, RiStarHalfFill, RiTimeFill } from "react-icons/ri"
 
@@ -21,9 +22,7 @@ const ProductDetails = () => {
   const params = useParams<{ productId: string }>();
   const id = params?.productId;
   const { data: baleData, isPending, error } = useGetSingleBale(id as string);
-  const [mainImage, setMainImage] = useState<string | null>(null);
-
-  const imageRef = useRef(null!);
+  const router = useRouter();
 
   useEffect(() => {
     if(baleData) console.log(baleData);
@@ -71,6 +70,14 @@ const ProductDetails = () => {
     return price.toLocaleString("en-US", { maximumFractionDigits: 0 })
   }
 
+  const joinPool = () => {
+    const token = getCrossSubdomainCookie("440_token");
+    if(!token){
+      sessionStorage.setItem("showLoginToast", "true");
+      router.push('/account');
+    } 
+  }
+
   // const colorsInput = ["red", "white", "black", "yellow"];
 
   if(isPending) {
@@ -93,10 +100,10 @@ const ProductDetails = () => {
 
   return (
     <section className='pt-24 mb-10 md:mb-16'>
-      <div className="px-4 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
+      <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
         <div className="flex flex-col md:flex-row gap-8 items-start w-full">
           <div className="w-full md:basis-1/2 lg:basis-4/5">
-            <div className="bg-(--bg-surface) p-4 md:p-6 rounded-xl md:mb-8">
+            <div className="bg-(--bg-surface) p-2 md:p-6 rounded-xl md:mb-8">
               <ProductImages 
                 imageList={imageList} 
               />
@@ -356,7 +363,7 @@ const ProductDetails = () => {
               </Tabs>
             </div>
             <div className="mb-4 flex gap-4 items-center">
-              <Button primary className="uppercase flex gap-2 items-center">
+              <Button primary className="uppercase flex gap-2 items-center" onClick={joinPool}>
                 <RiRocket2Fill className="hidden md:block" />
                 Join Pool
               </Button>

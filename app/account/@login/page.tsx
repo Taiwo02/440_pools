@@ -8,7 +8,7 @@ import { Login } from '@/types/types'
 import { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 
 const AccountLogin = () => {
   const [formValues, setFormValues] = useState<Login>({
@@ -16,23 +16,37 @@ const AccountLogin = () => {
     password: ''
   });
 
+  useEffect(() => {
+    const shouldToast = sessionStorage.getItem("showLoginToast");
+
+    if (shouldToast) {
+      toast({
+        title: "Login required",
+        description: "Please log in to join the pool.",
+        variant: "warning"
+      });
+
+      sessionStorage.removeItem("showLoginToast");
+    }
+  }, []);
+
   const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
   const { toast } = useToast();
   const { authenticate } = useAuth();
   const router = useRouter();
 
   const handleChange = (
-    e: React.ChangeEvent
+    e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    setFormValues(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  setFormValues(prevData => ({
+    ...prevData,
+    [name]: value,
+  }));
+};
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

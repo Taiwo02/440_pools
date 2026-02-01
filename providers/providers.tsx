@@ -1,27 +1,34 @@
-"use client"
+"use client";
 
-import { ToastProvider } from "@/components/ui/toast/ToastContext";
-import { AuthProvider } from "@/hooks/use-auth";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 2,
-    },
-  },
-});
+import { AuthProvider } from "@/hooks/use-auth";
+import { CartProvider } from "@/hooks/use-cart";
+import { ToastProvider } from "@/components/ui/toast/ToastContext";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 2,
+          },
+        },
+      })
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ToastProvider placement="bottom-right">
-          {children}
-        </ToastProvider>
+        <CartProvider>
+          <ToastProvider placement="bottom-right">
+            {children}
+          </ToastProvider>
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
-  )
-}
+  );
+};
 
-export default Providers
+export default Providers;

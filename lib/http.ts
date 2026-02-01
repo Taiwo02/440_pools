@@ -30,7 +30,7 @@ http.interceptors.request.use((config) => {
 
   startProgress();
 
-  const token = getCrossSubdomainCookie("token");
+  const token = getCrossSubdomainCookie("440_token");
   if (token) config.headers.authorization = `Bearer ${token}`;
 
   return config;
