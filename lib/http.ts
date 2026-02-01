@@ -1,5 +1,6 @@
 import axios from "axios";
 import NProgress from "nprogress";
+import { getCrossSubdomainCookie } from "./utils";
 
 let activeRequests = 0;
 
@@ -29,9 +30,8 @@ http.interceptors.request.use((config) => {
 
   startProgress();
 
-  // const token = getCrossSubdomainCookie("token");
-  // if (token) config.headers.authorization = `Bearer ${token}`;
-  // if (!token) logout();
+  const token = getCrossSubdomainCookie("token");
+  if (token) config.headers.authorization = `Bearer ${token}`;
 
   return config;
 });

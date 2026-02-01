@@ -1,7 +1,7 @@
 import { cn } from './utils'
 
 type AlertProps = {
-  children: string,
+  children: React.ReactNode,
   type: 'error' | 'success',
   className?: string
 }

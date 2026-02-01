@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "shop.4401.live"
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com"
+      },
+      {
+        protocol: "https",
+        hostname: "cbu01.alicdn.com"
+      },
+      {
+        protocol: "https",
         hostname: "static.nike.com",
         pathname: "/**",
       },
