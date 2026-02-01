@@ -36,7 +36,7 @@ const AccountLogin = () => {
   const router = useRouter();
 
   const handleChange = (
-    e: React.ChangeEvent<
+    e: React.ChangeEvent
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
@@ -71,7 +71,16 @@ const AccountLogin = () => {
 
         authenticate({ user, token });
 
-        router.replace("/account");
+        const redirectUrl = localStorage.getItem('redirectAfterLogin');
+        
+        if (redirectUrl) {
+          localStorage.removeItem('redirectAfterLogin');
+          
+          router.replace(redirectUrl);
+        } else {
+          router.replace("/account");
+        }
+        
         window.location.reload();
       } else {
         toast({
