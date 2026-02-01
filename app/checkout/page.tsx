@@ -3,7 +3,7 @@
 import { Button, Input } from '@/components/ui'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     RiArrowLeftLine,
     RiShieldCheckLine,
@@ -14,18 +14,51 @@ import {
     RiMailLine,
     RiUser3Line,
     RiBankCardLine,
-    RiCheckLine
+    RiCheckLine,
+    RiLoader4Line
 } from 'react-icons/ri'
 
+interface ProfileData {
+    account_name: string
+    address: string
+    phone: string
+    email: string
+}
+
+interface DeliveryPayload {
+    firstName: string
+    LastName: string
+    countryCode: string
+    phone: string
+    additionalCountryCode: string
+    additionalPhone: string
+    address: string
+    additionalInfo: string
+    region: string
+    city: string
+    state: string
+    setDefault: boolean
+    merchantId: string
+}
+
 const Checkout = () => {
+    const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+    const [merchantId, setMerchantId] = useState<string>('')
+    
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
         phone: '',
+        countryCode: '+234',
+        additionalPhone: '',
+        additionalCountryCode: '+234',
         address: '',
+        additionalInfo: '',
         city: '',
         state: '',
+        region: '',
         zipCode: '',
         country: 'Nigeria',
 
@@ -36,6 +69,7 @@ const Checkout = () => {
         cvv: '',
 
         saveInfo: false,
+        setDefault: false,
         sameAsBilling: true
     })
 
@@ -58,6 +92,46 @@ const Checkout = () => {
         }
     ]
 
+    useEffect(() => {
+        const loadProfileData = () => {
+            try {
+                setLoading(true)
+                
+                const merchantData = localStorage.getItem('merchant')
+                
+                if (merchantData) {
+                    const data = JSON.parse(merchantData)
+                    
+                    if (data.status && data.completion_details) {
+                        const profile = data.completion_details
+                        
+                        const nameParts = profile.name?.trim().split(/\s+/) || []
+                        const firstName = nameParts[0] || ''
+                        const lastName = nameParts.slice(1).join(' ') || ''
+
+                        setFormData(prev => ({
+                            ...prev,
+                            firstName,
+                            lastName,
+                            phone: profile.phone?.replace(/^\+234/, '').replace(/^0/, '') || '',
+                            countryCode: '+234',
+                        }))
+
+                        if (data.merchant) {
+                            setMerchantId(data.merchant.toString())
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile from localStorage:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        loadProfileData()
+    }, [])
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target
         setFormData(prev => ({
@@ -66,10 +140,25 @@ const Checkout = () => {
         }))
     }
 
+    const handleSubmitOrder = async () => {
+     
+    }
+
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     const shipping = 2500
     const tax = subtotal * 0.075
     const total = subtotal + shipping + tax
+
+    if (loading) {
+        return (
+            <section className='min-h-screen pt-20 pb-16 md:pt-24 md:pb-20 bg-gray-50 flex items-center justify-center'>
+                <div className="flex flex-col items-center gap-3">
+                    <RiLoader4Line className="text-4xl text-(--primary) animate-spin" />
+                    <p className="text-gray-600">Loading checkout...</p>
+                </div>
+            </section>
+        )
+    }
 
     return (
         <section className='min-h-screen pt-20 pb-16 md:pt-24 md:pb-20 bg-gray-50'>
@@ -107,7 +196,7 @@ const Checkout = () => {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                First Name
+                                                First Name <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -116,6 +205,7 @@ const Checkout = () => {
                                                     name="firstName"
                                                     value={formData.firstName}
                                                     onChange={handleInputChange}
+                                                    required
                                                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                     placeholder="John"
                                                 />
@@ -123,7 +213,7 @@ const Checkout = () => {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                Last Name
+                                                Last Name <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -132,6 +222,7 @@ const Checkout = () => {
                                                     name="lastName"
                                                     value={formData.lastName}
                                                     onChange={handleInputChange}
+                                                    required
                                                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                     placeholder="Doe"
                                                 />
@@ -142,7 +233,7 @@ const Checkout = () => {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                Email Address
+                                                Email Address <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -151,6 +242,7 @@ const Checkout = () => {
                                                     name="email"
                                                     value={formData.email}
                                                     onChange={handleInputChange}
+                                                    required
                                                     className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                     placeholder="john.doe@example.com"
                                                 />
@@ -158,25 +250,69 @@ const Checkout = () => {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                Phone Number
+                                                Phone Number <span className="text-red-500">*</span>
                                             </label>
-                                            <div className="relative">
-                                                <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                                <input
-                                                    type="tel"
-                                                    name="phone"
-                                                    value={formData.phone}
+                                            <div className="relative flex gap-2">
+                                                <select
+                                                    name="countryCode"
+                                                    value={formData.countryCode}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                                    placeholder="+234 800 000 0000"
-                                                />
+                                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                                >
+                                                    <option value="+234">+234</option>
+                                                    <option value="+1">+1</option>
+                                                    <option value="+44">+44</option>
+                                                </select>
+                                                <div className="relative flex-1">
+                                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                    <input
+                                                        type="tel"
+                                                        name="phone"
+                                                        value={formData.phone}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                                        placeholder="8102637956"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                                                Additional Phone (Optional)
+                                            </label>
+                                            <div className="relative flex gap-2">
+                                                <select
+                                                    name="additionalCountryCode"
+                                                    value={formData.additionalCountryCode}
+                                                    onChange={handleInputChange}
+                                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                                >
+                                                    <option value="+234">+234</option>
+                                                    <option value="+1">+1</option>
+                                                    <option value="+44">+44</option>
+                                                </select>
+                                                <div className="relative flex-1">
+                                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                    <input
+                                                        type="tel"
+                                                        name="additionalPhone"
+                                                        value={formData.additionalPhone}
+                                                        onChange={handleInputChange}
+                                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                                        placeholder="9063786452"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-normal text-gray-700 mb-2">
-                                            Street Address
+                                            Street Address <span className="text-red-500">*</span>
                                         </label>
                                         <div className="relative">
                                             <RiMapPinLine className="absolute left-3 top-3 text-gray-400" />
@@ -185,50 +321,68 @@ const Checkout = () => {
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleInputChange}
+                                                required
                                                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                 placeholder="123 Main Street, Apartment 4B"
                                             />
                                         </div>
                                     </div>
 
+                                    <div>
+                                        <label className="block text-sm font-normal text-gray-700 mb-2">
+                                            Additional Information (Optional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="additionalInfo"
+                                            value={formData.additionalInfo}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                            placeholder="Landmark, special instructions, etc."
+                                        />
+                                    </div>
+
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                City
+                                                City <span className="text-red-500">*</span>
                                             </label>
                                             <input
                                                 type="text"
                                                 name="city"
                                                 value={formData.city}
                                                 onChange={handleInputChange}
+                                                required
                                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                 placeholder="Lagos"
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                State
+                                                State <span className="text-red-500">*</span>
                                             </label>
                                             <input
                                                 type="text"
                                                 name="state"
                                                 value={formData.state}
                                                 onChange={handleInputChange}
+                                                required
                                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                                 placeholder="Lagos"
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-normal text-gray-700 mb-2">
-                                                ZIP Code
+                                                Region <span className="text-red-500">*</span>
                                             </label>
                                             <input
                                                 type="text"
-                                                name="zipCode"
-                                                value={formData.zipCode}
+                                                name="region"
+                                                value={formData.region}
                                                 onChange={handleInputChange}
+                                                required
                                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                                placeholder="100001"
+                                                placeholder="Gbagada"
                                             />
                                         </div>
                                     </div>
@@ -259,17 +413,7 @@ const Checkout = () => {
                                             value="card"
                                             checked={formData.paymentMethod === 'card'}
                                             onChange={handleInputChange}
-                                            className="
-    w-5 h-5
-    appearance-none
-    rounded-full
-    border-2 border-gray-400
-    bg-white
-    checked:bg-orange-500
-    checked:border-orange-500
-    cursor-pointer
-    transition-all
-  "
+                                            className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
                                         />
                                         <div className="ml-3 flex items-center gap-3 flex-1">
                                             <RiBankCardLine className="text-gray-600 text-xl" />
@@ -293,17 +437,7 @@ const Checkout = () => {
                                             value="transfer"
                                             checked={formData.paymentMethod === 'transfer'}
                                             onChange={handleInputChange}
-                                            className="
-    w-5 h-5
-    appearance-none
-    rounded-full
-    border-2 border-gray-400
-    bg-white
-    checked:bg-orange-500
-    checked:border-orange-500
-    cursor-pointer
-    transition-all
-  "
+                                            className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
                                         />
                                         <div className="ml-3 flex items-center gap-3 flex-1">
                                             <RiSecurePaymentLine className="text-gray-600 text-xl" />
@@ -327,20 +461,8 @@ const Checkout = () => {
                                             value="wallet"
                                             checked={formData.paymentMethod === 'wallet'}
                                             onChange={handleInputChange}
-                                            className="
-    w-5 h-5
-    appearance-none
-    rounded-full
-    border-2 border-gray-400
-    bg-white
-    checked:bg-orange-500
-    checked:border-orange-500
-    cursor-pointer
-    transition-all
-  "
+                                            className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
                                         />
-
-
                                         <div className="ml-3 flex items-center gap-3 flex-1">
                                             <RiSecurePaymentLine className="text-gray-600 text-xl" />
                                             <div>
@@ -416,7 +538,7 @@ const Checkout = () => {
                                 )}
                             </div>
 
-                            <div className="rounded-lg bg-white border border-gray-200 p-5 sm:p-6">
+                            <div className="rounded-lg bg-white border border-gray-200 p-5 sm:p-6 space-y-3">
                                 <label className="flex items-start gap-3 cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -429,6 +551,22 @@ const Checkout = () => {
                                         <p className="text-sm font-medium text-gray-900">Save my information</p>
                                         <p className="text-xs text-gray-500 mt-1">
                                             Save my information for faster checkout next time
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="setDefault"
+                                        checked={formData.setDefault}
+                                        onChange={handleInputChange}
+                                        className="mt-1 w-4 h-4 text-blue-600 rounded"
+                                    />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">Set as default address</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Use this address as default for future orders
                                         </p>
                                     </div>
                                 </label>
@@ -517,10 +655,21 @@ const Checkout = () => {
 
                                 <Button
                                     primary
-                                    className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors'
+                                    onClick={handleSubmitOrder}
+                                    disabled={submitting}
+                                    className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                                 >
-                                    <RiCheckLine className="text-lg" />
-                                    Place Order
+                                    {submitting ? (
+                                        <>
+                                            <RiLoader4Line className="text-lg animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <RiCheckLine className="text-lg" />
+                                            Place Order
+                                        </>
+                                    )}
                                 </Button>
 
                                 <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">

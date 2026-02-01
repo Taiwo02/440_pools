@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Footer, Navbar } from "@/components/core";
 import Providers from "@/providers/providers";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: {
@@ -19,6 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <>
     <html lang="en" suppressHydrationWarning>
       <body
         className={`bg-(--bg-page) antialiased`}
@@ -37,5 +40,18 @@ export default function RootLayout({
         </Providers>
       </body>
     </html>
+  <ToastContainer
+  position="top-right"
+  autoClose={2000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  theme="light"
+/>
+    </>
   );
 }
