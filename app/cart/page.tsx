@@ -215,6 +215,7 @@ const Cart = () => {
                   </div> : 
                     cartItems.map(item => {
                       const slots = item.slots || 0;
+                      const minOrder = item.minOrder ||0
 
                       const removeItem = (id: string) => {
                         removeFromCart(id);
@@ -262,11 +263,11 @@ const Cart = () => {
                                       </span>
                                     ))}
                                   </div>
-                                  {/* {item?.minOrder > 1 && (
+                                  { minOrder > 1 && (
                                     <p className="text-xs text-left text-gray-500 mt-1">
-                                      Min. order: {item.minOrder} {item.unit}s
+                                      Min. order: {minOrder} {item.unit}s
                                     </p>
-                                  )} */}
+                                  )}
                                 </div>
                               </div>
                               <div className='text-end'>
