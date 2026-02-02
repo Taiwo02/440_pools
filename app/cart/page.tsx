@@ -262,11 +262,11 @@ const Cart = () => {
                                       </span>
                                     ))}
                                   </div>
-                                  {item?.minOrder > 1 && (
+                                  {/* {item?.minOrder > 1 && (
                                     <p className="text-xs text-left text-gray-500 mt-1">
                                       Min. order: {item.minOrder} {item.unit}s
                                     </p>
-                                  )}
+                                  )} */}
                                 </div>
                               </div>
                               <div className='text-end'>
