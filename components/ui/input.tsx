@@ -4,6 +4,12 @@ import { useRef, useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import { cn } from "./utils";
 
+type CheckboxOption = {
+  value: string;
+  label?: string;
+  node?: React.ReactNode;
+};
+
 type Props = {
   element: "input" | "select" | "textarea";
   input_type?: "text" | "email" | "password" | "radio" | "checkbox" | "number";
@@ -18,7 +24,7 @@ type Props = {
 
   selectOptions?: string[];
   radioOptions?: string[];
-  checkboxOptions?: string[];
+  checkboxOptions?: CheckboxOption[];
   invisible?: boolean;
 
   styling?: string;
@@ -119,52 +125,45 @@ const Input = ({
       )}
 
       {/* CHECKBOX (Single & Group) */}
-      {input_type === "checkbox" && (
+      {input_type === "checkbox" && checkboxOptions && (
         <div className="flex flex-wrap gap-2">
-          {checkboxOptions.length ? (
-            checkboxOptions.map((option: string) => {
-              const checked =
-                Array.isArray(value) && typeof value[0] === "string"
-                  ? (value as string[]).includes(option)
-                  : false;
+          {checkboxOptions.map(option => {
+            const checked =
+              input_type === "checkbox" &&
+              Array.isArray(value) &&
+              (value as string[]).includes(option.value);
 
-              return (
-                <label
-                  key={option}
-                  className={cn(`${invisible ? 'w-10 h-10' : 'w-fit h-auto'} border rounded-md p-3 cursor-pointer transition flex items-center gap-3
-                  ${checked
-                    ? `${invisible && 'border-5'} border-(--primary) bg-(--primary) text-white`
-                      : "border-gray-300 hover:border-(--primary)"
-                    }`, styling)}
-                >
-                  <input
-                    type="checkbox"
-                    name={name}
-                    value={option}
-                    checked={checked}
-                    onChange={handler}
-                    className="hidden"
-                    disabled={disabled}
-                  />
-                  <span className={`${invisible && 'invisible'} capitalize`}>{option}</span>
-                </label>
-              );
-            })
-          ) : (
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                name={name}
-                checked={Boolean(value)}
-                onChange={handler}
-                required={required}
+            return (
+              <label
+                key={option.value}
+                className={cn(
+                  "border rounded-md p-2 cursor-pointer transition flex items-center justify-center",
+                  checked
+                    ? "border-(--primary) ring-2 ring-(--primary)"
+                    : "border-gray-300 hover:border-(--primary)",
+                  styling
+                )}
+              >
+                <input
+                  type="checkbox"
+                  name={name}
+                  value={option.value}
+                  checked={checked}
+                  onChange={handler}
+                  className="hidden"
                   disabled={disabled}
-              />
-              <span>{placeholder}</span>
-            </label>
-          )}
+                />
+
+                {/* Render image / swatch / text */}
+                {option.node ?? (
+                  <span className="capitalize text-sm">{option.label}</span>
+                )}
+              </label>
+            );
+          })}
         </div>
       )}
+
 
       {/* PASSWORD */}
       {element === "input" && input_type === "password" && (

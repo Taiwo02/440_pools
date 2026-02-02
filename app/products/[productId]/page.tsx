@@ -81,8 +81,6 @@ const ProductDetails = () => {
     } 
   }
 
-  // const colorsInput = ["red", "white", "black", "yellow"];
-
   if(isPending) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
@@ -98,8 +96,26 @@ const ProductDetails = () => {
   
   const sizesList = baleData?.product.productSizes.map(size => ({
     id: size.id,
+    value: size.size.label,
     label: size.size.label
   }));
+
+  const colorsList = baleData?.product.colors.map(color => ({
+    value: color.color,
+    label: color.color,
+    node: (
+      <img
+        src={color.images[0]}
+        alt={color.color}
+        className="w-8 h-8 rounded-full object-cover"
+      />
+    )
+  }));
+
+  const selectedVariants: Record<string, string | string[]> = {
+    sizes: formValues.sizes,
+    color: formValues.colors,
+  };
 
   return (
     <section className='pt-24 mb-10 md:mb-16'>
@@ -237,24 +253,43 @@ const ProductDetails = () => {
               </Alert>
             </div>
             <div className="mb-4 flex flex-col gap-4">
-              <div>
-                <p className="text-(--text-muted) uppercase font-semibold">Sizes</p>
-                <div className="flex flex-wrap gap-1">{
-                  sizesList?.map(size => (
+              {
+                baleData?.product?.productSizes.length != 0 &&
+                <div>
+                  <p className="text-(--text-muted) uppercase font-semibold">Sizes</p>
+                  <div className="flex flex-wrap gap-1">
+                      <Input
+                        element="input"
+                        input_type="checkbox"
+                        name="sizes"
+                        value={formValues.sizes}
+                        handler={handleCheckboxChange}
+                        checkboxOptions={sizesList}
+                        genStyle="my-0!"
+                        styling="p-2!"
+                      />
+                  </div>
+                </div>
+              }
+
+              {
+                baleData?.product?.colors.length != 0 &&
+                <div>
+                  <p className="text-(--text-muted) uppercase font-semibold">Colors</p>
+                  <div className="flex gap-1">
                     <Input
-                      key={size.id}
                       element="input"
                       input_type="checkbox"
-                      name="sizes"
-                      value={formValues.sizes}
+                      name="colors"
+                      value={formValues.colors}
                       handler={handleCheckboxChange}
-                      checkboxOptions={[size.label]}
+                      checkboxOptions={colorsList}
                       genStyle="my-0!"
-                      styling="p-2!"
                     />
-                  ))
-                }</div>
-              </div>
+                  </div>
+                </div>
+              }
+              
               {/* <div>
                 <p className="text-(--text-muted) uppercase font-semibold">Colors</p>
                 <div className="flex gap-1">
@@ -384,7 +419,7 @@ const ProductDetails = () => {
                     cartItemId: `cart-${baleData.baleId}`, 
                     productId: baleData.productId, 
                     name: baleData.product.name, 
-                    image: baleData.product.images[1], 
+                    image: baleData.product.images[2], 
                     supplierId: `"sup-${baleData.product.supplierId}`, 
                     price: baleData.product.price, 
                     originalPrice: baleData.product.oldPrice, 
@@ -393,9 +428,7 @@ const ProductDetails = () => {
                     slots: formValues.slots,
                     quantity: productsPerSlot, 
                     unit: "unit", 
-                    variants: { 
-                      sizes: formValues.sizes
-                    },
+                    variants: selectedVariants,
                     inStock: true
                   })
                   toast.success(`Product added to cart`, {
