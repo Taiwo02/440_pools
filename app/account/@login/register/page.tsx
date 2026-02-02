@@ -3,11 +3,11 @@
 import { useRegisterMutation } from '@/api/auth'
 import { useRouter } from "next/navigation";
 import { Button, Card, Input } from '@/components/ui'
-import { useToast } from '@/components/ui/toast/ToastContext'
 import { Login, RegisterPayload } from '@/types/types'
 import { AxiosError } from 'axios'
 import Link from 'next/link'
 import React, { FormEvent, useState } from 'react'
+import { toast } from 'react-toastify';
 
 const AccountRegister = () => {
   const [formValues, setFormValues] = useState<RegisterPayload>({
@@ -20,7 +20,6 @@ const AccountRegister = () => {
   });
 
   const { mutateAsync: registerUser, isPending: isRegisterLoading } = useRegisterMutation();
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleChange = (
@@ -44,11 +43,13 @@ const AccountRegister = () => {
     // Email validation
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address",
-        variant: "warning",
-        duration: 3000,
+      toast.error(`Invalid email`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
       return;
     }
@@ -56,11 +57,13 @@ const AccountRegister = () => {
     // Phone number validation (only digits, min 7, max 15 digits)
     const phoneRegex = /^\d{7,15}$/;
     if (!phoneRegex.test(phone)) {
-      toast({
-        title: "Invalid Phone Number",
-        description: "Phone number must contain only digits (7-15 digits)",
-        variant: "warning",
-        duration: 3000,
+      toast.error(`Invalid phone number`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
       return;
     }
@@ -79,11 +82,13 @@ const AccountRegister = () => {
       const res = await registerUser(data);
 
       if (res.status === 200) {
-        toast({
-          title: "Success",
-          description: "Registration successful",
-          variant: "success",
-          duration: 3000,
+        toast.success(`Registration successful`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
         setFormValues({
           email: '',
@@ -95,24 +100,27 @@ const AccountRegister = () => {
         });
         router.push("/account");
       } else {
-        toast({
-          title: "Warning",
-          description: "Something went wrong",
-          variant: "warning",
-          duration: 3000,
+        toast.warning(`Something went wrong`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
       }
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-
-      toast({
-        title: "Error",
-        description:
-          err.response?.data?.message ??
-          err.message ??
-          "Something went wrong, please try again",
-        variant: "danger",
-        duration: 3000,
+      toast.error(
+        err.response?.data?.message ??
+        err.message ??
+        "Something went wrong, please try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
     }
   };
