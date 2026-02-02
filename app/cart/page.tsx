@@ -41,7 +41,7 @@ const Cart = () => {
 
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-  const { cart, removeFromCart, updateQuantity } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
 
   const cartItems = cart;
 
@@ -191,10 +191,19 @@ const Cart = () => {
     <>
       <section className='pt-24 mb-10 md:mb-16'>
         <div className="px-4 md:px-10 lg:px-20">
-          <div>
-            <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
-            <p className='text-(--primary)/80'>{ cartItems.length } pool(s)</p>
-          </div>
+          <div className="flex justify-between items-end">
+            <div>
+              <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
+              <p className='text-(--primary)/80'>{cartItems.length} pool(s)</p>
+            </div>
+            <Button 
+              className='bg-(--error)! hover:bg-(--error)/50!'
+              disabled={Boolean(cartItems.length == 0)}
+              onClick={clearCart}
+            >
+              Clear Cart
+            </Button>
+          </div>  
           <div className="flex flex-col lg:flex-row gap-4 my-4">
             <div className="w-full lg:flex-1 flex flex-col gap-4">
               <div className="rounded-xl bg-(--bg-surface) mb-4 p-4">
@@ -337,7 +346,7 @@ const Cart = () => {
             </div>
             <div className="w-full lg:w-96 lg:shrink-0 flex flex-col">
               <div className="rounded-xl bg-(--bg-surface) p-6 mb-4">
-                <h1 className="text-2xl mb-4">Order Summary</h1>
+                <h1 className="text-2xl mb-4">Cart Summary</h1>
                 <div className="pb-4 border-b border-(--border-muted)">
                   <div className="flex items-center justify-between my-4">
                     <p className="text-sm font-normal text-gray-600">
