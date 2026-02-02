@@ -310,10 +310,20 @@ export type ProfileResponse = {
 };
 
 export type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-  quantity: number;
+  cartItemId: string,
+  productId: number,
+  name: string,
+  image: string,
+  supplierId: string,
+  price: number,
+  originalPrice: number,
+  discount: number,
+  currency: string,
+  slots: number,
+  quantity: number,
+  unit: string,
+  variants: Record<string, string | string[]>;
+  minOrder?: number,
+  subtotal?: number,
+  inStock: boolean
 };
-

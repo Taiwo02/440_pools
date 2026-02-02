@@ -2,13 +2,13 @@
 
 import { useLoginMutation } from '@/api/auth'
 import { Button, Card, Input } from '@/components/ui'
-import { useToast } from '@/components/ui/toast/ToastContext'
 import { useAuth } from '@/hooks/use-auth'
 import { Login } from '@/types/types'
 import { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { FormEvent, useEffect, useState } from 'react'
+import { toast } from "react-toastify";
 
 const AccountLogin = () => {
   const [formValues, setFormValues] = useState<Login>({
@@ -20,10 +20,13 @@ const AccountLogin = () => {
     const shouldToast = sessionStorage.getItem("showLoginToast");
 
     if (shouldToast) {
-      toast({
-        title: "Login required",
-        description: "Please log in to join the pool.",
-        variant: "warning"
+      toast.warning(`Login to join pool`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       sessionStorage.removeItem("showLoginToast");
@@ -31,7 +34,6 @@ const AccountLogin = () => {
   }, []);
 
   const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
-  const { toast } = useToast();
   const { authenticate } = useAuth();
   const router = useRouter();
 
@@ -59,11 +61,13 @@ const AccountLogin = () => {
       }
       const res = await loginUser(data);
       if (res.status === 200) {
-        toast({
-          title: "Success",
-          description: "Login successful",
-          variant: "success",
-          duration: 3000,
+        toast.success(`✓ Login successfully`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
 
         const token = res.data?.token;
@@ -83,26 +87,28 @@ const AccountLogin = () => {
         
         window.location.reload();
       } else {
-        toast({
-          title: "Warning",
-          description: "Something went wrong",
-          variant: "warning",
-          duration: 3000,
+        toast.success(`Something went wrong`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
         });
       }
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-
-      toast({
-        title: "Error",
-        description:
-          err.response?.data?.message ??
+      toast.success(
+        err.response?.data?.message ??
           err.message ??
-          "Something went wrong, please try again",
-        variant: "danger",
-        duration: 3000,
+          "Something went wrong, please try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
-            
     }
   }
 

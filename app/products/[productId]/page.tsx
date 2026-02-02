@@ -5,12 +5,14 @@ import ProductImages from "@/components/product/ImageGallery"
 import Countdown from "@/components/shared/Countdown"
 import { Alert, Badge, Button, Input, Progress } from "@/components/ui"
 import { Tabs } from "@/components/ui/tabs"
+import { useCart } from "@/hooks/use-cart"
 import { getCrossSubdomainCookie } from "@/lib/utils"
 import { Bale } from "@/types/types"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useEffectEvent, useRef, useState } from "react"
 import { RiGroup2Fill, RiGroupFill, RiLoader5Line, RiRocket2Fill, RiShieldCheckFill, RiShip2Fill, RiStarFill, RiStarHalfFill, RiTimeFill } from "react-icons/ri"
+import { toast } from "react-toastify"
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState({
@@ -23,6 +25,7 @@ const ProductDetails = () => {
   const id = params?.productId;
   const { data: baleData, isPending, error } = useGetSingleBale(id as string);
   const router = useRouter();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if(baleData) console.log(baleData);
@@ -363,11 +366,48 @@ const ProductDetails = () => {
               </Tabs>
             </div>
             <div className="mb-4 flex gap-4 items-center">
-              <Button primary className="uppercase flex gap-2 items-center" onClick={joinPool}>
+              <Button 
+                primary 
+                className="uppercase flex gap-2 items-center" 
+                disabled={Boolean(formValues.slots == 0)}
+                onClick={joinPool}
+              >
                 <RiRocket2Fill className="hidden md:block" />
                 Join Pool
               </Button>
-              <Button primary className="uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent">
+              <Button 
+                primary 
+                className="uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent"
+                disabled={Boolean(formValues.slots == 0)}
+                onClick={() => {
+                  addToCart({
+                    cartItemId: `cart-${baleData.baleId}`, 
+                    productId: baleData.productId, 
+                    name: baleData.product.name, 
+                    image: baleData.product.images[1], 
+                    supplierId: `"sup-${baleData.product.supplierId}`, 
+                    price: baleData.product.price, 
+                    originalPrice: baleData.product.oldPrice, 
+                    discount: 10, 
+                    currency: "NGN", 
+                    slots: formValues.slots,
+                    quantity: productsPerSlot, 
+                    unit: "unit", 
+                    variants: { 
+                      sizes: formValues.sizes
+                    },
+                    inStock: true
+                  })
+                  toast.success(`Product added to cart`, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                  });
+                }}
+              >
                 Add to Cart
               </Button>
             </div>
