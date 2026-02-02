@@ -201,6 +201,7 @@ const Cart = () => {
               disabled={Boolean(cartItems.length == 0)}
               onClick={clearCart}
             >
+              <RiDeleteBinLine />
               Clear Cart
             </Button>
           </div>  

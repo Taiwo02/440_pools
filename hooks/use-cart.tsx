@@ -25,21 +25,65 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setStoredCart(cart);
   }, [cart]);
 
+  const normalizeVariants = (variants: Record<string, any>) => {
+    return Object.keys(variants)
+      .sort()
+      .reduce((acc, key) => {
+        let value = variants[key];
+
+        // parse stringified arrays
+        if (typeof value === "string") {
+          try {
+            const parsed = JSON.parse(value);
+            value = parsed;
+          } catch { }
+        }
+
+        // sort arrays for consistency
+        if (Array.isArray(value)) {
+          value = [...value].sort();
+        }
+
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, any>);
+  };
+
+  const isSameVariant = (
+    a: Record<string, any>,
+    b: Record<string, any>
+  ) => {
+    return (
+      JSON.stringify(normalizeVariants(a)) ===
+      JSON.stringify(normalizeVariants(b))
+    );
+  };
+
   const addToCart = (item: CartItem) => {
     setCart(prev => {
-      const existing = prev.find(p => p.productId === item.productId);
+      const normalizedItem = {
+        ...item,
+        variants: normalizeVariants(item.variants),
+      };
+
+      const existing = prev.find(
+        p =>
+          p.productId === normalizedItem.productId &&
+          isSameVariant(p.variants, normalizedItem.variants)
+      );
 
       if (existing) {
         return prev.map(p =>
-          p.productId === item.productId
-            ? { ...p, slots: p.slots + item.slots }
+          p.cartItemId === existing.cartItemId
+            ? { ...p, slots: p.slots + normalizedItem.slots }
             : p
         );
       }
 
-      return [...prev, item];
+      return [...prev, normalizedItem];
     });
   };
+
 
   const removeFromCart = (id: string) => {
     setCart(prev => prev.filter(item => item.cartItemId !== id));

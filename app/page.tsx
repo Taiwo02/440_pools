@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <>
       <header className="h-90 md:h-100 relative">
-        <Image src={BG} alt="" className="w-full h-full object-cover" />
+        <img src={BG.src} alt="" className="w-full h-full object-cover" />
         <div className="w-full h-full bg-black/50 absolute top-0 left-0 flex flex-col justify-center px-4 lg:px-20 text-white pt-20">
           <h1 className="text-3xl lg:text-5xl">
             Efficient <br /> <span className="text-(--primary)">Bulk Purchasing</span> <br /> Solutions
