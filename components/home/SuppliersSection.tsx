@@ -63,7 +63,7 @@ const SuppliersSection = () => {
           {
             suppliers.map(supplier => (
               <div key={supplier.id} className='flex gap-4 md:items-center'>
-                <Image src="/images/watch.jpg" alt='' className='w-24 aspect-square rounded-xl' width={100} height={100} />
+                <img src="/images/watch.jpg" alt='' className='w-24 aspect-square rounded-xl' />
                 <div>
                   <h3 className="text-xl">{supplier.name}</h3>
                   <div className="flex gap-1">

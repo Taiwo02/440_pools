@@ -30,7 +30,8 @@ export type Product = {
   updatedAt: string;
   images: string[];
   productSizes: ProductSize[];
-  variants: any[]; // update later if variants are added
+  variants: any[];
+  colors: ProductColorVariant[];
   supplier: Supplier;
   subCategory: SubCategory;
 };
@@ -44,6 +45,26 @@ export type ProductSize = {
   updatedAt: string;
   size: Size;
 };
+
+export type ProductColorVariant = {
+  id: number;
+  productId: number;
+
+  color: string;
+  otherColor?: string;
+
+  images: string[];
+  hex_code: string | null;
+
+  quantity: number;
+  status: boolean;
+
+  tagId: number | null;
+
+  createdAt: string;
+  updatedAt: string;
+};
+
 
 export type Size = {
   id: number;
