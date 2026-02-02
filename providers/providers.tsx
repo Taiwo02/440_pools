@@ -4,7 +4,6 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
-import { ToastProvider } from "@/components/ui/toast/ToastContext";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -22,9 +21,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <ToastProvider placement="bottom-right">
-            {children}
-          </ToastProvider>
+          {children}
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>

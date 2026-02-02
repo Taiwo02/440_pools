@@ -14,6 +14,7 @@ type Props = {
   tag?: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean
 
   selectOptions?: string[];
   radioOptions?: string[];
@@ -33,6 +34,7 @@ const Input = ({
   tag,
   placeholder,
   required,
+  disabled,
   selectOptions = [],
   radioOptions = [],
   checkboxOptions = [],
@@ -59,6 +61,7 @@ const Input = ({
           onChange={handler}
           required={required}
           className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary) placeholder:text(--muted)", styling)}
+          disabled={disabled}
         >
           <option value="" className="text-(--muted)">{placeholder}</option>
           {selectOptions.map((opt) => (
@@ -79,6 +82,7 @@ const Input = ({
           required={required}
           rows={5}
           className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)", styling)}
+          disabled={disabled}
         />
       )}
 
@@ -105,6 +109,7 @@ const Input = ({
                   onChange={handler}
                   required={required}
                   className="hidden"
+                  disabled={disabled}
                 />
                 <span className="capitalize">{option}</span>
               </label>
@@ -139,6 +144,7 @@ const Input = ({
                     checked={checked}
                     onChange={handler}
                     className="hidden"
+                    disabled={disabled}
                   />
                   <span className={`${invisible && 'invisible'} capitalize`}>{option}</span>
                 </label>
@@ -152,6 +158,7 @@ const Input = ({
                 checked={Boolean(value)}
                 onChange={handler}
                 required={required}
+                  disabled={disabled}
               />
               <span>{placeholder}</span>
             </label>
@@ -170,6 +177,7 @@ const Input = ({
             placeholder={placeholder}
             required={required}
             className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)", styling)}
+            disabled={disabled}
           />
           <button
             type="button"
@@ -195,6 +203,7 @@ const Input = ({
             placeholder={placeholder}
             required={required}
             className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)", styling)}
+            disabled={disabled}
           />
         )}
     </div>
