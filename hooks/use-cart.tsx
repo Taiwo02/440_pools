@@ -32,7 +32,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       if (existing) {
         return prev.map(p =>
           p.productId === item.productId
-            ? { ...p, quantity: p.quantity + item.quantity }
+            ? { ...p, slots: p.slots + item.slots }
             : p
         );
       }
