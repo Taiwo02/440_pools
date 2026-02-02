@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { RiArrowRightLine } from 'react-icons/ri';
 import { Badge, Button } from '../ui';
-import Steel from "@/assets/images/watch.jpg";
 import Image from 'next/image';
 
 const SuppliersSection = () => {
@@ -64,7 +63,7 @@ const SuppliersSection = () => {
           {
             suppliers.map(supplier => (
               <div key={supplier.id} className='flex gap-4 md:items-center'>
-                <Image src={Steel} alt='' className='w-24 aspect-square rounded-xl' />
+                <Image src="/images/watch.jpg" alt='' className='w-24 aspect-square rounded-xl' width={100} height={100} />
                 <div>
                   <h3 className="text-xl">{supplier.name}</h3>
                   <div className="flex gap-1">

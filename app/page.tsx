@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui";
-import BG from "@/assets/images/bg1.jpg"
 import Image from "next/image";
 import { ProductsSection, ShopBy, SuppliersSection } from "@/components/home";
 import { Footer, Navbar } from "@/components/core";
@@ -8,7 +7,7 @@ export default function Home() {
   return (
     <>
       <header className="h-90 md:h-100 relative">
-        <Image src={BG} alt="" className="w-full h-full object-cover" />
+        <Image src="/images/bg1.jpg" alt="" className="w-full h-full object-cover" width={100} height={100} />
         <div className="w-full h-full bg-black/50 absolute top-0 left-0 flex flex-col justify-center px-4 lg:px-20 text-white pt-20">
           <h1 className="text-3xl lg:text-5xl">
             Efficient <br /> <span className="text-(--primary)">Bulk Purchasing</span> <br /> Solutions

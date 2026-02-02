@@ -1,9 +1,9 @@
 // @ts-nocheck
 
-import Inverter from "../../assets/images/inverter.jpg";
-import PowerBank from "../../assets/images/download.png";
-import Steel from "../../assets/images/steel.jpg";
-import Watch from "../../assets/images/watch.jpg";
+import Inverter from "/images/inverter.jpg";
+import PowerBank from "/images/download.png";
+import Steel from "/images/steel.jpg";
+import Watch from "/images/watch.jpg";
 
  const   products = [
       {
