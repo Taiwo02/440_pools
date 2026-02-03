@@ -42,9 +42,9 @@ const ShopBy = () => {
   ];
 
   return (
-    <section className=' md:block my-10'>
+    <section className='hidden md:block my-10'>
       <div className="px-8 md:px-10 lg:px-20">
-        <h2 className="text-xl lg:text-2xl">Shop By Industry</h2>
+        <h2 className="text-2xl lg:text-2xl">Shop By Industry</h2>
         <div className="grid grid-cols-2 lg:grid-cols-7 gap-4 my-4">
           {
             industries.map(industry => (
