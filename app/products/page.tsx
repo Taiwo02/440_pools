@@ -154,19 +154,19 @@ const Products = () => {
                 <Accordion.Content id="five">
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
-                    China
+                    Yiwu
                   </div>
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
-                    Japan
+                    Guangzhou 
                   </div>
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
-                    USA
+                    Shenzhen
                   </div>
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
-                    Rest of the World
+                    Rest of the markets
                   </div>
                 </Accordion.Content>
               </Accordion.Item>
@@ -211,7 +211,7 @@ const Products = () => {
                           key={bale.id}
                           className='p-0!'
                         >
-                          <Image src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 aspect-square rounded-t-2xl object-cover' unoptimized />
+                          <Image src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 md:h-70 aspect-square rounded-t-2xl object-cover' unoptimized />
                           <div className="p-2 md:p-4">
                             <p className="md:text-lg font-bold truncate">{bale.product.name}</p>
                             <div className="mt-1">
