@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>B2B Global - Global Sourcing Marketplace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF7A00",
+                        "charcoal": "#121212",
+                        "charcoal-light": "#1E1E1E",
+                        "charcoal-card": "#262626",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-charcoal text-gray-300 antialiased;
+                font-family: 'Inter', sans-serif;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hero-glow {
+            box-shadow: 0 0 50px -12px rgba(255, 122, 0, 0.15);
+        }
+        .supplier-badge-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #FF7A00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        .metallic-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#262626, #262626) padding-box,
+                        linear-gradient(135deg, #FFD700, #FF7A00) border-box;
+        }
+    </style>
+</head>
+<body class="bg-charcoal text-gray-300">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-gray-800 bg-charcoal-light px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-black leading-tight tracking-tight uppercase">B2B GLOBAL</h2>
+</div>
+<label class="flex flex-col min-w-80 !h-10 max-w-xl">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-gray-400 flex bg-charcoal items-center justify-center pl-4 rounded-l-lg">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-charcoal text-white focus:ring-0 h-full placeholder:text-gray-500 px-4 pl-2 text-sm" placeholder="Search products, suppliers, or manufacturers..."/>
+<button class="bg-primary px-6 rounded-r-lg text-white font-bold text-sm hover:bg-[#e66e00] transition-colors">Search</button>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<nav class="flex items-center gap-6">
+<a class="text-white text-sm font-semibold border-b-2 border-primary pb-0.5" href="#">Manufacturers</a>
+<a class="text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Trade Assurance</a>
+<a class="text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Logistics</a>
+</nav>
+<div class="flex gap-3 items-center border-l border-gray-800 pl-6">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold">Sign In</button>
+<button class="flex items-center justify-center rounded-lg h-9 w-9 bg-charcoal text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 flex max-w-[1440px] mx-auto w-full px-6 py-8 gap-8">
+<aside class="w-64 shrink-0 hidden lg:block">
+<div class="bg-charcoal-light rounded-xl border border-gray-800 p-4 sticky top-24">
+<div class="mb-4">
+<h1 class="text-white text-base font-bold">Categories</h1>
+<p class="text-gray-500 text-xs">Source by industry</p>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary group cursor-pointer">
+<span class="material-symbols-outlined text-xl text-white">devices</span>
+<p class="text-sm font-semibold text-white">Electronics</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">precision_manufacturing</span>
+<p class="text-sm font-medium">Industrial Machinery</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">home</span>
+<p class="text-sm font-medium">Home &amp; Garden</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">apparel</span>
+<p class="text-sm font-medium">Apparel</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">auto_awesome</span>
+<p class="text-sm font-medium">Beauty &amp; Health</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">inventory_2</span>
+<p class="text-sm font-medium">Packaging</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-charcoal group cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-xl text-white">construction</span>
+<p class="text-sm font-medium">Hardware &amp; Tools</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col gap-6">
+<section class="@container">
+<div class="hero-glow flex flex-col lg:flex-row gap-6 bg-gradient-to-br from-[#1a1a1a] to-[#121212] rounded-2xl overflow-hidden border border-gray-800 relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none"></div>
+<div class="flex flex-col gap-6 p-10 lg:w-3/5 justify-center relative z-10">
+<div class="flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-sm font-bold">verified</span>
+<span class="text-[12px] font-bold uppercase tracking-wider">Verified Manufacturers Only</span>
+</div>
+<div class="flex flex-col gap-3">
+<h1 class="text-white text-5xl font-black leading-tight tracking-tight">
+                                        Source Directly from <span class="text-primary drop-shadow-[0_0_8px_rgba(255,122,0,0.3)]">Global Leaders</span>
+</h1>
+<p class="text-gray-400 text-lg max-w-lg leading-relaxed">
+                                        Empowering over 1M+ businesses with secure bulk purchasing, factory inspections, and end-to-end logistics support.
+                                    </p>
+</div>
+<div class="flex gap-4">
+<button class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-xl h-14 px-6 bg-primary text-white text-base font-bold hover:scale-[1.02] transition-transform shadow-lg shadow-primary/20">
+                                        Start Sourcing
+                                    </button>
+<button class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-xl h-14 px-6 bg-white/5 text-white text-base font-bold border border-white/10 hover:bg-white/10 transition-colors">
+                                        Request Quotes
+                                    </button>
+</div>
+</div>
+<div class="lg:w-2/5 h-80 lg:h-auto bg-cover bg-center relative" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCY87AOhmRL-Uk7BCAoAeKFxTLSps76XKevb4_E4j8RfoDiIu4leM4Wxq-spy3MAbslIXPP1jNd8d47cO7PUkRLal8nr6i36ILXr9S56tBRqiFr6mQpp3F7Jb2rNg1xBSBYndHUbYgAe1H5RcaUtCJgjRItCqCZwvM8YeFQWax7wNUY7ZY30dWDEDy1zA1H9Q_o4R6T554zsA58EhGgTGyLnbNMEXeuMIQZEeWh_XPAxqFXS59q4_cU5UAPziRhcs2YvnG1T9cbmNg");'>
+<div class="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] via-transparent to-transparent"></div>
+<div class="absolute inset-0 bg-charcoal/20"></div>
+</div>
+</div>
+</section>
+<div class="mt-4 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h2 class="text-white text-2xl font-bold tracking-tight">Featured Bulk Deals</h2>
+<div class="flex gap-2">
+<span class="text-gray-500 text-sm">Ends in:</span>
+<span class="text-primary font-mono font-bold">04:22:15</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-charcoal-card rounded-xl border border-gray-800 p-4 flex flex-col gap-4 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="aspect-video rounded-lg overflow-hidden bg-charcoal">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD74WYwfjH_4PSRmnKOSfycpAjHy_uJYZN9FUKWieJLZ0ju6HGDuIhozkGO35RICR8OWlD9-N60OiXllBrEU6rr_i5-qmaGhD3XRQmROnErh_sP2p0xaxVR6TIbrV4HIw9iYQcjAa-NKTL_Fav0TR4dAjFZBwA0GdRluJ0CLZYsQioccBs6bKfxRXzfz5i5-lZtsqlfrt-WLDuRU_xhoUJUhREai9_QhE2jnQipieUxceBhvWLwqPxQ1XE3tqe8uqwvN8p0WiEYQ5w"/>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white font-semibold text-sm line-clamp-1">Luxury Quartz Series</h3>
+<div class="flex justify-between items-end">
+<p class="text-primary font-bold text-lg">$12.50 <span class="text-gray-500 text-xs font-normal">/pc</span></p>
+<p class="text-gray-500 text-xs">84% claimed</p>
+</div>
+<div class="w-full bg-charcoal h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[84%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="bg-charcoal-card rounded-xl border border-gray-800 p-4 flex flex-col gap-4 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="aspect-video rounded-lg overflow-hidden bg-charcoal">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGz8FurjQxqIGuezmspp6ut-YVd3bJcdh3JGiJD6Z56thsnfIBzq2S3U0r6pzwYmJZsqu1rc05enY3P756uoLr9ylr5zQjP-czkqmMAMXlcQz9MlBJzivAPZTKgZr2580WgT1x0KvUt7Vk5FGehJcGp94HI2sh0-5PanN-q6-bB67VKneQiMMh_PUYVcrScrnWb6j51CqUov0Y0Wxor4_oJD15tNUf26soyuLUCIg99W_NQ15asA0JJaTLkIKqMqonetdc57x1ZBY"/>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white font-semibold text-sm line-clamp-1">Business Tech Pack</h3>
+<div class="flex justify-between items-end">
+<p class="text-primary font-bold text-lg">$380.00 <span class="text-gray-500 text-xs font-normal">/pc</span></p>
+<p class="text-gray-500 text-xs">42% claimed</p>
+</div>
+<div class="w-full bg-charcoal h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[42%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="bg-charcoal-card rounded-xl border border-gray-800 p-4 flex flex-col gap-4 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="aspect-video rounded-lg overflow-hidden bg-charcoal">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNA8pjN9NExaMbkV4258bjzTO-rGe6i6htWTDgJe9ScJ3UVLiPr9b9HGhxft7pmCx4X-sAeEPaiJu4JD_Razvxf2Fmc6XKv5wopK84988JBp8ENcr_DzGq9F7ic99EVvcQYF8DDIoa0w-moTbR-KfcOhiHZ3lPI7Z2tqaYMOUlmFT_LnEzJ-V89cY1LKCX8T6lxKg8RtulrxGQbtUz3opc_r1aOEI4W2ID0L6EVgYe6BvIXFBDyCpG_XYJchy6hgmgE7tfsWmvhco"/>
+</div>
+<div class="flex flex-col gap-2">
+<h3 class="text-white font-semibold text-sm line-clamp-1">Pro Audio Bundle</h3>
+<div class="flex justify-between items-end">
+<p class="text-primary font-bold text-lg">$28.15 <span class="text-gray-500 text-xs font-normal">/pc</span></p>
+<p class="text-gray-500 text-xs">61% claimed</p>
+</div>
+<div class="w-full bg-charcoal h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[61%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-8">
+<h2 class="text-white text-2xl font-bold tracking-tight">Recommended for Your Sourcing</h2>
+<a class="text-primary text-sm font-bold flex items-center gap-1" href="#">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="bg-charcoal-light rounded-xl border border-gray-800 overflow-hidden hover:shadow-2xl hover:shadow-black transition-all group cursor-pointer">
+<div class="aspect-square bg-charcoal relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD74WYwfjH_4PSRmnKOSfycpAjHy_uJYZN9FUKWieJLZ0ju6HGDuIhozkGO35RICR8OWlD9-N60OiXllBrEU6rr_i5-qmaGhD3XRQmROnErh_sP2p0xaxVR6TIbrV4HIw9iYQcjAa-NKTL_Fav0TR4dAjFZBwA0GdRluJ0CLZYsQioccBs6bKfxRXzfz5i5-lZtsqlfrt-WLDuRU_xhoUJUhREai9_QhE2jnQipieUxceBhvWLwqPxQ1XE3tqe8uqwvN8p0WiEYQ5w"/>
+<div class="absolute top-3 left-3">
+<span class="bg-primary text-white text-[10px] px-2 py-1 rounded font-extrabold uppercase shadow-lg">New Arrival</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h3 class="text-white font-medium text-sm line-clamp-2">Premium Minimalist Quartz Watch for Wholesale - Custom Logo OEM Support</h3>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-white text-lg font-bold">$12.50 - $18.90</span>
+<span class="text-gray-500 text-xs">/ piece</span>
+</div>
+<p class="text-gray-500 text-xs font-medium">Min. Order: 50 pieces</p>
+<div class="border-t border-gray-800 pt-3 mt-1 flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm supplier-badge-gold">verified</span>
+<span class="supplier-badge-gold text-[11px] font-black uppercase tracking-tighter">Gold Supplier</span>
+</div>
+<span class="text-gray-400 text-[10px] font-medium">8 YRS · Shenzhen Time Co.</span>
+</div>
+<span class="material-symbols-outlined text-gray-500 hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+</div>
+<div class="bg-charcoal-light rounded-xl border border-gray-800 overflow-hidden hover:shadow-2xl hover:shadow-black transition-all group cursor-pointer">
+<div class="aspect-square bg-charcoal relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGz8FurjQxqIGuezmspp6ut-YVd3bJcdh3JGiJD6Z56thsnfIBzq2S3U0r6pzwYmJZsqu1rc05enY3P756uoLr9ylr5zQjP-czkqmMAMXlcQz9MlBJzivAPZTKgZr2580WgT1x0KvUt7Vk5FGehJcGp94HI2sh0-5PanN-q6-bB67VKneQiMMh_PUYVcrScrnWb6j51CqUov0Y0Wxor4_oJD15tNUf26soyuLUCIg99W_NQ15asA0JJaTLkIKqMqonetdc57x1ZBY"/>
+<div class="absolute top-3 left-3">
+<span class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-extrabold uppercase shadow-lg">Certified</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h3 class="text-white font-medium text-sm line-clamp-2">2024 New 15.6 inch Business Laptop Core i7 16GB RAM 512GB SSD</h3>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-white text-lg font-bold">$420.00 - $485.00</span>
+<span class="text-gray-500 text-xs">/ unit</span>
+</div>
+<p class="text-gray-500 text-xs font-medium">Min. Order: 10 units</p>
+<div class="border-t border-gray-800 pt-3 mt-1 flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm supplier-badge-gold">verified</span>
+<span class="supplier-badge-gold text-[11px] font-black uppercase tracking-tighter">Gold Supplier</span>
+</div>
+<span class="text-gray-400 text-[10px] font-medium">12 YRS · Innotech Global Ltd.</span>
+</div>
+<span class="material-symbols-outlined text-gray-500 hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+</div>
+<div class="bg-charcoal-light rounded-xl border border-gray-800 overflow-hidden hover:shadow-2xl hover:shadow-black transition-all group cursor-pointer">
+<div class="aspect-square bg-charcoal relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNA8pjN9NExaMbkV4258bjzTO-rGe6i6htWTDgJe9ScJ3UVLiPr9b9HGhxft7pmCx4X-sAeEPaiJu4JD_Razvxf2Fmc6XKv5wopK84988JBp8ENcr_DzGq9F7ic99EVvcQYF8DDIoa0w-moTbR-KfcOhiHZ3lPI7Z2tqaYMOUlmFT_LnEzJ-V89cY1LKCX8T6lxKg8RtulrxGQbtUz3opc_r1aOEI4W2ID0L6EVgYe6BvIXFBDyCpG_XYJchy6hgmgE7tfsWmvhco"/>
+<div class="absolute top-3 left-3">
+<span class="bg-primary text-white text-[10px] px-2 py-1 rounded font-extrabold uppercase shadow-lg">Hot Sale</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h3 class="text-white font-medium text-sm line-clamp-2">Active Noise Cancelling Wireless Headphones Deep Bass for Export</h3>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-white text-lg font-bold">$32.15 - $35.00</span>
+<span class="text-gray-500 text-xs">/ piece</span>
+</div>
+<p class="text-gray-500 text-xs font-medium">Min. Order: 200 pieces</p>
+<div class="border-t border-gray-800 pt-3 mt-1 flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm supplier-badge-gold">verified</span>
+<span class="supplier-badge-gold text-[11px] font-black uppercase tracking-tighter">Gold Supplier</span>
+</div>
+<span class="text-gray-400 text-[10px] font-medium">5 YRS · AudioTech Industrial</span>
+</div>
+<span class="material-symbols-outlined text-gray-500 hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 rounded-2xl p-8 mt-8 flex flex-col lg:flex-row items-center justify-between gap-8">
+<div class="flex flex-col gap-2 max-w-lg">
+<h2 class="text-white text-2xl font-black">Can't find what you're looking for?</h2>
+<p class="text-gray-400 text-base">One request, multiple quotes. Get verified suppliers to reach out to you directly with their best offers.</p>
+</div>
+<button class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#e66e00] transition-colors whitespace-nowrap shadow-lg shadow-primary/20">
+                            Post an RFQ Now
+                        </button>
+</div>
+</div>
+</main>
+<footer class="bg-charcoal-light border-t border-gray-800 py-12 px-10 mt-12">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-lg">Customer Services</h4>
+<ul class="flex flex-col gap-2 text-sm text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Report Abuse</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Submit a Dispute</a></li>
+</ul>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-lg">About Us</h4>
+<ul class="flex flex-col gap-2 text-sm text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">About B2B Global</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Sitemap</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Integrity Compliance</a></li>
+</ul>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-lg">Source on B2B Global</h4>
+<ul class="flex flex-col gap-2 text-sm text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">Resources</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">All Categories</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Request for Quotation</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Ready to Ship</a></li>
+</ul>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-lg">Sell on B2B Global</h4>
+<ul class="flex flex-col gap-2 text-sm text-gray-500">
+<li><a class="hover:text-primary transition-colors" href="#">Supplier Memberships</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Learning Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Partner Program</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-[1440px] mx-auto mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-gray-500 text-xs">© 2024 B2B Global Marketplace. All rights reserved.</p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-gray-500">payments</span>
+<span class="material-symbols-outlined text-gray-500">shield</span>
+<span class="material-symbols-outlined text-gray-500">local_shipping</span>
+</div>
+</div>
+</footer>
+</div>
+</div>
+
+</body></html>
