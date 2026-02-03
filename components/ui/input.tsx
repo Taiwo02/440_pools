@@ -28,7 +28,9 @@ type Props = {
   invisible?: boolean;
 
   styling?: string;
-  genStyle?: string
+  genStyle?: string;
+
+  leftIcon?: React.ReactNode;
 };
 
 const Input = ({
@@ -46,7 +48,8 @@ const Input = ({
   checkboxOptions = [],
   styling = "",
   genStyle = "",
-  invisible = false
+  invisible = false,
+  leftIcon
 }: Props) => {
   const [visible, setVisible] = useState(false);
   // const inputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +57,17 @@ const Input = ({
   const togglePassword = () => {
     setVisible((prev) => !prev);
   };
+
+  const InputWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="relative flex items-center">
+      {leftIcon && (
+        <span className="absolute left-3 text-gray-400 pointer-events-none">
+          {leftIcon}
+        </span>
+      )}
+      {children}
+    </div>
+  );
 
   return (
     <div className={cn("my-4", genStyle)}>
@@ -167,7 +181,7 @@ const Input = ({
 
       {/* PASSWORD */}
       {element === "input" && input_type === "password" && (
-        <div className="relative">
+        <InputWrapper>
           <input
             type={visible ? "text" : "password"}
             name={name}
@@ -175,9 +189,14 @@ const Input = ({
             onChange={handler}
             placeholder={placeholder}
             required={required}
-            className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)", styling)}
             disabled={disabled}
+            className={cn(
+              "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)",
+              !!leftIcon && "pl-10",
+              styling
+            )}
           />
+
           <button
             type="button"
             onClick={togglePassword}
@@ -185,8 +204,9 @@ const Input = ({
           >
             {visible ? <RiEyeOffLine /> : <RiEyeLine />}
           </button>
-        </div>
+        </InputWrapper>
       )}
+
 
 
       {/* DEFAULT INPUT */}
@@ -194,17 +214,24 @@ const Input = ({
         input_type !== "password" &&
         input_type !== "radio" &&
         input_type !== "checkbox" && (
-          <input
-            type={input_type}
-            name={name}
-            value={value as string}
-            onChange={handler}
-            placeholder={placeholder}
-            required={required}
-            className={cn("w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)", styling)}
-            disabled={disabled}
-          />
+          <InputWrapper>
+            <input
+              type={input_type}
+              name={name}
+              value={value as string}
+              onChange={handler}
+              placeholder={placeholder}
+              required={required}
+              disabled={disabled}
+              className={cn(
+                "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)",
+                !!leftIcon && "pl-10",
+                styling
+              )}
+            />
+          </InputWrapper>
         )}
+
     </div>
   );
 };

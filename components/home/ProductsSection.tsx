@@ -41,7 +41,7 @@ const ProductsSection = () => {
                     key={bale.id}
                     className='p-0!'
                   >
-                    <img src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 aspect-square rounded-t-2xl object-cover' />
+                    <img src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 md:h-60 aspect-square rounded-t-2xl object-cover' />
                     <div className="p-2 md:p-4">
                       <p className="md:text-lg font-bold truncate">{bale.product.name}</p>
                       <div className="mt-1">

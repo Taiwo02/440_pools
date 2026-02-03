@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
+import SearchForm from './search'
 
 const Navbar = () => {
   const [category, setCategory] = useState('Electronics')
@@ -129,26 +130,9 @@ const Navbar = () => {
         <Link href={'/'} className="text-2xl font-bold shrink-0">
           <img src="https://shop.4401.live/img/logos/440_Logo_GS-removebg.png" alt="" width={70} height={70} />
         </Link>
-        <form className="hidden lg:flex items-stretch w-150 min-w-0 border-2 border-(--primary) rounded-full">
-          <Dropdown
-            value={category}
-            onChange={value => setCategory(value)}
-            options={productCategories}
-            className='p-3! rounded-l-full!'
-            dropClass='w-50!'
-          />
-          <input
-            className='w-full p-3 bg-(--bg-surface) border border-slate-200 focus:border focus:outline-(--primary) placeholder:text(--muted)'
-            name='searchTerm'
-            value={searchTerm}
-            placeholder="Search for products, factories or global suppliers..."
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-          <Button primary className='flex gap-1 items-center rounded-r-full!'>
-            <RiSearchLine />
-            Search
-          </Button>
-        </form>
+        <div className="hidden lg:flex w-150">
+          <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+        </div>
         <ul className="hidden md:flex items-center gap-4 shrink-0 navBar">
           {
             navLinks.map((nav, index) => {
@@ -231,15 +215,19 @@ const Navbar = () => {
         )}
       </AnimatePresence>
       <div className="flex md:hidden gap-2 items-center bg-(--bg-page) overflow-auto py-1 px-4 -mt-0.5">
-        {
+        {/* {
           industries.map(industry => (
             <div key={industry.id} className='py-0.5 px-2 bg-(--primary) text-white rounded-full'>
               <span className='text-xs text-nowrap'>{industry.name}</span>
             </div>
           ))
-        }
+        } */}
+      </div>
+      <div className="lg:hidden px-4 pb-2 bg-(--bg-surface)">
+      <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
       </div>
     </nav>
+    
   )
 }
 

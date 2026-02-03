@@ -91,47 +91,6 @@ const Checkout = () => {
             variants: { model: "DM-9205A" }
         }
     ]
-
-    useEffect(() => {
-        const loadProfileData = () => {
-            try {
-                setLoading(true)
-                
-                const merchantData = localStorage.getItem('merchant')
-                
-                if (merchantData) {
-                    const data = JSON.parse(merchantData)
-                    
-                    if (data.status && data.completion_details) {
-                        const profile = data.completion_details
-                        
-                        const nameParts = profile.name?.trim().split(/\s+/) || []
-                        const firstName = nameParts[0] || ''
-                        const lastName = nameParts.slice(1).join(' ') || ''
-
-                        setFormData(prev => ({
-                            ...prev,
-                            firstName,
-                            lastName,
-                            phone: profile.phone?.replace(/^\+234/, '').replace(/^0/, '') || '',
-                            countryCode: '+234',
-                        }))
-
-                        if (data.merchant) {
-                            setMerchantId(data.merchant.toString())
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading profile from localStorage:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        loadProfileData()
-    }, [])
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target
         setFormData(prev => ({
