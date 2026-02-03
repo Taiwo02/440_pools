@@ -30,13 +30,32 @@ type FormValues = {
   slots: number;
 };
 
+type SizeAllocation = {
+  sizeId: number
+  sizeLabel: string
+  quantity: number
+}
+
+type ColorAllocation = {
+  colorId: number
+  colorLabel: string
+  colorImages: string[]
+  quantity?: number
+  sizes: Record<number, SizeAllocation>
+}
+
+
+type AllocationState = Record<number, ColorAllocation> // key = colorId
+
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     sizes: [],
     colors: [],
     slots: 1,
   });
-  const [allocations, setAllocations] = useState<VariantAllocation[]>([]);
+  const [activeColorId, setActiveColorId] = useState<number | null>(null)
+  const [allocations, setAllocations] = useState<AllocationState>({})
+  const [isAllocationOpen, setIsAllocationOpen] = useState(false)
 
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isPending, error } = useGetSingleBale(productId);
@@ -45,33 +64,89 @@ const ProductDetails = () => {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    if (!formValues.slots || !formValues.colors.length) {
-      setAllocations([]);
-      return;
+    if (!baleData) return
+
+    const lastSelectedColor = formValues.colors.at(-1)
+    if (!lastSelectedColor) {
+      setActiveColorId(null)
+      return
     }
 
-    const hasSizes = sizesList.length > 0;
-    const next: VariantAllocation[] = [];
+    const color = baleData.product.colors.find(
+      c => c.color === lastSelectedColor
+    )
 
-    formValues.colors.forEach(color => {
-      if (hasSizes && formValues.sizes.length) {
-        formValues.sizes.forEach(size => {
-          next.push({ color, size, quantity: 0 });
-        });
-      } else if (!hasSizes) {
-        next.push({ color, size: null, quantity: 0 });
+    if (!color) return
+
+    setActiveColorId(color.id)
+
+    setAllocations(prev => {
+      if (prev[color.id]) return prev
+
+      return {
+        ...prev,
+        [color.id]: {
+          colorId: color.id,
+          colorLabel: color.color,
+          colorImages: color.images,
+          sizes: {}
+        }
       }
-    });
+    })
+  }, [formValues.colors, baleData])
 
-    setAllocations(prev =>
-      next.map(n => {
-        const existing = prev.find(
-          p => p.color === n.color && p.size === n.size
-        );
-        return existing ?? n;
-      })
-    );
-  }, [formValues.slots, formValues.colors, formValues.sizes]);
+  useEffect(() => {
+    if (activeColorId) {
+      setIsAllocationOpen(true)
+    }
+  }, [activeColorId])
+
+  useEffect(() => {
+    if (isAllocationOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAllocationOpen]);
+
+  const updateSizeQuantity = (
+    colorId: number,
+    sizeId: number,
+    sizeLabel: string,
+    quantity: number
+  ) => {
+    setAllocations(prev => ({
+      ...prev,
+      [colorId]: {
+        ...prev[colorId],
+        sizes: {
+          ...prev[colorId].sizes,
+          [sizeId]: {
+            sizeId,
+            sizeLabel,
+            quantity
+          }
+        }
+      }
+    }))
+  }
+
+  const updateColorQuantity = (
+    colorId: number,
+    quantity: number
+  ) => {
+    setAllocations(prev => ({
+      ...prev,
+      [colorId]: {
+        ...prev[colorId],
+        quantity
+      }
+    }))
+  }
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
@@ -134,51 +209,78 @@ const ProductDetails = () => {
   }
 
   /* ---------------- VARIANT → ALLOCATION LOGIC ---------------- */
+  const hasSizes = sizesList.length > 0
 
-  const updateAllocation = (index: number, quantity: number) => {
-    setAllocations(prev => {
-      const copy = [...prev];
-      copy[index] = { ...copy[index], quantity };
-      return copy;
-    });
-  };
+  const items = Object.values(allocations).flatMap(color => {
+    // WITH SIZES
+    if (hasSizes) {
+      return Object.values(color.sizes)
+        .filter(s => s.quantity > 0)
+        .map(s => ({
+          kind: "shoe",
+          quantity: s.quantity,
+          totalPrice: s.quantity * baleData.product.price,
+          size: {
+            id: s.sizeId,
+            label: s.sizeLabel,
+            type: "shoe",
+            format: "usShoeSize",
+          },
+          color: {
+            id: color.colorId,
+            color: color.colorLabel,
+            images: color.colorImages,
+            productId: baleData.product.id,
+            status: true,
+          }
+        }))
+    }
 
-  const items = allocations.map((item, index) => ({
-    kind: "shoe",
-    size: item.size
-      ? {
-        id: index,
-        label: item.size,
-        type: "shoe",
-        format: "usShoeSize",
+    // NO SIZES
+    if (!color.quantity || color.quantity <= 0) return []
+
+    return [{
+      kind: "bulk",
+      quantity: color.quantity,
+      totalPrice: color.quantity * baleData.product.price,
+      color: {
+        id: color.colorId,
+        color: color.colorLabel,
+        images: color.colorImages,
+        productId: baleData.product.id,
+        status: true,
       }
-      : undefined,
-    color: {
-      id: index,
-      color: item.color,
-      images: baleData.product.images,
-      productId: baleData.product.id,
-      status: true,
-    },
-    quantity: item.quantity,
-    totalPrice: item.quantity * baleData.product.price,
-  }));
+    }]
+  })
 
   const selectedVariants = {
     sizes: formValues.sizes,
     colors: formValues.colors,
   };
 
-  const totalAllocatedQuantity = allocations.reduce(
-    (sum, a) => sum + a.quantity,
+  const totalAllocatedQuantity = Object.values(allocations).reduce(
+    (sum, color) => {
+      if (hasSizes) {
+        return (
+          sum +
+          Object.values(color.sizes).reduce(
+            (s, size) => s + size.quantity,
+            0
+          )
+        )
+      }
+
+      return sum + (color.quantity ?? 0)
+    },
     0
-  );
+  )
 
   const maxAllowedQuantity =
-    formValues.slots * (baleData.quantity / baleData.slot);
+    formValues.slots * (baleData.quantity / baleData.slot)
 
   const isAllocationExceeded =
-    totalAllocatedQuantity > maxAllowedQuantity;
+    totalAllocatedQuantity > maxAllowedQuantity
+
 
   return (
     <>
@@ -274,7 +376,7 @@ const ProductDetails = () => {
                   <div className="flex flex-col gap-2">
                     <div className="hidden md:flex gap-2 items-center text-(--primary)">
                       <RiGroupFill />
-                      <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Bale Progress</h2>
+                      <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Pool Progress</h2>
                     </div>
                     <p className="text-(--text-muted)">
                       <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
@@ -307,19 +409,20 @@ const ProductDetails = () => {
                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
                     Colors
                   </p>
+                  {/* Color selection (unchanged UI, just wired) */}
                   <Input
                     element="input"
                     input_type="checkbox"
                     name="colors"
-                    handler={handleCheckboxChange}
-                    checkboxOptions={colorsList}
                     value={formValues.colors}
+                    checkboxOptions={colorsList}
+                    handler={handleCheckboxChange}
                   />
                 </div>
               )}
 
               {/* Sizes — ONLY after color selection */}
-              {formValues.colors.length > 0 && sizesList.length > 0 && (
+              {/* {formValues.colors.length > 0 && sizesList.length > 0 && (
                 <div className="mb-1">
                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
                     Sizes
@@ -333,10 +436,10 @@ const ProductDetails = () => {
                     value={formValues.sizes}
                   />
                 </div>
-              )}
+              )} */}
 
               {/* Quantity allocation — ONLY when variants exist */}
-              {allocations.length > 0 && (
+              {/* {allocations.length > 0 && (
                 <div className="mb-4">
                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
                     Quantity ({totalAllocatedQuantity}/{maxAllowedQuantity})
@@ -373,7 +476,7 @@ const ProductDetails = () => {
                     </p>
                   )}
                 </div>
-              )}
+              )} */}
 
 
               {/* Slots */}
@@ -468,6 +571,13 @@ const ProductDetails = () => {
                   className="uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent"
                   disabled={Boolean(formValues.slots == 0)}
                   onClick={() => {
+                    if (isAllocationExceeded) {
+                      toast.error(
+                        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+                      )
+                      return
+                    }
+
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
@@ -490,14 +600,7 @@ const ProductDetails = () => {
                       inStock: true,
                     });
 
-                    if (isAllocationExceeded) {
-                      toast.error(
-                        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-                      );
-                      return;
-                    }
-
-                    toast.success("Product added to cart");
+                    toast.success("Product added to cart")
                   }}
                 >
                   Add to Cart
@@ -508,14 +611,112 @@ const ProductDetails = () => {
         </div>
       </section>
 
-      {/* {isCheckoutLoading && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-2xl">
-            <RiLoader4Fill size={48} className='text-(--primary) animate-spin' />
-            <p className="text-gray-900 font-medium">Proceeding to checkout...</p>
+      {/* ALLOCATION DRAWER */}
+      {activeColorId && allocations[activeColorId] && (
+        <>
+          {/* Backdrop */}
+          <div
+            className={`fixed inset-0 bg-black/40 z-90 transition-opacity ${isAllocationOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            onClick={() => setIsAllocationOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className={`fixed top-0 right-0 h-full w-full sm:w-105 bg-(--bg-surface)
+            z-100 shadow-2xl transform transition-transform duration-300
+            ${isAllocationOpen ? "translate-x-0" : "translate-x-full"}`}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-(--border-default)">
+              <h3 className="text-lg">
+                Allocate Sizes — {allocations[activeColorId].colorLabel}
+              </h3>
+              <button
+                onClick={() => setIsAllocationOpen(false)}
+                className="text-xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto">
+              <div className="text-xs">
+                <p>
+                  Allocated:{" "}
+                  <strong>{totalAllocatedQuantity}</strong> /{" "}
+                  {maxAllowedQuantity}
+                </p>
+
+                {isAllocationExceeded && (
+                  <p className="text-red-500 mt-1">
+                    Allocation exceeds selected slots
+                  </p>
+                )}
+              </div>
+              {/* HAS SIZES */}
+              {hasSizes && (
+                <>
+                  {sizesList.map(size => {
+                    const qty =
+                      allocations[activeColorId].sizes[size.id]?.quantity ?? 0
+
+                    return (
+                      <div
+                        key={size.id}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-sm">{size.label}</span>
+
+                        <Input
+                          element="input"
+                          input_type="number"
+                          value={qty}
+                          name="Quantity"
+                          styling="w-24! p-2!"
+                          handler={e =>
+                            updateSizeQuantity(
+                              activeColorId,
+                              size.id,
+                              size.label,
+                              Number(e.target.value)
+                            )
+                          }
+                          genStyle="my-0!"
+                        />
+                      </div>
+                    )
+                  })}
+                </>
+              )}
+
+              {/* NO SIZES */}
+              {!hasSizes && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">
+                    Quantity — {allocations[activeColorId].colorLabel}
+                  </span>
+
+                  <Input
+                    element="input"
+                    input_type="number"
+                    name="Allocation"
+                    value={allocations[activeColorId].quantity ?? 0}
+                    styling="w-24!"
+                    handler={e =>
+                      updateColorQuantity(
+                        activeColorId,
+                        Number(e.target.value)
+                      )
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )} */}
+        </>
+      )}
     </>
 
   );
