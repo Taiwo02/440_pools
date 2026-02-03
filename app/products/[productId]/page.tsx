@@ -583,7 +583,7 @@ const ProductDetails = () => {
                       productId: baleData.productId,
                       baleId: baleData.baleId,
                       name: baleData.product.name,
-                      image: baleData.product.images[0],
+                      image: baleData.product.images[2],
                       supplierId: `sup-${baleData.product.supplierId}`,
                       price: baleData.product.price,
                       originalPrice: baleData.product.oldPrice,
