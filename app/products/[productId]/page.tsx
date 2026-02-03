@@ -376,7 +376,7 @@ const ProductDetails = () => {
                   <div className="flex flex-col gap-2">
                     <div className="hidden md:flex gap-2 items-center text-(--primary)">
                       <RiGroupFill />
-                      <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Bale Progress</h2>
+                      <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Pool Progress</h2>
                     </div>
                     <p className="text-(--text-muted)">
                       <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
@@ -583,7 +583,7 @@ const ProductDetails = () => {
                       productId: baleData.productId,
                       baleId: baleData.baleId,
                       name: baleData.product.name,
-                      image: baleData.product.images[0],
+                      image: baleData.product.images[2],
                       supplierId: `sup-${baleData.product.supplierId}`,
                       price: baleData.product.price,
                       originalPrice: baleData.product.oldPrice,

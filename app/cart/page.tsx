@@ -45,6 +45,11 @@ const Cart = () => {
 
   const cartItems = cart;
 
+  useEffect(() => {
+    console.log(JSON.stringify(cart))
+  }, [cart])
+  
+
   // const cartItems = [
   //   {
   //     cartItemId: "cart-001",
@@ -205,7 +210,7 @@ const Cart = () => {
     <>
       <section className='pt-24 mb-10 md:mb-16'>
         <div className="px-4 md:px-10 lg:px-20">
-          <div className="flex justify-between items-end">
+          <div className="flex justify-between items-end pt-16 md:pt-0">
             <div>
               <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
               <p className='text-(--primary)/80'>{cartItems.length} pool(s)</p>
@@ -264,10 +269,10 @@ const Cart = () => {
                             </div>
                             <div className="flex flex-1 justify-between gap-1">
                               <div>
-                                <p className='text-sm md:text-lg'>
+                                <p className='text-sm md:text-lg line-clamp-2'>
                                   {item.name}
                                 </p>
-                                <div className="grid grid-cols-1 gap-2 mt-2 mb-1">
+                                {/* <div className="grid grid-cols-1 gap-2 mt-2 mb-1">
                                   <div className="flex flex-wrap gap-2">
                                     {Object.entries(item.variants).map(([key, value]) => (
                                       <span 
@@ -277,21 +282,18 @@ const Cart = () => {
                                         {key}: {Array.isArray(value) ? value.join(", ") : value}
                                       </span>
                                     ))}
-                                    {/* {Object.entries(item.variants).map(([key, value]) => (
-                                      <span
-                                        key={key}
-                                        className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                                      >
-                                        {key}: {value}
-                                      </span>
-                                    ))} */}
                                   </div>
                                   { minOrder > 1 && (
                                     <p className="text-xs text-left text-gray-500 mt-1">
                                       Min. order: {minOrder} {item.unit}s
                                     </p>
                                   )}
-                                </div>
+                                </div> */}
+                                <span
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
+                                >
+                                  Quantity: { item.slots * item.quantity }
+                                </span>
                               </div>
                               <div className='text-end'>
                                 <p className="text-xl font-bold">₦ {item.price.toLocaleString()}</p>
