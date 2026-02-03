@@ -3,7 +3,7 @@ import { Badge, Button, Card, Input } from '@/components/ui'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'react-toastify';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from "next/navigation";
 
 import {
@@ -157,35 +157,49 @@ const Cart = () => {
     }, 0);
   };
 
- const handleCheckOut = () => {
-  const accessToken = getCrossSubdomainCookie('440_token');
-  
-  if (!accessToken) {
-    localStorage.setItem('redirectAfterLogin', '/checkout');
-    
-    toast.warning(`Authentication required`, {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
-    
-    router.push('/account');
-  } else {
-    setIsCheckoutLoading(true);
-
-    setTimeout(()=>{
-      router.push('/checkout');
-    },1000)
+  const totalQty = () => {
+    return cartItems.reduce((sum, item) => {
+      const quantity = item.slots;
+      return sum + (quantity);
+    }, 0);
   }
-};
+
+  const handleCheckOut = () => {
+    const accessToken = getCrossSubdomainCookie('440_token');
+
+    if (!accessToken) {
+      localStorage.setItem('redirectAfterLogin', '/checkout');
+
+      toast.warning(`Authentication required`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      router.push('/account');
+    } else {
+      setIsCheckoutLoading(true);
+
+      setTimeout(() => {
+        router.push('/checkout');
+      }, 1000)
+    }
+  };
   
   const subtotal = calculateTotal();
   const bulkSavings = subtotal > 0 ? 225.50 : 0;
   const shipping = subtotal > 0 ? 45.00 : 0;
   const total = subtotal - bulkSavings + shipping;
+
+  useEffect(() => {
+    localStorage.setItem(
+      "cartSummary",
+      JSON.stringify({ subtotal, bulkSavings, shipping, totalQty, total })
+    );
+  }, [subtotal]);
 
   return (
     <>
@@ -256,13 +270,21 @@ const Cart = () => {
                                 <div className="grid grid-cols-1 gap-2 mt-2 mb-1">
                                   <div className="flex flex-wrap gap-2">
                                     {Object.entries(item.variants).map(([key, value]) => (
+                                      <span 
+                                        key={key} 
+                                        className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
+                                      >
+                                        {key}: {Array.isArray(value) ? value.join(", ") : value}
+                                      </span>
+                                    ))}
+                                    {/* {Object.entries(item.variants).map(([key, value]) => (
                                       <span
                                         key={key}
                                         className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
                                       >
                                         {key}: {value}
                                       </span>
-                                    ))}
+                                    ))} */}
                                   </div>
                                   { minOrder > 1 && (
                                     <p className="text-xs text-left text-gray-500 mt-1">

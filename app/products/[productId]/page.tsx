@@ -1,131 +1,191 @@
-"use client"
+"use client";
 
-import { useGetSingleBale } from "@/api/bale"
-import ProductImages from "@/components/product/ImageGallery"
-import Countdown from "@/components/shared/Countdown"
-import { Alert, Badge, Button, Input, Progress } from "@/components/ui"
-import { Tabs } from "@/components/ui/tabs"
-import { useCart } from "@/hooks/use-cart"
-import { getCrossSubdomainCookie } from "@/lib/utils"
-import { Bale } from "@/types/types"
-import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
-import { useEffect, useEffectEvent, useRef, useState } from "react"
-import { RiGroup2Fill, RiGroupFill, RiLoader5Line, RiRocket2Fill, RiShieldCheckFill, RiShip2Fill, RiStarFill, RiStarHalfFill, RiTimeFill } from "react-icons/ri"
-import { toast } from "react-toastify"
+import { useGetSingleBale } from "@/api/bale";
+import ProductImages from "@/components/product/ImageGallery";
+import Countdown from "@/components/shared/Countdown";
+import { Alert, Badge, Button, Input, Progress } from "@/components/ui";
+import { Tabs } from "@/components/ui/tabs";
+import { useCart } from "@/hooks/use-cart";
+import { getCrossSubdomainCookie } from "@/lib/utils";
+import { VariantAllocation } from "@/types/types";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  RiGroupFill,
+  RiLoader5Line,
+  RiRocket2Fill,
+  RiShieldCheckFill,
+  RiShip2Fill,
+  RiStarFill,
+  RiStarHalfFill,
+  RiTimeFill,
+} from "react-icons/ri";
+import { toast } from "react-toastify";
+
+type FormValues = {
+  sizes: string[];
+  colors: string[];
+  slots: number;
+};
 
 const ProductDetails = () => {
-  const [formValues, setFormValues] = useState({
+  const [formValues, setFormValues] = useState<FormValues>({
     sizes: [],
+    colors: [],
     slots: 0,
-    colors: []
   });
+  const [allocations, setAllocations] = useState<VariantAllocation[]>([]);
 
-  const params = useParams<{ productId: string }>();
-  const id = params?.productId;
-  const { data: baleData, isPending, error } = useGetSingleBale(id as string);
+  const { productId } = useParams<{ productId: string }>();
+  const { data: baleData, isPending, error } = useGetSingleBale(productId);
   const router = useRouter();
   const { addToCart } = useCart();
 
   useEffect(() => {
-    if(baleData) console.log(baleData);
-    console.log(id);
-  }, [baleData]);
+    if (!formValues.slots || !formValues.colors.length) {
+      setAllocations([]);
+      return;
+    }
+
+    const hasSizes = sizesList.length > 0;
+    const next: VariantAllocation[] = [];
+
+    formValues.colors.forEach(color => {
+      if (hasSizes && formValues.sizes.length) {
+        formValues.sizes.forEach(size => {
+          next.push({ color, size, quantity: 0 });
+        });
+      } else if (!hasSizes) {
+        next.push({ color, size: null, quantity: 0 });
+      }
+    });
+
+    setAllocations(prev =>
+      next.map(n => {
+        const existing = prev.find(
+          p => p.color === n.color && p.size === n.size
+        );
+        return existing ?? n;
+      })
+    );
+  }, [formValues.slots, formValues.colors, formValues.sizes]);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
 
-    setFormValues((prev: any) => {
-      const values = prev[name] || [];
-      return {
-        ...prev,
-        [name]: checked
-          ? [...values, value]
-          : values.filter((v: string) => v !== value),
-      };
-    });
-  };
-
-  // const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value, checked } = e.target;
-
-  //   setSizes(prev =>
-  //     checked
-  //       ? [...prev, value]
-  //       : prev.filter(size => size !== value)
-  //   );
-  // };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-
-    setFormValues(prevData => ({
-      ...prevData,
-      [name]: value,
+    setFormValues(prev => ({
+      ...prev,
+      [name]: checked
+        ? [...prev[name as "sizes" | "colors"], value]
+        : prev[name as "sizes" | "colors"].filter(v => v !== value),
     }));
   };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormValues(prev => ({ ...prev, [name]: Number(value) }));
+  };
+
+  const joinPool = () => {
+    const token = getCrossSubdomainCookie("440_token");
+    if (!token) {
+      sessionStorage.setItem("showLoginToast", "true");
+      router.push("/account");
+    }
+  };
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+      </div>
+    );
+  }
+
+  if (error || !baleData) return <p>Error loading bale</p>;
+
+  const productsPerSlot = baleData.quantity / baleData.slot;
+
+  const sizesList = baleData.product.productSizes.map(s => ({
+    id: s.id,
+    value: s.size.label,
+    label: s.size.label,
+  }));
+
+  const colorsList = baleData.product.colors.map(c => ({
+    value: c.color,
+    label: c.color,
+    node: (
+      <img
+        src={c.images[0]}
+        alt={c.color}
+        className="w-8 h-8 rounded-full object-cover"
+      />
+    ),
+  }));
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-US", { maximumFractionDigits: 0 })
   }
 
-  const joinPool = () => {
-    const token = getCrossSubdomainCookie("440_token");
-    if(!token){
-      sessionStorage.setItem("showLoginToast", "true");
-      router.push('/account');
-    } 
-  }
+  /* ---------------- VARIANT → ALLOCATION LOGIC ---------------- */
 
-  if(isPending) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
-      </div>
-    )
-  }
-
-  if (error) return <p>Error loading bale</p>;
-
-  const productsPerSlot = baleData?.quantity / baleData?.slot
-  const imageList = baleData?.product.images.slice(1);
-  
-  const sizesList = baleData?.product.productSizes.map(size => ({
-    id: size.id,
-    value: size.size.label,
-    label: size.size.label
-  }));
-
-  const colorsList = baleData?.product.colors.map(color => ({
-    value: color.color,
-    label: color.color,
-    node: (
-      <img
-        src={color.images[0]}
-        alt={color.color}
-        className="w-8 h-8 rounded-full object-cover"
-      />
-    )
-  }));
-
-  const selectedVariants: Record<string, string | string[]> = {
-    sizes: formValues.sizes,
-    color: formValues.colors,
+  const updateAllocation = (index: number, quantity: number) => {
+    setAllocations(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], quantity };
+      return copy;
+    });
   };
 
+  const items = allocations.map((item, index) => ({
+    kind: "shoe",
+    size: item.size
+      ? {
+        id: index,
+        label: item.size,
+        type: "shoe",
+        format: "usShoeSize",
+      }
+      : undefined,
+    color: {
+      id: index,
+      color: item.color,
+      images: baleData.product.images,
+      productId: baleData.product.id,
+      status: true,
+    },
+    quantity: item.quantity,
+    totalPrice: item.quantity * baleData.product.price,
+  }));
+
+  const selectedVariants = {
+    sizes: formValues.sizes,
+    colors: formValues.colors,
+  };
+
+  const totalAllocatedQuantity = allocations.reduce(
+    (sum, a) => sum + a.quantity,
+    0
+  );
+
+  const maxAllowedQuantity =
+    formValues.slots * (baleData.quantity / baleData.slot);
+
+  const isAllocationExceeded =
+    totalAllocatedQuantity > maxAllowedQuantity;
+
   return (
-    <section className='pt-24 mb-10 md:mb-16'>
-      <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8 items-start">
-        <div className="flex flex-col md:flex-row gap-8 items-start w-full">
-          <div className="w-full md:basis-1/2 lg:basis-4/5">
-            <div className="bg-(--bg-surface) p-2 md:p-6 rounded-xl md:mb-8">
-              <ProductImages 
-                imageList={imageList} 
-              />
+    <section className="pt-24 mb-16">
+      <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8">
+        <div className="flex flex-col md:flex-row items-start gap-8">
+          {/* LEFT */}
+          <div className="md:basis-2/3">
+            <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
+              <ProductImages imageList={baleData.product.images.slice(1)} />
             </div>
             <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
               <Tabs defaultValue="specs">
@@ -182,7 +242,9 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-          <div className="w-full md:basis-1/2 lg:basis:1/5 bg-(--bg-surface) p-4 md:p-6 rounded-xl sticky top-0">
+
+          {/* RIGHT */}
+          <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl sticky top-20">
             <h1 className="text-3xl lg:text-4xl">{baleData.product.name}</h1>
             <div className="flex gap-2 md:gap-4 items-center flex-wrap mb-4">
               <div className="flex gap-1 items-center">
@@ -204,22 +266,6 @@ const ProductDetails = () => {
                 <p className="text-(--text-muted) line-through">&#8358;{formatPrice(baleData.oldPrice)}</p>
               </div>
             </div>
-            {/* <div className="w-full md:w-fit flex gap-4 items-stretch mb-4 p-4 rounded-xl bg-(--bg-page) border border-(--border-default)">
-              <div className="flex flex-col gap-1">
-                <p className="text-(--text-muted) uppercase">10-100 Units</p>
-                <p className="text-xl font-bold">$1.50</p>
-              </div>
-              <div className="border border-(--border-default)"></div>
-              <div className="flex flex-col gap-1">
-                <p className="text-(--text-muted) uppercase">100-500 Units</p>
-                <p className="text-xl font-bold">$1.50</p>
-              </div>
-              <div className="border border-(--border-default)"></div>
-              <div className="flex flex-col gap-1">
-                <p className="text-(--text-muted) uppercase">500+ Units</p>
-                <p className="text-xl font-bold">$1.50</p>
-              </div>
-            </div> */}
             <div className="rounded-xl p-4 bg-(--primary-soft) border-2 border-(--primary) mb-4">
               <div className="flex md:items-end justify-between">
                 <div className="flex flex-col gap-2">
@@ -249,120 +295,122 @@ const ProductDetails = () => {
                 progClass="bg-(--bg-page)/70!"
               />
               <Alert type="success" className="mt-3 py-2! px-4! w-fit! text-sm!">
-                * 1 slot = { productsPerSlot } products
+                * 1 slot = {productsPerSlot} products
               </Alert>
             </div>
-            <div className="mb-4 flex flex-col gap-4">
-              {
-                baleData?.product?.productSizes.length != 0 &&
-                <div>
-                  <p className="text-(--text-muted) uppercase font-semibold">Sizes</p>
-                  <div className="flex flex-wrap gap-1">
-                      <Input
-                        element="input"
-                        input_type="checkbox"
-                        name="sizes"
-                        value={formValues.sizes}
-                        handler={handleCheckboxChange}
-                        checkboxOptions={sizesList}
-                        genStyle="my-0!"
-                        styling="p-2!"
-                      />
-                  </div>
-                </div>
-              }
 
-              {
-                baleData?.product?.colors.length != 0 &&
-                <div>
-                  <p className="text-(--text-muted) uppercase font-semibold">Colors</p>
-                  <div className="flex gap-1">
-                    <Input
-                      element="input"
-                      input_type="checkbox"
-                      name="colors"
-                      value={formValues.colors}
-                      handler={handleCheckboxChange}
-                      checkboxOptions={colorsList}
-                      genStyle="my-0!"
-                    />
-                  </div>
-                </div>
-              }
-              
-              {/* <div>
-                <p className="text-(--text-muted) uppercase font-semibold">Colors</p>
-                <div className="flex gap-1">
-                  {
-                    colorsInput.map((color, index) => (
-                      <Input
-                        key={index}
-                        element="input"
-                        input_type="checkbox"
-                        name="colors"
-                        value={formValues.colors}
-                        handler={handleCheckboxChange}
-                        checkboxOptions={[`${color}`]}
-                        genStyle="my-0!"
-                        styling={`p-2! rounded-full! ${color == "black" || color == "white" ? `bg-${color}` : `bg-${color}-500`}`}
-                        invisible
-                      />
-                    ))
-                  }
-                </div>
-              </div> */}
-            </div>
-            <div className="mb-4 flex flex-col gap-4">
-              <div>
-                <p className="text-(--text-muted) uppercase font-semibold">Slots</p>
-                <div className="flex items-stretch">
-                  <Button
-                    className="rounded-r-none rounded-l-xl! py-2!"
-                    disabled={Boolean(formValues.slots == 0)}
-                    onClick={() =>
-                      setFormValues(prev => ({
-                        ...prev,
-                        slots: prev.slots == 0 ? 0 : prev.slots - 1
-                      }))
-                    }
-                    primary
-                  >
-                    -
-                  </Button>
-                  <Input
-                    element="input"
-                    input_type="text"
-                    name="quantity"
-                    value={formValues.slots}
-                    handler={handleChange}
-                    genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! disabled w-30!"
-                  />
-                  <Button
-                    className="rounded-l-none rounded-r-xl! py-2!"
-                    onClick={() =>
-                      setFormValues(prev => ({
-                        ...prev,
-                        slots: prev.slots + 1
-                      }))
-                    }
-                    primary
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <p className="text-(--text-muted) uppercase font-semibold">Total Estimated Price</p>
-                <p className="uppercase font-bold text-3xl">
-                  &#8358;{
-                    formValues.slots == 0 ? "0" :
-                      formatPrice((formValues.slots * productsPerSlot * baleData.price) + baleData.deliveryFee)
-                  }
-                  <i className="text-(--text-muted) text-xs font-normal">(+ Shipping)</i>
+            {formValues.slots > 0 && colorsList.length > 0 && (
+              <div className="mb-1">
+                <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                  Colors
                 </p>
+                <Input
+                  element="input"
+                  input_type="checkbox"
+                  name="colors"
+                  handler={handleCheckboxChange}
+                  checkboxOptions={colorsList}
+                  value={formValues.colors}
+                />
+              </div>
+            )}
+
+            {/* Sizes — ONLY after color selection */}
+            {formValues.colors.length > 0 && sizesList.length > 0 && (
+              <div className="mb-1">
+                <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                  Sizes
+                </p>
+                <Input
+                  element="input"
+                  input_type="checkbox"
+                  name="sizes"
+                  handler={handleCheckboxChange}
+                  checkboxOptions={sizesList}
+                  value={formValues.sizes}
+                />
+              </div>
+            )}
+
+            {/* Quantity allocation — ONLY when variants exist */}
+            {allocations.length > 0 && (
+              <div className="mb-4">
+                <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                  Quantity ({totalAllocatedQuantity}/{maxAllowedQuantity})
+                </p>
+
+                <div className="flex flex-col gap-2">
+                  {allocations.map((alloc, index) => (
+                    <div
+                      key={`${alloc.color}-${alloc.size ?? "nosize"}`}
+                      className="flex justify-between items-center gap-4"
+                    >
+                      <span className="text-sm">
+                        {alloc.color}
+                        {alloc.size && ` / ${alloc.size}`}
+                      </span>
+
+                      <Input
+                        element="input"
+                        input_type="number"
+                        value={alloc.quantity}
+                        handler={e =>
+                          updateAllocation(index, Number(e.target.value))
+                        }
+                        name="Quantity"
+                        styling="w-24!"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {isAllocationExceeded && (
+                  <p className="text-sm text-red-500 mt-2">
+                    Allocated quantity exceeds selected slots
+                  </p>
+                )}
+              </div>
+            )}
+
+
+            {/* Slots */}
+            <div className="mb-4">
+              <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                Slots
+              </p>
+              <div className="flex items-stretch">
+                <Button
+                  className="rounded-r-none rounded-l-xl! py-2!"
+                  disabled={formValues.slots === 0}
+                  onClick={() =>
+                    setFormValues(p => ({ ...p, slots: p.slots - 1 }))
+                  }
+                  primary
+                >
+                  -
+                </Button>
+                <Input
+                  element="input"
+                  input_type="text"
+                  name="quantity"
+                  value={formValues.slots}
+                  handler={handleChange}
+                  genStyle="my-0!"
+                  styling="rounded-none p-2! focus:outline-none! disabled w-30!"
+                />
+                <Button
+                  className="rounded-l-none rounded-r-xl! py-2!"
+                  onClick={() =>
+                    setFormValues(p => ({ ...p, slots: p.slots + 1 }))
+                  }
+                  primary
+                >
+                  +
+                </Button>
               </div>
             </div>
+
+            {/* Mobile Tab List */}
             <div className="block md:hidden rounded-2xl bg-(--bg-surface) w-full mb-8">
               <Tabs defaultValue="specs">
                 <Tabs.List className="border-b border-(--border-default)">
@@ -400,65 +448,63 @@ const ProductDetails = () => {
                 </Tabs.Content>
               </Tabs>
             </div>
+
+            {/* Buttons for pool and cart */}
             <div className="mb-4 flex gap-4 items-center">
-              <Button 
-                primary 
-                className="uppercase flex gap-2 items-center" 
+              <Button
+                primary
+                className="uppercase flex gap-2 items-center"
                 disabled={Boolean(formValues.slots == 0)}
                 onClick={joinPool}
               >
                 <RiRocket2Fill className="hidden md:block" />
                 Join Pool
               </Button>
-              <Button 
-                primary 
+              <Button
+                primary
                 className="uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent"
                 disabled={Boolean(formValues.slots == 0)}
                 onClick={() => {
                   addToCart({
-                    cartItemId: `cart-${baleData.baleId}`, 
-                    productId: baleData.productId, 
-                    name: baleData.product.name, 
-                    image: baleData.product.images[2], 
-                    supplierId: `"sup-${baleData.product.supplierId}`, 
-                    price: baleData.product.price, 
-                    originalPrice: baleData.product.oldPrice, 
-                    discount: 10, 
-                    currency: "NGN", 
+                    cartItemId: `cart-${baleData.baleId}`,
+                    productId: baleData.productId,
+                    baleId: baleData.baleId,
+                    name: baleData.product.name,
+                    image: baleData.product.images[0],
+                    supplierId: `sup-${baleData.product.supplierId}`,
+                    price: baleData.product.price,
+                    originalPrice: baleData.product.oldPrice,
+                    discount: 10,
+                    currency: "NGN",
                     slots: formValues.slots,
-                    quantity: productsPerSlot, 
-                    unit: "unit", 
+                    totalSlots: baleData.slot,
+                    totalShippingFee:
+                      baleData.deliveryFee * formValues.slots,
+                    quantity: productsPerSlot,
+                    unit: "unit",
                     variants: selectedVariants,
-                    inStock: true
-                  })
-                  toast.success(`Product added to cart`, {
-                    position: "top-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
+                    items,
+                    inStock: true,
                   });
+
+                  if (isAllocationExceeded) {
+                    toast.error(
+                      `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+                    );
+                    return;
+                  }
+
+                  toast.success("Product added to cart");
                 }}
               >
                 Add to Cart
               </Button>
             </div>
-            <div className="mb-4 flex items-center gap-4">
-              <div className="flex gap-2 items-center">
-                <RiShip2Fill className="text-(--primary)" />
-                <p className="text-xs text-(--text-muted)">Est. Delivery: Oct 24 - 28</p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <RiShieldCheckFill className="text-(--primary)" />
-                <p className="text-xs text-(--text-muted)">Quality Assurance</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ProductDetails
+export default ProductDetails;

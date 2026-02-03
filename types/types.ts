@@ -312,6 +312,7 @@ export type ProfileResponse = {
 export type CartItem = {
   cartItemId: string,
   productId: number,
+  baleId: string,
   name: string,
   image: string,
   supplierId: string,
@@ -320,10 +321,58 @@ export type CartItem = {
   discount: number,
   currency: string,
   slots: number,
+  totalSlots: number,
+  totalShippingFee: number,
   quantity: number,
   unit: string,
+  items: {}[],
   variants: Record<string, string | string[]>;
   minOrder?: number,
   subtotal?: number,
   inStock: boolean
+};
+
+type BaseOrderItem = {
+  quantity: number;
+  totalPrice: number;
+};
+
+export type Size = {
+  id: number;
+  label: string;
+  format: string;
+  type: string;
+};
+
+export type Color = {
+  id: number;
+  color: string;
+  otherColor?: string;
+  images: string[];
+  status: boolean;
+  productId: number;
+};
+
+export type OrderItem = ShoeItem | ClothingItem | BulkItem;
+
+type ShoeItem = BaseOrderItem & {
+  kind: "shoe";
+  size: Size;
+  color: Color;
+};
+
+type ClothingItem = BaseOrderItem & {
+  kind: "clothing";
+  size: Size;
+  color?: Color;
+};
+
+type BulkItem = BaseOrderItem & {
+  kind: "bulk";
+};
+
+export type VariantAllocation = {
+  size: string | null;
+  color: string;
+  quantity: number;
 };
