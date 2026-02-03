@@ -1,10 +1,12 @@
 "use client"
 
 import { useGetUserProfile } from '@/api/auth'
+import { useDeliveryMutation, useOrderMutation } from '@/api/order'
 import { Button, Input } from '@/components/ui'
 import { useCart } from '@/hooks/use-cart'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import {
   RiArrowLeftLine,
@@ -19,6 +21,7 @@ import {
   RiCheckLine,
   RiLoader4Line
 } from 'react-icons/ri'
+import { toast } from 'react-toastify'
 
 interface ProfileData {
   account_name: string
@@ -27,33 +30,19 @@ interface ProfileData {
   email: string
 }
 
-interface DeliveryPayload {
-  firstName: string
-  LastName: string
-  countryCode: string
-  phone: string
-  additionalCountryCode: string
-  additionalPhone: string
-  address: string
-  additionalInfo: string
-  region: string
-  city: string
-  state: string
-  setDefault: boolean
-  merchantId: string
-}
-
 const Checkout = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [merchantId, setMerchantId] = useState<string>('')
 
   const { data: user, isPending ,error } = useGetUserProfile();
+  const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
+  const { mutateAsync: postOrder, isPending: isOrderLoading } = useOrderMutation();
   const { cart } = useCart();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    businessName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     countryCode: '+234',
@@ -121,39 +110,91 @@ const Checkout = () => {
 
   useEffect(() => {
     console.log(subtotal.toLocaleString("en-US", { maximumFractionDigits: 0 }))
-  }, [cartItems])
-  
+  }, [cartItems]);
 
-  const createOrder = async () => {
-    const orderData = {
-      totalAmount: subtotal,
-      primaryAmount: 40000,
-      totalShippingFee: shipping,
-      deliveryAddressId: 2,
-      totalQuantity: 1,
-      bales: [
-        cartItems.map(item => ({
-          quantity: item.slots,
-          price: item.price,
-          totalPrice: item.slots * item.quantity * item.price,
-          bale: {
-            id: item.productId,
-            quantity: item.quantity,
-            filledSlot: item.slots,
+  useEffect(() => {
+    console.log(user)
+  }, [user]);
+
+  const placeOrder = async () => {
+    if(user && cartItems) {
+      const deliveryData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        countryCode: formData.countryCode,
+        phone: formData.phone,
+        additionalCountryCode: formData.additionalCountryCode,
+        additionalPhone: formData.additionalPhone,
+        address: formData.address,
+        additionalInfo: formData.additionalInfo,
+        region: formData.region,
+        city: formData.city,
+        state: formData.state,
+        setDefault: false,
+        merchantId: user.id
+      }
+
+      const res = await postDelivery(deliveryData);
+      if(res.status == 200) {
+        const deliveryId = res.data.data.id;
+
+        const orderData = {
+          totalAmount: subtotal,
+          primaryAmount: 40000,
+          totalShippingFee: shipping,
+          deliveryAddressId: deliveryId,
+          totalQuantity: 1,
+          bales: cartItems.map(item => ({
+            quantity: item.slots,
             price: item.price,
-            baleId: item.baleId,
-            product: {
-              images: [item.image],
-              name: item.name
-            },
-            items: [
-              {
+            totalPrice: item.slots * item.quantity * item.price,
+            bale: {
+              id: item.productId,
+              quantity: item.quantity,
+              filledSlot: item.slots,
+              price: item.price,
+              baleId: item.baleId,
+              product: {
+                images: [item.image],
+                name: item.name
+              },
+              items: item.items
+            }
+          }))
+        }
 
-              }
-            ]
-          }
-        }))
-      ]
+        const orderRes = await postOrder(orderData, user.id);
+        if(orderRes.status == 200) {
+          toast.success(`Order successfully`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+
+          router.push('/account')
+        } else {
+          toast.error(`Order not created`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+      } else {
+        toast.error(`Something went wrong`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
     }
   }
 
@@ -191,21 +232,40 @@ const Checkout = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-normal text-gray-700 mb-2">
-                        Full Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="text"
-                          name="firstName"
-                          value={user?.name}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                          placeholder="John"
-                        />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-normal text-gray-700 mb-2">
+                          First Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="John"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-normal text-gray-700 mb-2">
+                          Last Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="Doe"
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -634,7 +694,7 @@ const Checkout = () => {
 
                   <Button
                     primary
-                    onClick={() => {}}
+                    onClick={placeOrder}
                     disabled={submitting}
                     className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                   >

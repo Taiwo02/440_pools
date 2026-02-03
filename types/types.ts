@@ -376,3 +376,19 @@ export type VariantAllocation = {
   color: string;
   quantity: number;
 };
+
+export type DeliveryPayload = {
+  firstName: string
+  lastName: string
+  countryCode: string
+  phone: string
+  additionalCountryCode: string
+  additionalPhone: string
+  address: string
+  additionalInfo: string
+  region: string
+  city: string
+  state: string
+  setDefault: boolean
+  merchantId: number
+}
