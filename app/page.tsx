@@ -10,10 +10,10 @@ export default function Home() {
         <img src="/images/bg1.jpg" alt="" className="hidden w-full h-full object-cover" />
         <div className="hidden w-full h-full bg-black/50 absolute top-0 left-0 md:flex flex-col justify-center px-4 lg:px-20 text-white pt-20">
           <h1 className="text-3xl lg:text-5xl">
-            Efficient <br /> <span className="text-(--primary)">Bulk Purchasing</span> <br /> Solutions
+            Join <br /> <span className="text-(--primary)">Africa's Only</span> <br /> Demand Pool
           </h1>
           <p className="my-2 lg:my-3 max-w-150 font-light">
-            Connect with verified global manufacturers. Reduce costs by up to 40% with high-volume procurement and consolidated shipping
+            Get direct from factory prices without meeting the minimum order requirements. Source from globally verified suppliers.
           </p>
           <div className="flex items-center gap-4">
             <Button primary>

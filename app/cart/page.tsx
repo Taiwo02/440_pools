@@ -210,7 +210,7 @@ const Cart = () => {
     <>
       <section className='pt-24 mb-10 md:mb-16'>
         <div className="px-4 md:px-10 lg:px-20">
-          <div className="flex justify-between items-end pt-10 md:pt-0">
+          <div className="flex justify-between items-end pt-16 md:pt-0">
             <div>
               <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
               <p className='text-(--primary)/80'>{cartItems.length} pool(s)</p>
