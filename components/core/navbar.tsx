@@ -129,7 +129,7 @@ const Navbar = () => {
         <Link href={'/'} className="text-2xl font-bold shrink-0">
           <img src="https://shop.4401.live/img/logos/440_Logo_GS-removebg.png" alt="" width={70} height={70} />
         </Link>
-        <form className="hidden lg:flex items-stretch flex-1 min-w-0 border-2 border-(--primary) rounded-full">
+        <form className="hidden lg:flex items-stretch w-150 min-w-0 border-2 border-(--primary) rounded-full">
           <Dropdown
             value={category}
             onChange={value => setCategory(value)}
