@@ -15,7 +15,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
         <div className="
           flex gap-2 w-full md:gap-4
           md:flex-col md:basis-1/6
-          md:overflow-y-auto md:overflow-x-hidden md:h-100
+          md:overflow-y-auto md:overflow-x-hidden md:h-120
           no-scrollbar overflow-x-auto overflow-y-hidden
         ">
           {imageList.map((image, index) => (
