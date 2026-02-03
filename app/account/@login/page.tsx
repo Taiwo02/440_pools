@@ -126,7 +126,7 @@ const AccountLogin = () => {
             placeholder="Enter your phone number"
             tag="Phone Number"
             name="phone"
-            value={formValues.phone}
+            value={formValues.phone || ''}
             handler={handleChange}
             required
           />
@@ -136,7 +136,7 @@ const AccountLogin = () => {
             placeholder="Enter your password"
             tag="Password"
             name="password"
-            value={formValues.password}
+            value={formValues.password || ''}
             handler={handleChange}
             required
           />
