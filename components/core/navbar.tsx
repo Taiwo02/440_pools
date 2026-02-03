@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Dropdown from '../ui/dropdown'
 import Button from '../ui/button'
-import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line } from 'react-icons/ri'
+import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine } from 'react-icons/ri'
 import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import SearchForm from './search'
+import { useCart } from '@/hooks/use-cart'
 
 const Navbar = () => {
   const [category, setCategory] = useState('Electronics')
@@ -38,6 +39,7 @@ const Navbar = () => {
     "Baby Products",
   ];
   const [searchTerm, setSearchTerm] = useState('')
+  const { cart } = useCart();
 
   const navLinks = [
     {
@@ -63,41 +65,43 @@ const Navbar = () => {
   ]
 
   const industries = [
-    {
-      id: "machinery",
-      name: "Machinery",
-      icon: <RiSettings2Line />,
-    },
-    {
-      id: "electronics",
-      name: "Electronics",
-      icon: <RiComputerLine />,
-    },
-    {
-      id: "apparel",
-      name: "Apparel",
-      icon: <RiShirtFill />,
-    },
-    {
-      id: "energy",
-      name: "Energy",
-      icon: <RiFlashlightFill />,
-    },
-    {
-      id: "tools",
-      name: "Tools",
-      icon: <RiToolsFill />,
-    },
-    {
-      id: "medical",
-      name: "Medical",
-      icon: <RiHeartPulseLine />,
-    },
-    {
-      id: "all",
-      name: "All Categories",
-      icon: <RiGridFill />,
-    },
+    { name: "Apparel & Accessories", icon: <RiTShirtLine />, href: "/categories/apparel-accessories" },
+    { name: "Consumer Electronics", icon: <RiComputerLine />, href: "/categories/consumer-electronics" },
+    { name: "Sports & Entertainment", icon: <RiFootballLine />, href: "/categories/sports-entertainment" },
+    { name: "Beauty", icon: <RiSparklingLine />, href: "/categories/beauty" },
+    { name: "Luggage, Bags & Cases", icon: <RiBriefcaseLine />, href: "/categories/luggage-bags-cases" },
+    { name: "Home & Garden", icon: <RiHomeLine />, href: "/categories/home-garden" },
+    { name: "Sportswear & Outdoor Apparel", icon: <RiRunLine />, href: "/categories/sportswear-outdoor-apparel" },
+    { name: "Jewelry, Eyewear & Watches", icon: <RiVipDiamondLine />, href: "/categories/jewelry-eyewear-watches" },
+    { name: "Shoes & Accessories", icon: <RiFootprintLine />, href: "/categories/shoes-accessories" },
+    { name: "Packaging & Printing", icon: <RiPrinterLine />, href: "/categories/packaging-printing" },
+    { name: "Parents, Kids & Toys", icon: <RiParentLine />, href: "/categories/parents-kids-toys" },
+    { name: "Personal Care & Home Care", icon: <RiHeartPulseLine />, href: "/categories/personal-care-home-care" },
+    { name: "Health & Medical", icon: <RiMedicineBottleLine />, href: "/categories/health-medical" },
+    { name: "Gifts & Crafts", icon: <RiGiftLine />, href: "/categories/gifts-crafts" },
+    { name: "Pet Supplies", icon: <RiBugLine />, href: "/categories/pet-supplies" },
+    { name: "School & Office Supplies", icon: <RiBook2Line />, href: "/categories/school-office-supplies" },
+    { name: "Industrial Machinery", icon: <RiBuilding2Line />, href: "/categories/industrial-machinery" },
+    { name: "Commercial Equipment & Machinery", icon: <RiStore2Line />, href: "/categories/commercial-equipment-machinery" },
+    { name: "Construction & Building Machinery", icon: <RiBuildingLine />, href: "/categories/construction-building-machinery" },
+    { name: "Construction & Real Estate", icon: <RiHome4Line />, href: "/categories/construction-real-estate" },
+    { name: "Furniture", icon: <RiSofaLine />, href: "/categories/furniture" },
+    { name: "Lights & Lighting", icon: <RiLightbulbLine />, href: "/categories/lights-lighting" },
+    { name: "Home Appliances", icon: <RiFridgeLine />, href: "/categories/home-appliances" },
+    { name: "Automotive Supplies & Tools", icon: <RiCarLine />, href: "/categories/automotive-supplies-tools" },
+    { name: "Vehicle Parts & Accessories", icon: <RiCarWashingLine />, href: "/categories/vehicle-parts-accessories" },
+    { name: "Tools & Hardware", icon: <RiToolsLine />, href: "/categories/tools-hardware" },
+    { name: "Renewable Energy", icon: <RiLeafLine />, href: "/categories/renewable-energy" },
+    { name: "Electrical Equipment & Supplies", icon: <RiPlugLine />, href: "/categories/electrical-equipment-supplies" },
+    { name: "Safety & Security", icon: <RiShieldCheckLine />, href: "/categories/safety-security" },
+    { name: "Testing Instrument & Equipment", icon: <RiTestTubeLine />, href: "/categories/testing-instrument-equipment" },
+    { name: "Power Transmission", icon: <RiSettingsLine />, href: "/categories/power-transmission" },
+    { name: "Electronic Components", icon: <RiCpuLine />, href: "/categories/electronic-components" },
+    { name: "Vehicles & Transportation", icon: <RiBusLine />, href: "/categories/vehicles-transportation" },
+    { name: "Agriculture, Food & Beverage", icon: <RiPlantLine />, href: "/categories/agriculture-food-beverage" },
+    { name: "Raw Materials", icon: <RiBox3Line />, href: "/categories/raw-materials" },
+    { name: "Fabrication Services", icon: <RiServiceLine />, href: "/categories/fabrication-services" },
+    { name: "Service", icon: <RiServiceLine />, href: "/categories/service" },
   ];
 
   // Mobile menu animations
@@ -152,13 +156,24 @@ const Navbar = () => {
             })
           }
         </ul>
-        <button
-          aria-label="Toggle menu"
-          className="md:hidden p-2 rounded-full bg-(--primary) text-white"
-          onClick={() => setIsVisible((prev) => !prev)}
-        >
-          {isVisible ? <RiCloseLine /> : <RiMenu3Line />}
-        </button>
+        <div className="md:hidden flex items-center gap-3">
+          <Link href={''} className="p-2 relative">
+            <RiMessageLine />
+          </Link>
+          <Link href={'/cart'} className="p-2 relative">
+            <RiShoppingCartLine />
+            <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold top-0 right-0">
+              { cart.length }
+            </div>
+          </Link>
+          <button
+            aria-label="Toggle menu"
+            className="p-2 rounded-full bg-(--primary) text-white"
+            onClick={() => setIsVisible((prev) => !prev)}
+          >
+            {isVisible ? <RiCloseLine /> : <RiMenu3Line />}
+          </button>
+        </div>
       </div>
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -188,29 +203,53 @@ const Navbar = () => {
                 Home
               </Link>
             </motion.li>
-            {navLinks.map((link, index) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
-
-              return (
-                <motion.li
-                  key={index}
-                  variants={item}
-                  className="p-3"
-                  onClick={() => setIsVisible(false)}
-                >
-                  <Link
-                    href={link.href}
-                    className={`${isActive ? "active" : ""} flex items-center gap-2`}
+            <motion.li
+              variants={item}
+              className="p-3"
+              onClick={() => setIsVisible(false)}
+            >
+              <Link
+                href={'/products'}
+                className={`flex items-center gap-2`}
+              >
+                <RiArchive2Line />
+                Products
+              </Link>
+            </motion.li>
+            <motion.li
+              variants={item}
+              className="p-3 bg-(--bg-surface) absolute border-t border-(--border-default) w-full left-0 bottom-0"
+              onClick={() => setIsVisible(false)}
+            >
+              <Link
+                href={'/account'}
+                className={`flex items-center gap-2`}
+              >
+                <RiAccountCircleLine />
+                Account
+              </Link>
+            </motion.li>
+            <motion.h2 
+              className="text-lg mt-3"
+              variants={item}
+            >
+              Categories
+            </motion.h2>
+            <div className="overflow-y-auto h-200">
+              {industries.map((link, index) => {
+                return (
+                  <motion.li
+                    key={index}
+                    variants={item}
+                    className="p-3 flex items-center gap-2"
+                    onClick={() => setIsVisible(false)}
                   >
                     {link.icon}
-                    {link.label}
-                  </Link>
-                </motion.li>
-              );
-            })}
+                    {link.name}
+                  </motion.li>
+                );
+              })}
+            </div>
           </motion.ul>
         )}
       </AnimatePresence>
