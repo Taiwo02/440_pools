@@ -10,10 +10,10 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
 
   return (
     <>
-      <div className="rounded-xl md:mb-8 bg-(--bg-surface) flex flex-col-reverse md:flex-row gap-4 items-stretch">
+      <div className="rounded-xl md:mb-8 bg-(--bg-surface) flex flex-col-reverse md:flex-row gap-4 items-stretch w-full">
         {/* Thumbnails */}
         <div className="
-          flex gap-2 w-full md:gap-4
+          flex gap-2 w-[70vw] md:w-auto md:gap-4
           md:flex-col md:basis-1/6
           md:overflow-y-auto md:overflow-x-hidden md:h-120
           no-scrollbar overflow-x-auto overflow-y-hidden
@@ -35,7 +35,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
         </div>
 
         {/* Main image */}
-        <div className="w-full md:basis-5/6">
+        <div className="w-full! md:basis-5/6">
           <img
             src={mainImage}
             alt="Product image"
