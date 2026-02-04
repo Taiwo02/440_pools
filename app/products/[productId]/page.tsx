@@ -404,7 +404,7 @@ const ProductDetails = () => {
                 </Alert>
               </div>
 
-              {formValues.slots > 0 && colorsList.length > 0 && (
+              {colorsList.length > 0 && (
                 <div className="mb-1">
                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
                     Colors
@@ -422,11 +422,12 @@ const ProductDetails = () => {
               )}
 
               {/* Sizes — ONLY after color selection */}
-              {/* {formValues.colors.length > 0 && sizesList.length > 0 && (
+              {/* {sizesList.length > 0 && (
                 <div className="mb-1">
                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
                     Sizes
                   </p>
+                  <div className="max-h-70 overflow-auto p-4">
                   <Input
                     element="input"
                     input_type="checkbox"
@@ -435,8 +436,86 @@ const ProductDetails = () => {
                     checkboxOptions={sizesList}
                     value={formValues.sizes}
                   />
+                  </div>
+                 
                 </div>
               )} */}
+
+
+              {hasSizes && (
+               <div className="max-h-80 overflow-auto p-4">
+                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Sizes
+                  </p>
+                  {sizesList.map(size => {
+                    const qty =
+                      allocations[0]?.sizes[size?.id]?.quantity ?? 0
+
+                    return (
+                      <div
+                        key={size.id}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-sm">{size.label}</span>
+                     
+                        <div className="flex items-stretch mb-4">
+                        <Button
+                          className="rounded-r-none rounded-l-xl! py-2! bg-gray-600"
+                          disabled={formValues.slots === 1}
+                          onClick={() =>
+                            setFormValues(p => ({ ...p, slots: p.slots - 1 }))
+                          }
+                          primary
+                        >
+                          -
+                        </Button>
+                        <Input
+                          element="input"
+                          input_type="text"
+                          name="quantity"
+                          value={qty}
+                          handler={e =>
+                            updateSizeQuantity(
+                              1,
+                              size.id,
+                              size.label,
+                              Number(e.target.value)
+                            )
+                          }
+                          genStyle="my-0!"
+                          styling="rounded-none p-2! focus:outline-none! disabled w-10!"
+                        />
+                        <Button
+                          className="rounded-l-none rounded-r-xl! py-2! bg-gray-600"
+                          onClick={() =>
+                            setFormValues(p => ({ ...p, slots: p.slots + 1 }))
+                          }
+                          primary
+                        >
+                          +
+                      </Button>
+                  </div>
+                        {/* <Input
+                          element="input"
+                          input_type="number"
+                          value={qty}
+                          name="Quantity"
+                          styling="w-24! p-2!"
+                          handler={e =>
+                            updateSizeQuantity(
+                              1,
+                              size.id,
+                              size.label,
+                              Number(e.target.value)
+                            )
+                          }
+                          genStyle="my-0!"
+                        /> */}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
 
               {/* Quantity allocation — ONLY when variants exist */}
               {/* {allocations.length > 0 && (
@@ -487,7 +566,7 @@ const ProductDetails = () => {
                 <div className="flex items-stretch">
                   <Button
                     className="rounded-r-none rounded-l-xl! py-2!"
-                    disabled={formValues.slots === 0}
+                    disabled={formValues.slots === 1}
                     onClick={() =>
                       setFormValues(p => ({ ...p, slots: p.slots - 1 }))
                     }
