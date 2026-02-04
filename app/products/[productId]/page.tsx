@@ -4,16 +4,20 @@ import { useLoginMutation } from "@/api/auth";
 import { useGetSingleBale } from "@/api/bale";
 import ProductImages from "@/components/product/ImageGallery";
 import Countdown from "@/components/shared/Countdown";
-import { Alert, Badge, Button, Input, Progress } from "@/components/ui";
+import { Alert, Badge, Button, Card, Input, Progress } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
-import { VariantAllocation } from "@/types/types";
+import { Login, VariantAllocation } from "@/types/types";
+import { AxiosError } from "axios";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   RiGroupFill,
+  RiLoader4Fill,
   RiLoader5Line,
   RiRocket2Fill,
   RiShieldCheckFill,
@@ -53,12 +57,28 @@ const ProductDetails = () => {
     colors: [],
     slots: 1,
   });
+
+  // Login form state
+  const [loginValues, setLoginValues] = useState<Login>({
+    phone: '',
+    password: ''
+  });
+
+  // Login endpoint
+  const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
+
+  // Authentication
+  const { authenticate } = useAuth();
+
+  // For color selection
   const [activeColorId, setActiveColorId] = useState<number | null>(null)
   const [allocations, setAllocations] = useState<AllocationState>({})
 
+  // For login modal display
+  const [notLoggedIn, setNotLoggedIn] = useState(false)
+
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isPending, error } = useGetSingleBale(productId);
-  const { } = useLoginMutation();
   const router = useRouter();
   const { addToCart } = useCart();
 
@@ -220,10 +240,7 @@ const ProductDetails = () => {
 
   const joinPool = () => {
     const token = getCrossSubdomainCookie("440_token");
-    if (!token) {
-      sessionStorage.setItem("showLoginToast", "true");
-      router.push("/account");
-    }
+    if (!token) setNotLoggedIn(true);
   };
 
   if (isPending) {
@@ -260,7 +277,6 @@ const ProductDetails = () => {
     return price.toLocaleString("en-US", { maximumFractionDigits: 0 })
   }
 
-  /* ---------------- VARIANT → ALLOCATION LOGIC ---------------- */
   const hasSizes = sizesList.length > 0
 
   const items = Object.values(allocations).flatMap(color => {
@@ -332,6 +348,96 @@ const ProductDetails = () => {
 
   const isAllocationExceeded =
     totalAllocatedQuantity > maxAllowedQuantity
+
+  // Handle login input state
+  const handleLoginChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+
+    setLoginValues(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Login form submit handler
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const { phone, password } = loginValues;
+
+    try {
+      const data: Login = {
+        phone,
+        password
+      }
+      const res = await loginUser(data);
+      if (res.status === 200) {
+        toast.success(`Login successfully`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        const token = res.data?.token;
+        const user = res.data;
+        authenticate({ user, token });
+
+        if (baleData) {
+          addToCart({
+            cartItemId: `cart-${baleData.baleId}`,
+            productId: baleData.productId,
+            baleId: baleData.baleId,
+            name: baleData.product.name,
+            image: baleData.product.images[2],
+            supplierId: `sup-${baleData.product.supplierId}`,
+            price: baleData.product.price,
+            originalPrice: baleData.product.oldPrice,
+            discount: 10,
+            currency: "NGN",
+            slots: formValues.slots,
+            totalSlots: baleData.slot,
+            totalShippingFee:
+              baleData.deliveryFee * formValues.slots,
+            quantity: productsPerSlot,
+            unit: "unit",
+            variants: selectedVariants,
+            items,
+            inStock: true,
+          });
+        }
+         
+        router.push('/checkout');
+      } else {
+        toast.success(`Something went wrong`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.success(
+        err.response?.data?.message ??
+        err.message ??
+        "Something went wrong, please try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }
 
 
   return (
@@ -692,7 +798,7 @@ const ProductDetails = () => {
                   onClick={joinPool}
                 >
                   <RiRocket2Fill className="hidden md:block" />
-                  Join Pool
+                  Checkout
                 </Button>
                 <Button
                   primary
@@ -740,108 +846,56 @@ const ProductDetails = () => {
       </section>
 
       {/* ALLOCATION DRAWER */}
-      {/* {activeColorId && allocations[activeColorId] && (
-        <>
-          <div
-            className={`fixed inset-0 bg-black/40 z-90 transition-opacity ${isAllocationOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-              }`}
-            onClick={() => setIsAllocationOpen(false)}
-          />
-
-          <div
-            className={`fixed top-0 right-0 h-full w-full sm:w-105 bg-(--bg-surface)
-            z-100 shadow-2xl transform transition-transform duration-300
-            ${isAllocationOpen ? "translate-x-0" : "translate-x-full"}`}
-          >
-            <div className="flex items-center justify-between p-4 border-b border-(--border-default)">
-              <h3 className="text-lg">
-                Allocate Sizes — {allocations[activeColorId].colorLabel}
-              </h3>
-              <button
-                onClick={() => setIsAllocationOpen(false)}
-                className="text-xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-
-            
-            <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto">
-              <div className="text-xs">
-                <p>
-                  Allocated:{" "}
-                  <strong>{totalAllocatedQuantity}</strong> /{" "}
-                  {maxAllowedQuantity}
-                </p>
-
-                {isAllocationExceeded && (
-                  <p className="text-red-500 mt-1">
-                    Allocation exceeds selected slots
-                  </p>
-                )}
+      {notLoggedIn && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <Card className='w-full md:w-150 md:p-12!'>
+            <form onSubmit={handleSubmit}>
+              <div className="my-4">
+                <h1 className="text-3xl">Login</h1>
+                <p className="text-(--text-muted)">Enter your details to log into your account</p>
               </div>
-              
-              {hasSizes && (
-                <>
-                  {sizesList.map(size => {
-                    const qty =
-                      allocations[activeColorId].sizes[size.id]?.quantity ?? 0
-
-                    return (
-                      <div
-                        key={size.id}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-sm">{size.label}</span>
-
-                        <Input
-                          element="input"
-                          input_type="number"
-                          value={qty}
-                          name="Quantity"
-                          styling="w-24! p-2!"
-                          handler={e =>
-                            updateSizeQuantity(
-                              activeColorId,
-                              size.id,
-                              size.label,
-                              Number(e.target.value)
-                            )
-                          }
-                          genStyle="my-0!"
-                        />
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-
-              
-              {!hasSizes && (
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">
-                    Quantity — {allocations[activeColorId].colorLabel}
-                  </span>
-
-                  <Input
-                    element="input"
-                    input_type="number"
-                    name="Allocation"
-                    value={allocations[activeColorId].quantity ?? 0}
-                    styling="w-24!"
-                    handler={e =>
-                      updateColorQuantity(
-                        activeColorId,
-                        Number(e.target.value)
-                      )
-                    }
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )} */}
+              <Input
+                input_type="text"
+                element="input"
+                placeholder="Enter your phone number"
+                tag="Phone Number"
+                name="phone"
+                value={loginValues.phone || ''}
+                handler={handleLoginChange}
+                required
+              />
+              <Input
+                input_type="password"
+                element="input"
+                placeholder="Enter your password"
+                tag="Password"
+                name="password"
+                value={loginValues.password || ''}
+                handler={handleLoginChange}
+                required
+              />
+              <div className="flex justify-end relative -top-4">
+                <Link href={''} className='text-(--primary) font-semibold text-sm'>
+                  Forgot Password?
+                </Link>
+              </div>
+              <Button
+                type='submit'
+                isFullWidth
+                primary
+                isLoading={isLoginLoading}
+              >
+                {isLoginLoading ? "Logging in..." : "Login"}
+              </Button>
+            </form>
+            <p className="text-center text-sm mt-3">
+              Don't have an account? Click
+              <Link href={'/account/register'} className='text-(--primary) font-semibold'> Here </Link>
+              to register
+            </p>
+          </Card>
+        </div>
+      )}
     </>
 
   );

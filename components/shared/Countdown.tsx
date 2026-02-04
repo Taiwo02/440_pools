@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cn } from "../ui/utils";
 
 type CountdownProps = {
-  endDate: string; // ISO date string
+  endDate: string;
+  className?: string;
 };
 
 type TimeLeft = {
@@ -28,7 +30,7 @@ const getTimeLeft = (endDate: string): TimeLeft => {
   };
 };
 
-export default function Countdown({ endDate }: CountdownProps) {
+export default function Countdown({ endDate, className }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
     getTimeLeft(endDate)
   );
@@ -43,21 +45,21 @@ export default function Countdown({ endDate }: CountdownProps) {
 
   return (
     <div className="flex gap-0.5 text-center">
-      <TimeBlock label="d" value={timeLeft.days} />:
-      <TimeBlock label="h" value={timeLeft.hours} />:
-      <TimeBlock label="m" value={timeLeft.minutes} />:
-      <TimeBlock label="s" value={timeLeft.seconds} />
+      <TimeBlock label="d" value={timeLeft.days} className={className} />:
+      <TimeBlock label="h" value={timeLeft.hours} className={className} />:
+      <TimeBlock label="m" value={timeLeft.minutes} className={className} />:
+      <TimeBlock label="s" value={timeLeft.seconds} className={className} />
     </div>
   );
 }
 
-function TimeBlock({ label, value }: { label: string; value: number }) {
+function TimeBlock({ label, value, className }: { label: string; value: number, className?: string }) {
   return (
-    <div className="flex items-end">
-      <span className="text-2xl font-semibold">
+    <div className={"flex items-center"}>
+      <span className={cn("text-2xl font-semibold", className)}>
         {value}
       </span>
-      <span>{label}</span>
+      <span className={cn("", className)}>{label}</span>
     </div>
   );
 }
