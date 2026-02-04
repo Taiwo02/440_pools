@@ -444,6 +444,9 @@ const ProductDetails = () => {
 
               {hasSizes && (
                <div className="max-h-80 overflow-auto p-4">
+                   <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Sizes
+                  </p>
                   {sizesList.map(size => {
                     const qty =
                       allocations[0]?.sizes[size?.id]?.quantity ?? 0
@@ -454,8 +457,45 @@ const ProductDetails = () => {
                         className="flex justify-between items-center"
                       >
                         <span className="text-sm">{size.label}</span>
-
+                     
+                        <div className="flex items-stretch mb-4">
+                        <Button
+                          className="rounded-r-none rounded-l-xl! py-2! bg-gray-600"
+                          disabled={formValues.slots === 1}
+                          onClick={() =>
+                            setFormValues(p => ({ ...p, slots: p.slots - 1 }))
+                          }
+                          primary
+                        >
+                          -
+                        </Button>
                         <Input
+                          element="input"
+                          input_type="text"
+                          name="quantity"
+                          value={qty}
+                          handler={e =>
+                            updateSizeQuantity(
+                              1,
+                              size.id,
+                              size.label,
+                              Number(e.target.value)
+                            )
+                          }
+                          genStyle="my-0!"
+                          styling="rounded-none p-2! focus:outline-none! disabled w-10!"
+                        />
+                        <Button
+                          className="rounded-l-none rounded-r-xl! py-2! bg-gray-600"
+                          onClick={() =>
+                            setFormValues(p => ({ ...p, slots: p.slots + 1 }))
+                          }
+                          primary
+                        >
+                          +
+                      </Button>
+                  </div>
+                        {/* <Input
                           element="input"
                           input_type="number"
                           value={qty}
@@ -470,7 +510,7 @@ const ProductDetails = () => {
                             )
                           }
                           genStyle="my-0!"
-                        />
+                        /> */}
                       </div>
                     )
                   })}
