@@ -3,6 +3,7 @@
 import { useGetBales } from "@/api/bale";
 import { Button, Card, Pagination, Progress } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
+import * as Slider from '@radix-ui/react-slider';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -12,6 +13,11 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const MAX = 10000
+  const MIN = 0
+  const [minValue, setMinValue] = useState(0)
+  const [maxValue, setMaxValue] = useState(8000)
 
   const { data: allBales = [], isPending } = useGetBales();
 
@@ -89,30 +95,39 @@ const Products = () => {
                   <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
                 </Accordion.Trigger>
                 <Accordion.Content id="two">
-                  <div className="flex gap-4">
-                    <div className="basis-1/2">
-                      <input className="w-full p-2 border" />
-                    </div>
-                    <div className="basis-1/2">
-                      <input className="w-full p-2 border" />
-                    </div>
-                  </div>
+                  <Slider.Root
+                    className="relative flex items-center w-full h-5 my-2"
+                    value={[minValue, maxValue]}
+                    max={10000}
+                    step={1}
+                    onValueChange={([min, max]) => {
+                      setMinValue(min)
+                      setMaxValue(max)
+                    }}
+                  >
+                    {/* Track */}
+                    <Slider.Track className="relative h-1 w-full bg-gray-300 rounded">
+                      <Slider.Range className="absolute h-full bg-(--primary)" />
+                    </Slider.Track>
+
+                    {/* Min Thumb */}
+                    <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
+                      <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
+                        {minValue}
+                      </span>
+                    </Slider.Thumb>
+
+                    {/* Max Thumb */}
+                    <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
+                      <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
+                        {maxValue}
+                      </span>
+                    </Slider.Thumb>
+                  </Slider.Root>
                 </Accordion.Content>
               </Accordion.Item>
               <Accordion.Item id="three">
                 <Accordion.Trigger id="three">
-                  <div className="flex items-center gap-2">
-                    <RiHashtag />
-                    <span>Min Order</span>
-                  </div>
-                  <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
-                </Accordion.Trigger>
-                <Accordion.Content id="three">
-                  <input type="range" min={0} max={10000} className="w-full" />
-                </Accordion.Content>
-              </Accordion.Item>
-              <Accordion.Item id="four">
-                <Accordion.Trigger id="four">
                   <div className="flex items-center gap-2">
                     <RiStarFill />
                     <span>Supplier Rating</span>
@@ -120,7 +135,7 @@ const Products = () => {
                   
                   <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
                 </Accordion.Trigger>
-                <Accordion.Content id="four">
+                <Accordion.Content id="three">
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
                     1 <RiStarFill />
@@ -143,15 +158,15 @@ const Products = () => {
                   </div>
                 </Accordion.Content>
               </Accordion.Item>
-              <Accordion.Item id="five">
-                <Accordion.Trigger id="five">
+              <Accordion.Item id="four">
+                <Accordion.Trigger id="four">
                   <div className="flex items-center gap-2">
                     <RiGlobeLine />
                     <span>Market Location</span>
                   </div>
                   <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
                 </Accordion.Trigger>
-                <Accordion.Content id="five">
+                <Accordion.Content id="four">
                   <div className="my-2 flex items-center gap-2">
                     <input type="checkbox" />
                     Yiwu
