@@ -506,15 +506,15 @@ const ProductDetails = () => {
               {activeColorId && (
                 <>
                   <div className={`${hasSizes ? "h-80" : "h-auto" } my-4`}>
-                    <p className="uppercase text-sm font-semibold text-(--text-muted) flex justify-between">
-                      { hasSizes ? 'Sizes' : 'Quantity' }
+                    <div className="flex justify-between">
+                      <p className="uppercase text-sm font-semibold text-(--text-muted)">{hasSizes ? 'Sizes' : 'Quantity'}</p>
                       {isAllocationExceeded && (
                         <p className="text-red-500 text-xs capitalize font-normal">
                           Allocation exceeds selected slots
                         </p>
                       )}
-                    </p>
-                    <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto">
+                    </div>
+                    <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto mb-3">
                       {hasSizes && (
                         <>
                           {sizesList.map(size => {
@@ -608,7 +608,7 @@ const ProductDetails = () => {
               )}
 
               {/* Slots */}
-              <div className="mb-4">
+              <div className="my-4 pt-4">
                 <p className="uppercase text-sm font-semibold text-(--text-muted)">
                   Slots
                 </p>
@@ -630,7 +630,7 @@ const ProductDetails = () => {
                     value={formValues.slots}
                     handler={handleChange}
                     genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! disabled w-30!"
+                    styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
                   />
                   <Button
                     className="rounded-l-none rounded-r-xl! py-2!"
