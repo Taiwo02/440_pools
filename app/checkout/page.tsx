@@ -110,6 +110,7 @@ const Checkout = () => {
 
   useEffect(() => {
     console.log(subtotal.toLocaleString("en-US", { maximumFractionDigits: 0 }))
+    console.log(JSON.stringify(cartItems))
   }, [cartItems]);
 
   useEffect(() => {
@@ -160,7 +161,8 @@ const Checkout = () => {
               },
               items: item.items
             }
-          }))
+          })),
+          merchantId: user.id
         }
 
         const orderRes = await postOrder(orderData, user.id);
