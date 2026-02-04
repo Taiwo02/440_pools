@@ -12,7 +12,8 @@ export const useDeliveryMutation = () => {
 
 export const useOrderMutation = () => {
   return useMutation({
-    mutationFn: (body, merchantId) => {
+    mutationFn: (body) => {
+      const { merchantId }: any = body
       return http.post(`/buyer/order?merchantId=${merchantId}`, body);
     },
   });
