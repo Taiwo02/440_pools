@@ -240,7 +240,35 @@ const ProductDetails = () => {
 
   const joinPool = () => {
     const token = getCrossSubdomainCookie("440_token");
-    if (!token) setNotLoggedIn(true);
+    if (!token) {
+      setNotLoggedIn(true);
+    } else {
+      if(baleData) {
+        addToCart({
+          cartItemId: `cart-${baleData.baleId}`,
+          productId: baleData.productId,
+          baleId: baleData.baleId,
+          name: baleData.product.name,
+          image: baleData.product.images[2],
+          supplierId: `sup-${baleData.product.supplierId}`,
+          price: baleData.product.price,
+          originalPrice: baleData.product.oldPrice,
+          discount: 10,
+          currency: "NGN",
+          slots: formValues.slots,
+          totalSlots: baleData.slot,
+          totalShippingFee:
+            baleData.deliveryFee * formValues.slots,
+          quantity: productsPerSlot,
+          unit: "unit",
+          variants: selectedVariants,
+          items,
+          inStock: true,
+        });
+
+        router.push('/checkout');
+      }
+    }
   };
 
   if (isPending) {

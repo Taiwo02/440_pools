@@ -4,12 +4,20 @@ import { Alert, Button, Card, Progress } from '../ui'
 import Link from 'next/link'
 import Image from 'next/image'
 import Countdown from '../shared/Countdown'
+import UserBubbles from './UserBubble'
 
 type Props = {
   bale: Bale
 }
 
 const ProductCard = ({ bale }: Props) => {
+  const users = [
+    { id: "u1", name: "Jeff" },
+    { id: "u2", name: "Amaka" },
+    { id: "u3", name: "Tunde" },
+    { id: "u4", name: "Zainab" }
+  ];
+
   return (
     <Card
       className='p-0!'
@@ -25,11 +33,11 @@ const ProductCard = ({ bale }: Props) => {
           <p className="uppercase text-sm hidden md:block">Unit Price (At Goal)</p>
         </div>
         <div className="md:my-2">
-          <div className="flex justify-between flex-wrap">
+          <div className="flex justify-between items-center flex-wrap">
             <p className="font-bold text-(--primary) text-sm">
               {bale.slot - bale.filledSlot}/{ bale.slot } slots
             </p>
-            <p className="font-bold text-(--primary) text-sm">{Math.ceil((bale.filledSlot / bale.slot) * 100)}% joined</p>
+            <UserBubbles users={users} />
           </div>
           <Progress
             totalQty={bale.slot}

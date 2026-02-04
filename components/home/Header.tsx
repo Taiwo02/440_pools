@@ -8,7 +8,7 @@ import Link from 'next/link';
 const Header = () => {
   return (
     <header className="h-110 md:h-120 flex items-stretch gap-4 md:px-20 pt-36 md:pt-24">
-      <div className="hidden md:block md:w-96">
+      <div className="hidden md:block md:w-80">
         <Card className='h-full p-0! overflow-hidden'>
           <div className="py-3 px-6 bg-(--bg-muted)">
             <h4 className="text-xl">Categories</h4>
