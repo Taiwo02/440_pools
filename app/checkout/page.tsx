@@ -139,7 +139,7 @@ const Checkout = () => {
       if(res.status == 200) {
         const deliveryId = res.data.data.id;
 
-        const orderData = {
+        const orderData:any = {
           totalAmount: subtotal,
           primaryAmount: 40000,
           totalShippingFee: shipping,

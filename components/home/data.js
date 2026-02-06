@@ -1,71 +1,42 @@
 // @ts-nocheck
+import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine } from 'react-icons/ri'
 
-import Inverter from "/images/inverter.jpg";
-import PowerBank from "/images/download.png";
-import Steel from "/images/steel.jpg";
-import Watch from "/images/watch.jpg";
-
- const   products = [
-      {
-        id: "industrial-inverter-welder",
-        name: "Heavy Duty Industrial Inverter Welder – Series X",
-        category: "machinery",
-        image: Inverter,
-        price: 185.0,
-        oldPrice: 240.0,
-        unit: "per unit",
-        minOrder: 500,
-        discountPercent: 22,
-        rating: 4.5,
-        isGroupBuy: true,
-        quantity: 1500,
-        quantity_sold: 700
-      },
-      {
-        id: "lithium-storage-battery",
-        name: "Deep Cycle Lithium Storage Battery – 100Ah/12V Pack",
-        category: "energy",
-        image: PowerBank,
-        price: 72.5,
-        oldPrice: 96.0,
-        unit: "per pack",
-        minOrder: 100,
-        discountPercent: 45,
-        rating: 4.6,
-        isGroupBuy: true,
-        quantity: 500,
-        quantity_sold: 270
-      },
-      {
-        id: "smartwatch-series-x-ultra",
-        name: "Smart Watch Series X Ultra – Wholesale Batch",
-        category: "electronics",
-        image: Watch,
-        price: 6.4,
-        oldPrice: 12.0,
-        unit: "per unit",
-        minOrder: 5000,
-        discountPercent: 95,
-        rating: 4.2,
-        isGroupBuy: true,
-        quantity: 1000,
-        quantity_sold: 762
-      },
-      {
-        id: "galvanized-structural-steel-beams",
-        name: "Galvanized Structural Steel Beams – Bulk Pool",
-        category: "machinery",
-        image: Steel,
-        price: 410.0,
-        oldPrice: 560.0,
-        unit: "per pool",
-        minOrder: 100,
-        discountPercent: 23,
-        rating: 4.7,
-        isGroupBuy: true,
-        quantity: 1200,
-        quantity_sold: 900
-      },
-    ];
-
-    export default products
+export const industries = [
+  { name: "Apparel & Accessories", icon: <RiTShirtLine />, href: "/categories/apparel-accessories" },
+  { name: "Consumer Electronics", icon: <RiComputerLine />, href: "/categories/consumer-electronics" },
+  { name: "Sports & Entertainment", icon: <RiFootballLine />, href: "/categories/sports-entertainment" },
+  { name: "Beauty", icon: <RiSparklingLine />, href: "/categories/beauty" },
+  { name: "Luggage, Bags & Cases", icon: <RiBriefcaseLine />, href: "/categories/luggage-bags-cases" },
+  { name: "Home & Garden", icon: <RiHomeLine />, href: "/categories/home-garden" },
+  { name: "Sportswear & Outdoor Apparel", icon: <RiRunLine />, href: "/categories/sportswear-outdoor-apparel" },
+  { name: "Jewelry, Eyewear & Watches", icon: <RiVipDiamondLine />, href: "/categories/jewelry-eyewear-watches" },
+  { name: "Shoes & Accessories", icon: <RiFootprintLine />, href: "/categories/shoes-accessories" },
+  { name: "Packaging & Printing", icon: <RiPrinterLine />, href: "/categories/packaging-printing" },
+  { name: "Parents, Kids & Toys", icon: <RiParentLine />, href: "/categories/parents-kids-toys" },
+  { name: "Personal Care & Home Care", icon: <RiHeartPulseLine />, href: "/categories/personal-care-home-care" },
+  { name: "Health & Medical", icon: <RiMedicineBottleLine />, href: "/categories/health-medical" },
+  { name: "Gifts & Crafts", icon: <RiGiftLine />, href: "/categories/gifts-crafts" },
+  { name: "Pet Supplies", icon: <RiBugLine />, href: "/categories/pet-supplies" },
+  { name: "School & Office Supplies", icon: <RiBook2Line />, href: "/categories/school-office-supplies" },
+  { name: "Industrial Machinery", icon: <RiBuilding2Line />, href: "/categories/industrial-machinery" },
+  { name: "Commercial Equipment & Machinery", icon: <RiStore2Line />, href: "/categories/commercial-equipment-machinery" },
+  { name: "Construction & Building Machinery", icon: <RiBuildingLine />, href: "/categories/construction-building-machinery" },
+  { name: "Construction & Real Estate", icon: <RiHome4Line />, href: "/categories/construction-real-estate" },
+  { name: "Furniture", icon: <RiSofaLine />, href: "/categories/furniture" },
+  { name: "Lights & Lighting", icon: <RiLightbulbLine />, href: "/categories/lights-lighting" },
+  { name: "Home Appliances", icon: <RiFridgeLine />, href: "/categories/home-appliances" },
+  { name: "Automotive Supplies & Tools", icon: <RiCarLine />, href: "/categories/automotive-supplies-tools" },
+  { name: "Vehicle Parts & Accessories", icon: <RiCarWashingLine />, href: "/categories/vehicle-parts-accessories" },
+  { name: "Tools & Hardware", icon: <RiToolsLine />, href: "/categories/tools-hardware" },
+  { name: "Renewable Energy", icon: <RiLeafLine />, href: "/categories/renewable-energy" },
+  { name: "Electrical Equipment & Supplies", icon: <RiPlugLine />, href: "/categories/electrical-equipment-supplies" },
+  { name: "Safety & Security", icon: <RiShieldCheckLine />, href: "/categories/safety-security" },
+  { name: "Testing Instrument & Equipment", icon: <RiTestTubeLine />, href: "/categories/testing-instrument-equipment" },
+  { name: "Power Transmission", icon: <RiSettingsLine />, href: "/categories/power-transmission" },
+  { name: "Electronic Components", icon: <RiCpuLine />, href: "/categories/electronic-components" },
+  { name: "Vehicles & Transportation", icon: <RiBusLine />, href: "/categories/vehicles-transportation" },
+  { name: "Agriculture, Food & Beverage", icon: <RiPlantLine />, href: "/categories/agriculture-food-beverage" },
+  { name: "Raw Materials", icon: <RiBox3Line />, href: "/categories/raw-materials" },
+  { name: "Fabrication Services", icon: <RiServiceLine />, href: "/categories/fabrication-services" },
+  { name: "Service", icon: <RiServiceLine />, href: "/categories/service" },
+];
