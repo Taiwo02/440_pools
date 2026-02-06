@@ -131,8 +131,8 @@ const Navbar = () => {
   return (
     <nav className='fixed w-full z-50 shadow-sm'>
       <div className='bg-(--bg-surface) py-2 px-4 md:px-20 flex gap-12 items-center justify-between'>
-        <Link href={'/'} className="text-2xl font-bold shrink-0">
-          <img src="https://shop.4401.live/img/logos/440_Logo_GS-removebg.png" alt="" width={70} height={70} />
+        <Link href={'/'} className="text-2xl font-bold shrink-0 ">
+          <img src="/images/440_Logo.png" alt="" width={70} height={70} className='text-5xl' />
         </Link>
         <div className="hidden lg:flex w-150">
           <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>

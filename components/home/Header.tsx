@@ -26,7 +26,7 @@ const Header = () => {
         </Card>
       </div>
       <div className="relative h-full w-full flex-1 md:rounded-xl">
-        <Image src={BG} alt="" className="w-full h-full object-cover md:rounded-xl" />
+        <img src="/images/bg1.jpg" alt="" className="w-full h-full object-cover md:rounded-xl"/>
         <div className="w-full h-full bg-black/50 absolute top-0 left-0 md:flex flex-col justify-center px-4 lg:px-20 text-white md:rounded-xl pt-6">
           <h1 className="text-3xl lg:text-5xl">
             Join <br /> <span className="text-(--primary)">Africa's Only</span> <br /> Demand Pool
