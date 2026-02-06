@@ -627,10 +627,9 @@ const Checkout = () => {
                     {cartItems.map(item => (
                       <div key={item.cartItemId} className="flex gap-3">
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                          <Image
+                          <img
                             src={item.image}
                             alt={item.name}
-                            fill
                             className="object-cover"
                           />
                           <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
