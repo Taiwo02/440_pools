@@ -1,9 +1,8 @@
 "use client"
 
-import Image from "next/image";
 import { useState } from "react";
 
-export default function ProductImages({ imageList }: { imageList: string[] }) {
+export default function ProductImages({ imageList, countdown }: { imageList: string[], countdown?: React.ReactNode }) {
   const [mainImage, setMainImage] = useState(imageList?.[0]);
 
   if (!imageList || imageList.length === 0) return null;
@@ -35,7 +34,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
         </div>
 
         {/* Main image */}
-        <div className="w-full! md:basis-5/6">
+        <div className="w-full! md:basis-5/6 relative">
           <img
             src={mainImage}
             alt="Product image"
@@ -43,6 +42,7 @@ export default function ProductImages({ imageList }: { imageList: string[] }) {
             height={0}
             className="w-full aspect-square rounded-xl object-cover"
           />
+          { countdown }
         </div>
       </div>
 

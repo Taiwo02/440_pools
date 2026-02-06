@@ -3,6 +3,7 @@
 import { useLoginMutation } from "@/api/auth";
 import { useGetSingleBale } from "@/api/bale";
 import ProductImages from "@/components/product/ImageGallery";
+import UserBubbles from "@/components/product/UserBubble";
 import Countdown from "@/components/shared/Countdown";
 import { Alert, Badge, Button, Card, Input, Progress } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
@@ -281,7 +282,7 @@ const ProductDetails = () => {
 
   if (error || !baleData) return <p>Error loading bale</p>;
 
-  const productsPerSlot = baleData.quantity / baleData.slot;
+  const productsPerSlot = Math.ceil(baleData.quantity / baleData.slot);
 
   const sizesList = baleData.product.productSizes.map(s => ({
     id: s.id,
@@ -467,6 +468,12 @@ const ProductDetails = () => {
     }
   }
 
+  const users = [
+    { id: "u1", name: "Jeff" },
+    { id: "u2", name: "Amaka" },
+    { id: "u3", name: "Tunde" },
+    { id: "u4", name: "Zainab" }
+  ];
 
   return (
     <>
@@ -476,7 +483,7 @@ const ProductDetails = () => {
             {/* LEFT */}
             <div className="md:basis-2/3">
               <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
-                <ProductImages imageList={baleData.product.images.slice(1)} />
+                <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
                 <Tabs defaultValue="specs">
@@ -517,7 +524,7 @@ const ProductDetails = () => {
               </div>
               <div className="p-4 rounded-lg bg-(--bg-surface) hidden md:flex flex-col md:flex-row justify-between gap-4 items-center w-full">
                 <div className="flex items-center gap-4">
-                  <Image src={baleData.product.supplier.image} alt="" width={0} height={0} className="w-20 aspect-square rounded-full" />
+                  <img src={baleData?.product.supplier.image} alt="" className="w-20 aspect-square rounded-full" />
                   <div>
                     <h2 className="text-xl">{baleData.product.supplier.name}</h2>
                     {
@@ -537,7 +544,7 @@ const ProductDetails = () => {
             {/* RIGHT */}
             <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl sticky top-20">
               <h1 className="text-3xl lg:text-4xl">{baleData.product.name}</h1>
-              <div className="flex gap-2 md:gap-4 items-center flex-wrap mb-4">
+              {/* <div className="flex gap-2 md:gap-4 items-center flex-wrap mb-4">
                 <div className="flex gap-1 items-center">
                   <RiStarFill className="text-(--primary)" size={12} />
                   <RiStarFill className="text-(--primary)" size={12} />
@@ -550,40 +557,33 @@ const ProductDetails = () => {
                 <p className="text-(--text-muted)">124 Reviews</p>
                 <span className="text-(--text-muted)">|</span>
                 <p className="text-(--text-muted) uppercase">SKU: {baleData.baleId}</p>
-              </div>
+              </div> */}
               <div className="my-4">
                 <div className="flex flex-wrap items-end gap-2">
-                  <p className="text-lg md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
+                  <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
                   <p className="text-(--text-muted) line-through">&#8358;{formatPrice(baleData.oldPrice)}</p>
                 </div>
               </div>
-              <div className="rounded-xl p-4 bg-(--primary-soft) border-2 border-(--primary) mb-4">
+              <div className="mb-4">
                 <div className="flex md:items-end justify-between">
-                  <div className="flex flex-col gap-2">
-                    <div className="hidden md:flex gap-2 items-center text-(--primary)">
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 items-center text-(--primary)">
                       <RiGroupFill />
-                      <h2 className="text-xl uppercase"><span className="hidden md:block"></span> Pool Progress</h2>
+                      <h2 className="text-lg uppercase"><span className="hidden md:block"></span> Pool Progress</h2>
                     </div>
-                    <p className="text-(--text-muted)">
-                      <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
-                      / {baleData.slot} slots
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="hidden md:flex gap-2 items-center text-(--text-muted)">
-                      <RiTimeFill />
-                      <p className="font-bold uppercase">Time Left</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-(--text-muted)">
+                        <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
+                        / {baleData.slot} slots reserved
+                      </p>
+                      <UserBubbles users={users} />
                     </div>
-                    <Countdown
-                      endDate={baleData.endIn}
-                    />
                   </div>
                 </div>
                 <Progress
                   totalQty={baleData.slot}
                   currentQty={baleData.filledSlot}
                   className='my-0!'
-                  progClass="bg-(--bg-page)/70!"
                 />
                 <Alert type="success" className="mt-3 py-2! px-4! w-fit! text-sm!">
                   * 1 slot = {productsPerSlot} products
@@ -639,7 +639,7 @@ const ProductDetails = () => {
 
               {activeColorId && (
                 <>
-                  <div className={`${hasSizes ? "h-80" : "h-auto" } my-4`}>
+                  <div className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto" } my-4`}>
                     <div className="flex justify-between">
                       <p className="uppercase text-sm font-semibold text-(--text-muted)">{hasSizes ? 'Sizes' : 'Quantity'}</p>
                       {isAllocationExceeded && (

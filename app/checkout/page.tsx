@@ -165,7 +165,7 @@ const Checkout = () => {
           merchantId: user.id
         }
 
-        const orderRes = await postOrder(orderData, user.id);
+        const orderRes = await postOrder(orderData);
         if(orderRes.status == 200) {
           toast.success(`Order successfully`, {
             position: "top-right",
@@ -615,7 +615,7 @@ const Checkout = () => {
               </div>
             </div>
 
-            <div className="w-full lg:w-96 lg:flex-shrink-0">
+            <div className="w-full lg:w-96 lg:shrink-0">
               <div className="sticky top-24 space-y-4">
 
                 <div className="rounded-lg bg-white border border-gray-200 p-5 sm:p-6">
@@ -715,13 +715,13 @@ const Checkout = () => {
 
                   <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">
                     <div className="flex gap-3 items-start">
-                      <RiShieldCheckLine className='text-green-600 text-lg flex-shrink-0 mt-0.5' />
+                      <RiShieldCheckLine className='text-green-600 text-lg shrink-0 mt-0.5' />
                       <p className="text-xs text-gray-600 leading-relaxed">
                         Secure checkout with SSL encryption
                       </p>
                     </div>
                     <div className="flex gap-3 items-start">
-                      <RiSecurePaymentLine className='text-blue-600 text-lg flex-shrink-0 mt-0.5' />
+                      <RiSecurePaymentLine className='text-blue-600 text-lg shrink-0 mt-0.5' />
                       <p className="text-xs text-gray-600 leading-relaxed">
                         Your payment information is safe
                       </p>
