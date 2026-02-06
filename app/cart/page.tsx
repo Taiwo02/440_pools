@@ -253,10 +253,9 @@ const Cart = () => {
                         <Card key={item.cartItemId} className='py-2! px-3! mb-3 shadow-none! rounded-none! border-b border-x-0 border-t-0'>
                           <div className="flex flex-col md:flex-row justify-between gap-4">
                             <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-lg overflow-hidden bg-gray-100">
-                              <Image
+                              <img
                                 src={item.image}
                                 alt={item.name}
-                                fill
                                 className='object-cover'
                               />
                               {!item.inStock && (

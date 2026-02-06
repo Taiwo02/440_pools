@@ -17,7 +17,7 @@ const ProductsSection = () => {
     }
   }, [allBales]);
 
-  const slicedBales = allBales.slice(1, 5);
+  // const slicedBales = allBales.slice(1, 6);
 
   return (
     <section className='my-8 md:my-8'>
@@ -37,9 +37,9 @@ const ProductsSection = () => {
             <div className="flex justify-center items-center w-full my-16">
               <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
             </div> :
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-8 my-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-4 my-4">
               {
-                slicedBales.map(bale => (
+                allBales.map(bale => (
                   <ProductCard bale={bale} key={bale.id} />
                   // <p>Hello</p>
                 ))

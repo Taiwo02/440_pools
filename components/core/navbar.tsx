@@ -55,7 +55,13 @@ const Navbar = () => {
     {
       label: 'Cart',
       href: '/cart',
-      icon: <RiShoppingCartLine />
+      icon: 
+        <>
+          <RiShoppingCartLine />
+          <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold -top-1 left-2">
+            {cart.length}
+          </div>
+        </>
     },
     {
       label: 'Account',

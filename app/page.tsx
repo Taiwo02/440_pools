@@ -16,7 +16,7 @@ export default function Home() {
         />
       </div>
       
-      <ShopBy />
+      {/* <ShopBy /> */}
       <ProductsSection />
       <SuppliersSection />
     </>
