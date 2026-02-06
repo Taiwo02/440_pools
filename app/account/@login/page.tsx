@@ -16,23 +16,6 @@ const AccountLogin = () => {
     password: ''
   });
 
-  useEffect(() => {
-    const shouldToast = sessionStorage.getItem("showLoginToast");
-
-    if (shouldToast) {
-      toast.warning(`Login to join pool`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      sessionStorage.removeItem("showLoginToast");
-    }
-  }, []);
-
   const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
   const { authenticate } = useAuth();
   const router = useRouter();
@@ -42,13 +25,13 @@ const AccountLogin = () => {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  setFormValues(prevData => ({
-    ...prevData,
-    [name]: value,
-  }));
-};
+    setFormValues(prevData => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
