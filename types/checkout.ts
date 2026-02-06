@@ -5,14 +5,26 @@ export type CheckoutPayload = {
   deliveryAddressId: number;
   totalQuantity: number;
   bales: CheckoutBale[];
+  merchantId: number;
+};
+
+export type CheckoutBaleInfo = {
+  id: number;
+  baleId: string;
+  price: number;
+  filledSlot: number;
+  quantity: number;
+  product: {
+    name: string;
+    images: string[];
+  };
 };
 
 export type CheckoutBale = {
   quantity: number;
   price: number;
   totalPrice: number;
-  bale: Bale;
-  items: BaleItem[];
+  bale: CheckoutBaleInfo;
 };
 
 export type Bale = {
@@ -32,6 +44,7 @@ export type Bale = {
   createdAt: string;
   updatedAt: string;
   product: Product;
+  items: BaleItem[];
 };
 
 export type Product = {

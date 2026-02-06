@@ -17,6 +17,8 @@ const ProductsSection = () => {
     }
   }, [allBales]);
 
+  const slicedBales = allBales.slice(1, 5);
+
   return (
     <section className='my-8 md:my-8'>
       <div className="px-4 md:px-10 lg:px-20">
@@ -25,7 +27,7 @@ const ProductsSection = () => {
             <p className="text-sm font-bold text-(--primary) uppercase">Limited Time</p>
             <h2 className="text-2xl lg:text-3xl">Featured Bulk Deals</h2>
           </div>
-          <Link href={''} className='flex gap-1 items-center text-(--primary)'>
+          <Link href={'/products'} className='flex gap-1 items-center text-(--primary)'>
             View all active bales
             <RiArrowRightSLine />
           </Link>
@@ -37,8 +39,9 @@ const ProductsSection = () => {
             </div> :
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-8 my-4">
               {
-                allBales.map(bale => (
+                slicedBales.map(bale => (
                   <ProductCard bale={bale} key={bale.id} />
+                  // <p>Hello</p>
                 ))
               }
             </div>
