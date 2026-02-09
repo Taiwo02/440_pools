@@ -36,7 +36,7 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
         </div>
 
         {/* Main image */}
-        <div className="w-full! md:basis-5/6">
+        <div className="w-full! md:basis-5/10">
           <div className="relative w-fit mx-auto">
             <img
               src={mainImage}
