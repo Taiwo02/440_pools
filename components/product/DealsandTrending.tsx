@@ -14,23 +14,14 @@ type DealItem = {
   oldPrice?: number;
 };
 
-type TrendingItem = {
-  id: string;
-  name: string;
-  image: StaticImageData;
-  price: number;
-  unitsSold: number;
-};
-
 type Props = {
   dailyDeals: {
     endsAt: string;
     items: DealItem[];
   };
-  trendingItems: TrendingItem[];
 };
 
-export const DealsAndTrending = ({ dailyDeals, trendingItems }: Props) => {
+export const DealsAndTrending = ({ dailyDeals }: Props) => {
   const { data: allBales = [], isPending } = useGetBales();
   const slicedBales = allBales.slice(1, 5);
 

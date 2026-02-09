@@ -12,7 +12,6 @@ export default function Home() {
       <div className="py-10 px-4 md:px-10 lg:px-20">
         <DealsAndTrending
           dailyDeals={dailyDeals}
-          trendingItems={trendingItems}
         />
       </div>
       
