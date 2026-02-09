@@ -1,17 +1,20 @@
+import Welder from "@/public/images/welder.jpg";
+import Battery from "@/public/images/battery.avif"
+
 export const dailyDeals = {
   endsAt: "22:50:49", // countdown display
   items: [
     {
       id: "dd-1",
       name: "Industrial Welder X2",
-      image: "/images/welder.png",
+      image: Welder,
       price: 185.0,
       oldPrice: 240.0
     },
     {
       id: "dd-2",
       name: "Lithium Battery 100Ah",
-      image: "/images/battery.png",
+      image: Battery,
       price: 72.5,
       oldPrice: 95.0
     }
