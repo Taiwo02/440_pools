@@ -43,7 +43,7 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
               alt="Product image"
               width={0}
               height={0}
-              className="w-full h-120 rounded-xl object-contain"
+              className="w-full h-140 rounded-xl object-contain"
             />
             {countdown}
           </div>
