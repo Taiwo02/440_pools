@@ -28,6 +28,7 @@ import {
   RiTimeFill,
 } from "react-icons/ri";
 import { toast } from "react-toastify";
+import { dailyDeals } from "@/components/product/data";
 
 type FormValues = {
   sizes: string[];
@@ -479,9 +480,10 @@ const ProductDetails = () => {
     <>
       <section className="pt-36 md:pt-24 mb-16">
         <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row items-start gap-8">
+          <div className="flex flex-col md:flex-row items-start gap-4">
+            
             {/* LEFT */}
-            <div className="md:basis-2/3">
+            <div className="md:basis-2/5">
               <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
@@ -506,8 +508,8 @@ const ProductDetails = () => {
                       value="reviews"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
-                      <span className="block md:hidden">Reviews</span>
-                      <span className="md:block hidden">Product Reviews</span>
+                      <span className="">Reviews</span>
+                      {/* <span className="md:block hidden">Product Reviews</span> */}
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -522,42 +524,11 @@ const ProductDetails = () => {
                   </Tabs.Content>
                 </Tabs>
               </div>
-              <div className="p-4 rounded-lg bg-(--bg-surface) hidden md:flex flex-col md:flex-row justify-between gap-4 items-center w-full">
-                <div className="flex items-center gap-4">
-                  <img src={baleData?.product.supplier.image} alt="" className="w-20 aspect-square rounded-full" />
-                  <div>
-                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
-                    {
-                      baleData.product.supplier.status &&
-                      <Badge primary className="font-semibold">Verified</Badge>
-                    }
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Button primary className="py-2! rounded-xl!">
-                    View Profile
-                  </Button>
-                </div>
-              </div>
             </div>
 
-            {/* RIGHT */}
-            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl sticky top-20">
+            {/* CENTER */}
+            <div className="md:basis-2/5 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20">
               <h1 className="text-3xl lg:text-4xl">{baleData.product.name}</h1>
-              {/* <div className="flex gap-2 md:gap-4 items-center flex-wrap mb-4">
-                <div className="flex gap-1 items-center">
-                  <RiStarFill className="text-(--primary)" size={12} />
-                  <RiStarFill className="text-(--primary)" size={12} />
-                  <RiStarFill className="text-(--primary)" size={12} />
-                  <RiStarFill className="text-(--primary)" size={12} />
-                  <RiStarHalfFill className="text-(--primary)" size={12} />
-                  <span className="text-(--text-muted) font-semibold">4.6</span>
-                </div>
-                <span className="text-(--text-muted)">|</span>
-                <p className="text-(--text-muted)">124 Reviews</p>
-                <span className="text-(--text-muted)">|</span>
-                <p className="text-(--text-muted) uppercase">SKU: {baleData.baleId}</p>
-              </div> */}
               <div className="my-4">
                 <div className="flex flex-wrap items-end gap-2">
                   <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
@@ -867,6 +838,63 @@ const ProductDetails = () => {
                 >
                   Add to Cart
                 </Button>
+              </div>
+            </div>
+
+            {/* RIGHT */}
+            <div className="md:basis-1/5 w-full">
+              <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col justify-between gap-4 items-center w-full mb-4">
+                <div className="flex items-center gap-4">
+                  <img src={baleData?.product.supplier.image} alt="" className="w-16 aspect-square rounded-full" />
+                  <div>
+                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
+                    {
+                      baleData.product.supplier.status &&
+                      <Badge primary className="font-semibold">Verified</Badge>
+                    }
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button primary className="py-2! rounded-xl!">
+                    View Profile
+                  </Button>
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-(--bg-surface)">
+                <h2 className="text-xl">Related Products</h2>
+
+                <div className="space-y-4">
+                  {dailyDeals.items.map(item => (
+                    <div key={item.id} className="flex gap-3 border border-(--border-default) rounded-lg p-2">
+                      <img
+                        src={item.image.src}
+                        alt={item.name}
+                        className="w-16 aspect-square object-contain rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-orange-600 font-semibold">
+                            &#8358;{item.price.toFixed(2)}
+                          </span>
+                          {item.oldPrice && (
+                            <span className="text-xs text-gray-400 line-through">
+                              &#8358;{item.oldPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-bold text-(--primary) text-sm mt-2">
+                          8/10 joined
+                        </p>
+                        <Progress
+                          totalQty={100}
+                          currentQty={80}
+                          className="my-0!"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

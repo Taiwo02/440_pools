@@ -13,7 +13,7 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
         {/* Thumbnails */}
         <div 
           className="
-            flex gap-2 w-[70vw] md:w-20 md:gap-4
+            flex gap-2 w-[82vw] md:w-20 md:gap-4
             md:flex-col md:basis-1/6
             md:overflow-y-auto md:overflow-x-hidden md:h-120
             no-scrollbar overflow-x-auto overflow-y-hidden
@@ -22,7 +22,7 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
           {imageList.map((image, index) => (
             <div
               key={index}
-              className={`cursor-pointer border-4 rounded-xl overflow-hidden w-20 h-20 md:w-20 md:h-auto shrink-0 ${mainImage === image ? "border-(--primary)" : "border-transparent"
+              className={`cursor-pointer border-4 rounded-xl overflow-hidden w-20 h-20 md:w-19 md:h-auto shrink-0 ${mainImage === image ? "border-(--primary)" : "border-transparent"
                 }`}
               onClick={() => setMainImage(image)}
             >
@@ -36,14 +36,14 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
         </div>
 
         {/* Main image */}
-        <div className="w-full! md:basis-5/6">
-          <div className="relative w-fit mx-auto">
+        <div className="w-full md:basis-5/6">
+          <div className="relative md:w-fit w-full mx-auto">
             <img
               src={mainImage}
               alt="Product image"
               width={0}
               height={0}
-              className="w-full h-120 rounded-xl object-contain"
+              className="w-full md:h-140 rounded-xl object-cover"
             />
             {countdown}
           </div>
