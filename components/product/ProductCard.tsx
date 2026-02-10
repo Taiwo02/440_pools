@@ -36,7 +36,7 @@ const ProductCard = ({ bale }: Props) => {
             <p className="font-bold text-(--primary) text-sm">
               {bale.filledSlot}/{ bale.slot } joined
             </p>
-            <UserBubbles users={users} />
+            <UserBubbles count={bale.filledSlot} />
           </div>
           <Progress
             totalQty={bale.slot}

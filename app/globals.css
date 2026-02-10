@@ -68,6 +68,10 @@
   --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.6);
 }
 
+* {
+  font-family: 'Onest';
+}
+
 body {
   font-family: 'Onest';
 }
@@ -75,7 +79,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Coolvetica';
+  font-weight: 700;
 }
 
 .navBar li a {

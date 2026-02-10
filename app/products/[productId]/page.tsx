@@ -1,7 +1,7 @@
 "use client";
 
 import { useLoginMutation } from "@/api/auth";
-import { useGetSingleBale } from "@/api/bale";
+import { useGetBales, useGetSingleBale } from "@/api/bale";
 import ProductImages from "@/components/product/ImageGallery";
 import UserBubbles from "@/components/product/UserBubble";
 import Countdown from "@/components/shared/Countdown";
@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import {
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
   RiGroupFill,
   RiLoader4Fill,
   RiLoader5Line,
@@ -29,6 +31,7 @@ import {
 } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { dailyDeals } from "@/components/product/data";
+import Recommended from "@/components/product/Recommended";
 
 type FormValues = {
   sizes: string[];
@@ -79,8 +82,10 @@ const ProductDetails = () => {
   // For login modal display
   const [notLoggedIn, setNotLoggedIn] = useState(false)
 
+  // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isPending, error } = useGetSingleBale(productId);
+  const { data: allBales = [], isPending: isBalesPending } = useGetBales();
   const router = useRouter();
   const { addToCart } = useCart();
 
@@ -476,20 +481,30 @@ const ProductDetails = () => {
     { id: "u4", name: "Zainab" }
   ];
 
+  const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
+  
+
   return (
     <>
       <section className="pt-36 md:pt-24 mb-16">
-        <div className="px-2 md:px-10 lg:px-20 flex flex-col gap-8">
+        <div className="px-2 md:px-10 lg:px-32 flex flex-col gap-8">
           <div className="flex flex-col md:flex-row items-start gap-4">
             
             {/* LEFT */}
-            <div className="md:basis-2/5">
+            <div className="md:basis-2/3">
               <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
-                <Tabs defaultValue="specs">
+                <Tabs defaultValue="reviews">
                   <Tabs.List className="border-b border-(--border-default)">
+                    <Tabs.Trigger
+                      value="reviews"
+                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
+                    >
+                      <span className="block md:hidden">Reviews</span>
+                      <span className="md:block hidden">Product Reviews</span>
+                    </Tabs.Trigger>
                     <Tabs.Trigger
                       value="specs"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
@@ -504,31 +519,41 @@ const ProductDetails = () => {
                       <span className="block md:hidden">Shipping</span>
                       <span className="md:block hidden">Shipping Information</span>
                     </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="reviews"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="">Reviews</span>
-                      {/* <span className="md:block hidden">Product Reviews</span> */}
-                    </Tabs.Trigger>
                   </Tabs.List>
 
+                  <Tabs.Content value="reviews" className="pt-4">
+                    Reviews content goes here
+                  </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
                     Product details go here
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
                     Shipping details go here
                   </Tabs.Content>
-                  <Tabs.Content value="reviews" className="pt-4">
-                    Reviews content goes here
-                  </Tabs.Content>
                 </Tabs>
+              </div>
+              <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
+                <div className="flex items-center gap-4">
+                  <img src={baleData?.product.supplier.image} alt="" className="w-16 aspect-square rounded-full" />
+                  <div>
+                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
+                    {
+                      baleData.product.supplier.status &&
+                      <Badge primary className="font-semibold">Verified</Badge>
+                    }
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button primary className="py-2! rounded-xl!">
+                    View Profile
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* CENTER */}
-            <div className="md:basis-2/5 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20">
-              <h1 className="text-3xl lg:text-4xl">{baleData.product.name}</h1>
+            {/* RIGHT */}
+            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20 border border-(--border-default)">
+              <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
               <div className="my-4">
                 <div className="flex flex-wrap items-end gap-2">
                   <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
@@ -547,7 +572,7 @@ const ProductDetails = () => {
                         <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
                         / {baleData.slot} slots reserved
                       </p>
-                      <UserBubbles users={users} />
+                      <UserBubbles count={baleData.filledSlot} />
                     </div>
                   </div>
                 </div>
@@ -751,8 +776,15 @@ const ProductDetails = () => {
 
               {/* Mobile Tab List */}
               <div className="block md:hidden rounded-2xl bg-(--bg-surface) w-full mb-8">
-                <Tabs defaultValue="specs">
+                <Tabs defaultValue="reviews">
                   <Tabs.List className="border-b border-(--border-default)">
+                    <Tabs.Trigger
+                      value="reviews"
+                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
+                    >
+                      <span className="block md:hidden">Reviews</span>
+                      <span className="md:block hidden">Product Reviews</span>
+                    </Tabs.Trigger>
                     <Tabs.Trigger
                       value="specs"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
@@ -767,23 +799,16 @@ const ProductDetails = () => {
                       <span className="block md:hidden">Shipping</span>
                       <span className="md:block hidden">Shipping Information</span>
                     </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="reviews"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Reviews</span>
-                      <span className="md:block hidden">Product Reviews</span>
-                    </Tabs.Trigger>
                   </Tabs.List>
 
+                  <Tabs.Content value="reviews" className="pt-4">
+                    Reviews content goes here
+                  </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
                     Product details go here
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
                     Shipping details go here
-                  </Tabs.Content>
-                  <Tabs.Content value="reviews" className="pt-4">
-                    Reviews content goes here
                   </Tabs.Content>
                 </Tabs>
               </div>
@@ -840,64 +865,9 @@ const ProductDetails = () => {
                 </Button>
               </div>
             </div>
-
-            {/* RIGHT */}
-            <div className="md:basis-1/5 w-full">
-              <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col justify-between gap-4 items-center w-full mb-4">
-                <div className="flex items-center gap-4">
-                  <img src={baleData?.product.supplier.image} alt="" className="w-16 aspect-square rounded-full" />
-                  <div>
-                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
-                    {
-                      baleData.product.supplier.status &&
-                      <Badge primary className="font-semibold">Verified</Badge>
-                    }
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Button primary className="py-2! rounded-xl!">
-                    View Profile
-                  </Button>
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-(--bg-surface)">
-                <h2 className="text-xl">Related Products</h2>
-
-                <div className="space-y-4">
-                  {dailyDeals.items.map(item => (
-                    <div key={item.id} className="flex gap-3 border border-(--border-default) rounded-lg p-2">
-                      <img
-                        src={item.image.src}
-                        alt={item.name}
-                        className="w-16 aspect-square object-contain rounded"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{item.name}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-orange-600 font-semibold">
-                            &#8358;{item.price.toFixed(2)}
-                          </span>
-                          {item.oldPrice && (
-                            <span className="text-xs text-gray-400 line-through">
-                              &#8358;{item.oldPrice.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        <p className="font-bold text-(--primary) text-sm mt-2">
-                          8/10 joined
-                        </p>
-                        <Progress
-                          totalQty={100}
-                          currentQty={80}
-                          className="my-0!"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
+
+          <Recommended products={filteredBales} />
         </div>
       </section>
 
