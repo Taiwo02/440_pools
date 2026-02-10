@@ -1,36 +1,33 @@
-  type User = {
-    id: string;
-    name: string;
-  };
+import { RiUserFill } from "react-icons/ri";
 
-  type Props = {
-    users: User[];
-    maxVisible?: number;
-  };
+type Props = {
+  count: number;
+};
 
-  const UserBubbles = ({ users, maxVisible = 3 }: Props) => {
-    const visibleUsers = users.slice(0, maxVisible);
-    const remaining = users.length - maxVisible;
+const MAX_VISIBLE = 3;
 
-    return (
-      <div className="flex items-center">
-        {visibleUsers.map((user, index) => (
-          <div
-            key={index}
-            className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-medium border-2 border-white -ml-3 first:ml-0"
-            title={user.name}
-          >
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-        ))}
+const UserBubbles = ({ count }: Props) => {
+  const visibleCount = Math.min(count, MAX_VISIBLE);
+  const remaining = count - MAX_VISIBLE;
 
-        {remaining > 0 && (
-          <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-800 flex items-center justify-center text-sm font-medium border-2 border-white -ml-4">
-            +{remaining}
-          </div>
-        )}
-      </div>
-    );
-  };
+  return (
+    <div className="flex items-center">
+      {Array.from({ length: visibleCount }).map((_, index) => (
+        <div
+          key={index}
+          className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs border-2 border-white -ml-4 first:ml-0"
+        >
+          <RiUserFill size={14} />
+        </div>
+      ))}
 
-  export default UserBubbles
+      {remaining > 0 && (
+        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-800 flex items-center justify-center text-xs font-medium border-2 border-white -ml-4">
+          +{remaining}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserBubbles;
