@@ -45,7 +45,7 @@ const SuppliersSection = () => {
 
 
   return (
-    <section className='my-20 px-4 md:px-20 '>
+    <section className='my-10 px-4 md:px-20 '>
       <div className="bg-(--bg-surface) rounded-2xl p-4 md:p-8">
         <div className="flex flex-col md:flex-row gap-4 justify-between md:items-end">
           <div>

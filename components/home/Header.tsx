@@ -34,14 +34,9 @@ const Header = () => {
           <p className="my-2 lg:my-3 max-w-150 font-light">
             Get direct from factory prices without meeting the minimum order requirements. Source from globally verified suppliers.
           </p>
-          <div className="flex items-center gap-4">
-            <Button primary>
-              Start Sourcing
-            </Button>
-            <Button>
-              Post RFQ
-            </Button>
-          </div>
+          <Button primary className='w-fit'>
+            Request For Quotation
+          </Button>
         </div>
       </div>
     </header>
