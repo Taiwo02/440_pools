@@ -10,9 +10,8 @@ import { Tabs } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
-import { Login, VariantAllocation } from "@/types/types";
+import { Login } from "@/types/types";
 import { AxiosError } from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -84,13 +83,20 @@ const ProductDetails = () => {
 
   // Hooks
   const { productId } = useParams<{ productId: string }>();
-  const { data: baleData, isPending, error } = useGetSingleBale(productId);
+  const { data: baleData, isLoading, error } = useGetSingleBale(productId);
   const { data: allBales = [], isPending: isBalesPending } = useGetBales();
   const router = useRouter();
   const { addToCart } = useCart();
 
   useEffect(() => {
+    console.log("baleData changed:", baleData);
+  }, [baleData]);
+
+  console.log("productId:", productId);
+
+  useEffect(() => {
     if (!baleData) return
+    console.log(baleData)
 
     if (formValues.colors.length === 0) {
       setActiveColorId(null)
@@ -277,14 +283,6 @@ const ProductDetails = () => {
       }
     }
   };
-
-  if (isPending) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
-      </div>
-    );
-  }
 
   if (error || !baleData) return <p>Error loading bale</p>;
 
@@ -482,7 +480,14 @@ const ProductDetails = () => {
   ];
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
-  
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -532,23 +537,26 @@ const ProductDetails = () => {
                   </Tabs.Content>
                 </Tabs>
               </div>
-              <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
-                <div className="flex items-center gap-4">
-                  <img src={baleData?.product.supplier.image} alt="" className="w-16 aspect-square rounded-full" />
-                  <div>
-                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
-                    {
-                      baleData.product.supplier.status &&
-                      <Badge primary className="font-semibold">Verified</Badge>
-                    }
+              {
+                baleData?.product?.supplier &&
+                <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
+                  <div className="flex items-center gap-4">
+                    <img src={baleData?.product?.supplier?.image} alt="" className="w-16 aspect-square rounded-full" />
+                    <div>
+                      <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
+                      {
+                        baleData?.product?.supplier?.status &&
+                        <Badge primary className="font-semibold">Verified</Badge>
+                      }
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button primary className="py-2! rounded-xl!">
+                      View Profile
+                    </Button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Button primary className="py-2! rounded-xl!">
-                    View Profile
-                  </Button>
-                </div>
-              </div>
+              }
             </div>
 
             {/* RIGHT */}
