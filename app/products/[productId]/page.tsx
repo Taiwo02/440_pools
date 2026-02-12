@@ -84,7 +84,7 @@ const ProductDetails = () => {
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending } = useGetBales();
+  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales();
   const router = useRouter();
   const { addToCart } = useCart();
 
@@ -481,12 +481,20 @@ const ProductDetails = () => {
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
 
-  if (isLoading) {
+  if (isBalesPending) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
         <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
       </div>
     );
+  }
+
+  if (baleError) {
+    return (
+      <div className="flex justify-center items-center w-full my-24">
+        <p className="text-xl">Product not found</p>
+      </div>
+    )
   }
 
   return (
@@ -546,7 +554,7 @@ const ProductDetails = () => {
                       <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
                       {
                         baleData?.product?.supplier?.status &&
-                        <Badge primary className="font-semibold">Verified</Badge>
+                        <Badge variant="primary" className="font-semibold">Verified</Badge>
                       }
                     </div>
                   </div>

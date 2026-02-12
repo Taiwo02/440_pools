@@ -371,12 +371,14 @@ type BulkItem = BaseOrderItem & {
   kind: "bulk";
 };
 
+// For the variants of different products
 export type VariantAllocation = {
   size: string | null;
   color: string;
   quantity: number;
 };
 
+// For delivery form
 export type DeliveryPayload = {
   firstName: string
   lastName: string
@@ -392,3 +394,37 @@ export type DeliveryPayload = {
   setDefault: boolean
   merchantId: number
 }
+
+// For order history
+type OrderStatus = "shipped" | "delivered" | "processing" | "canceled";
+
+type OrderedItem = {
+  productName: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+};
+
+// type Order = {
+//   orderId: string;
+//   baleId: string;
+//   supplier: string;
+//   items: OrderItem[];
+//   totalAmount: number;
+//   currency: string;
+//   status: "shipped" | "delivered" | "processing" | "canceled";
+//   createdAt: string;
+// };
+
+export type Order = {
+  orderId: string;
+  baleId: string;
+  productName: string;
+  supplier: string;
+  quantity: number;
+  unit: string;
+  totalAmount: number;
+  currency: string;
+  status: OrderStatus;
+  createdAt: string; // ISO date string
+};

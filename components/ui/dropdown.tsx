@@ -32,7 +32,7 @@ function Dropdown<T extends string | number>({
       </button>
 
       {open && (
-        <ul className={cn("absolute z-10 mt-2 p-2 w-full bg-(--bg-surface) border border-(--border-muted) rounded-md shadow-lg overflow-auto h-100", dropClass)}>
+        <ul className={cn("absolute z-10 mt-2 p-2 w-full bg-(--bg-surface) border border-(--border-muted) rounded-md shadow-lg overflow-auto", dropClass)}>
           {options.map((opt) => (
             <li
               key={opt}
