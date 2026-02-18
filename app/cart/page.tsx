@@ -199,12 +199,12 @@ const Cart = () => {
   const shipping = subtotal > 0 ? 45.00 : 0;
   const total = subtotal - bulkSavings + shipping;
 
-  useEffect(() => {
-    localStorage.setItem(
-      "cartSummary",
-      JSON.stringify({ subtotal, bulkSavings, shipping, totalQty, total })
-    );
-  }, [subtotal]);
+  // useEffect(() => {
+  //   localStorage.setItem(
+  //     "cartSummary",
+  //     JSON.stringify({ subtotal, bulkSavings, shipping, totalQty, total })
+  //   );
+  // }, [subtotal]);
 
   return (
     <>

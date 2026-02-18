@@ -263,7 +263,7 @@ const ProductDetails = () => {
           baleId: baleData.baleId,
           name: baleData.product.name,
           image: baleData.product.images[2],
-          supplierId: `sup-${baleData.product.supplierId}`,
+          supplierId: baleData.product.supplierId,
           price: baleData.product.price,
           originalPrice: baleData.product.oldPrice,
           discount: 10,
@@ -275,6 +275,11 @@ const ProductDetails = () => {
           quantity: productsPerSlot,
           unit: "unit",
           variants: selectedVariants,
+          createdAt: baleData.createdAt,
+          updatedAt: baleData.updatedAt,
+          description: baleData.product.description,
+          status: Boolean(baleData.status == "OPEN"),
+          endIn: baleData.endIn,
           items,
           inStock: true,
         });
@@ -318,14 +323,12 @@ const ProductDetails = () => {
       return Object.values(color.sizes)
         .filter(s => s.quantity > 0)
         .map(s => ({
-          kind: "shoe",
-          quantity: s.quantity,
-          totalPrice: s.quantity * baleData.product.price,
+          // kind: "shoe",
           size: {
             id: s.sizeId,
             label: s.sizeLabel,
-            type: "shoe",
-            format: "usShoeSize",
+            type: baleData.product?.productSizes?.[0]?.size?.type,
+            formart: baleData.product?.productSizes?.[0]?.size?.formart,
           },
           color: {
             id: color.colorId,
@@ -333,7 +336,9 @@ const ProductDetails = () => {
             images: color.colorImages,
             productId: baleData.product.id,
             status: true,
-          }
+          },
+          quantity: s.quantity,
+          totalPrice: s.quantity * baleData.product.price,
         }))
     }
 
@@ -341,16 +346,16 @@ const ProductDetails = () => {
     if (!color.quantity || color.quantity <= 0) return []
 
     return [{
-      kind: "bulk",
-      quantity: color.quantity,
-      totalPrice: color.quantity * baleData.product.price,
+      // kind: "bulk",
       color: {
         id: color.colorId,
         color: color.colorLabel,
         images: color.colorImages,
         productId: baleData.product.id,
         status: true,
-      }
+      },
+      quantity: color.quantity,
+      totalPrice: color.quantity * baleData.product.price,
     }]
   })
 
@@ -428,7 +433,7 @@ const ProductDetails = () => {
             baleId: baleData.baleId,
             name: baleData.product.name,
             image: baleData.product.images[2],
-            supplierId: `sup-${baleData.product.supplierId}`,
+            supplierId: baleData.product.supplierId,
             price: baleData.product.price,
             originalPrice: baleData.product.oldPrice,
             discount: 10,
@@ -440,6 +445,11 @@ const ProductDetails = () => {
             quantity: productsPerSlot,
             unit: "unit",
             variants: selectedVariants,
+            createdAt: baleData.createdAt,
+            updatedAt: baleData.updatedAt,
+            description: baleData.product.description,
+            status: Boolean(baleData.status == "OPEN"),
+            endIn: baleData.endIn,
             items,
             inStock: true,
           });
@@ -858,7 +868,7 @@ const ProductDetails = () => {
                       baleId: baleData.baleId,
                       name: baleData.product.name,
                       image: baleData.product.images[2],
-                      supplierId: `sup-${baleData.product.supplierId}`,
+                      supplierId: baleData.product.supplierId,
                       price: baleData.product.price,
                       originalPrice: baleData.product.oldPrice,
                       discount: 10,
@@ -870,6 +880,11 @@ const ProductDetails = () => {
                       quantity: productsPerSlot,
                       unit: "unit",
                       variants: selectedVariants,
+                      createdAt: baleData.createdAt,
+                      updatedAt: baleData.updatedAt,
+                      description: baleData.product.description,
+                      status: Boolean(baleData.status == "OPEN"),
+                      endIn: baleData.endIn,
                       items,
                       inStock: true,
                     });

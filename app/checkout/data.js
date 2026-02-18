@@ -73,3 +73,152 @@ const orderData = {
     }
   ]
 }
+
+[
+  { 
+    "cartItemId": "cart-39QT2K", 
+    "productId": 7, 
+    "baleId": "39QT2K", 
+    "name": "Brand Dan~90 Mid-Length Hooded down Jacket for Women 1027-169", 
+    "image": "https://ccdn.creditclan.com/pub/attachments/1181479645.jpg", 
+    "supplierId": "sup-3", 
+    "price": 158, 
+    "originalPrice": 208, 
+    "discount": 10, 
+    "currency": "NGN", 
+    "slots": 1, 
+    "totalSlots": 12, 
+    "totalShippingFee": 474, 
+    "quantity": 12, 
+    "unit": "unit", 
+    "variants": { 
+      "colors": ["Green"], "sizes": [] 
+    }, 
+    "items": [
+      { 
+        "kind": "shoe", 
+        "quantity": 2, 
+        "totalPrice": 316, 
+        "size": { 
+          "id": 20, 
+          "label": "S", 
+          "type": "shoe", 
+          "format": "usShoeSize" 
+        }, 
+        "color": { 
+          "id": 19, 
+          "color": "Green", 
+          "images": ["https://ccdn.creditclan.com/pub/attachments/421289301.jpg"], 
+          "productId": 7, 
+          "status": true 
+        } 
+      }, 
+      { 
+        "kind": "shoe", 
+        "quantity": 3, 
+        "totalPrice": 474, 
+        "size": { 
+          "id": 21, 
+          "label": "M", 
+          "type": "shoe", 
+          "format": "usShoeSize" 
+        }, 
+        "color": { 
+          "id": 19, 
+          "color": "Green", 
+          "images": ["https://ccdn.creditclan.com/pub/attachments/421289301.jpg"], 
+          "productId": 7, 
+          "status": true 
+        } 
+      }, 
+      { 
+        "kind": "shoe", 
+        "quantity": 3, 
+        "totalPrice": 474, 
+        "size": { 
+          "id": 20, 
+          "label": "S", 
+          "type": "shoe", 
+          "format": "usShoeSize" 
+        }, 
+        "color": { 
+          "id": 20, 
+          "color": "Khaki", 
+          "images": ["https://ccdn.creditclan.com/pub/attachments/1056677839.jpg"], 
+          "productId": 7, 
+          "status": true 
+        } 
+      }, 
+      { 
+        "kind": "shoe", 
+        "quantity": 3, 
+        "totalPrice": 474, 
+        "size": { 
+          "id": 21, 
+          "label": "M", 
+          "type": "shoe", 
+          "format": "usShoeSize" 
+        }, 
+        "color": { 
+          "id": 20, 
+          "color": "Khaki", 
+          "images": ["https://ccdn.creditclan.com/pub/attachments/1056677839.jpg"], 
+          "productId": 7, 
+          "status": true 
+        } 
+      }
+    ], 
+    "inStock": true
+   }
+]
+
+{ 
+  "totalAmount": 4101.875, 
+  "primaryAmount": 1025, 
+  "totalShippingFee": 3000, 
+  "deliveryAddressId": 14, 
+  "totalQuantity": 50, 
+  "bales": [
+    { 
+      "quantity": 1, 
+      "price": 20.5, 
+      "totalPrice": 1025, 
+      "bale": { 
+        "id": 2, 
+        "productId": 2, 
+        "quantity": 50, 
+        "filled": 1, 
+        "slot": 10, 
+        "filledSlot": 1, 
+        "price": 20.5, 
+        "oldPrice": 32.41, 
+        "totalDeliveryFee": 30000, 
+        "deliveryFee": 3000, 
+        "baleId": "6ZWF7L", 
+        "endIn": null, 
+        "status": false, 
+        "createdAt": "2026-01-31T16:11:03.000Z", 
+        "updatedAt": "2026-01-31T16:11:03.000Z", 
+        "product": { 
+          "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01bRfUdY1MYmCeWeD41_!!2220752421447-0-cib.jpg_b.jpg"], 
+          "id": 2, 
+          "supplierId": "sup-2", 
+          "price": 20.5, 
+          "oldPrice": 32.41, 
+          "name": "Textured Retro Niche Bag Women's Bag 2025 New Autumn and Winter Versatile Crossbody Bag Fashionable Women's Handbag", 
+          "description": "Textured Retro Niche Bag Women's Bag 2025 New Autumn and Winter Versatile Crossbody Bag Fashionable Women's Handbag", 
+          "status": false, 
+          "createdAt": "2026-01-31T16:11:03.000Z", 
+          "updatedAt": "2026-01-31T16:11:03.000Z" }, 
+          "items": [
+            { "color": { "id": 5, "color": "Black", "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01s5IMyJ1MYmCdFP5An_!!2220752421447-0-cib.jpg"], "productId": 2, "status": true }, "quantity": 10, "totalPrice": 205 }, 
+            { "color": { "id": 6, "color": "Brown", "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01IObEPO1MYmCYvS8uB_!!2220752421447-0-cib.jpg"], "productId": 2, "status": true }, "quantity": 10, "totalPrice": 205 }, 
+            { "color": { "id": 7, "color": "Deep khaki", "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01drWIue1MYmCdhfhcf_!!2220752421447-0-cib.jpg"], "productId": 2, "status": true }, "quantity": 10, "totalPrice": 205 }, 
+            { "color": { "id": 8, "color": "Light khaki", "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01nFdfJd1MYmCfMg85P_!!2220752421447-0-cib.jpg"], "productId": 2, "status": true }, "quantity": 10, "totalPrice": 205 }, 
+            { "color": { "id": 9, "color": "Off-white", "images": ["https://cbu01.alicdn.com/img/ibank/O1CN01siQdcl1MYmCYvUUPV_!!2220752421447-0-cib.jpg"], "productId": 2, "status": true }, "quantity": 10, "totalPrice": 205 
+          }
+        ] 
+      } 
+    }
+  ] 
+}

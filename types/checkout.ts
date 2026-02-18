@@ -18,6 +18,7 @@ export type CheckoutBaleInfo = {
     name: string;
     images: string[];
   };
+  items: BaleItem[];
 };
 
 export type CheckoutBale = {
@@ -72,7 +73,7 @@ export type ProductSize = {
   id: number;
   label: string;
   formart: string; // keeping backend typo for compatibility
-  type: "shoe" | "clothing";
+  type: "shoe" | "clothing" | "bulk";
 };
 
 export type ProductColor = {

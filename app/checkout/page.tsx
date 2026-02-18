@@ -67,26 +67,21 @@ const Checkout = () => {
     sameAsBilling: true
   })
 
-  // const cartItems = [
-  //   {
-  //     cartItemId: "cart-001",
-  //     name: "Advanced Industrial Optical Sensor Module",
-  //     image: "https://picsum.photos/seed/sensor-module/300/300",
-  //     price: 15000.00,
-  //     quantity: 2,
-  //     variants: { size: "Standard", color: "Black" }
-  //   },
-  //   {
-  //     cartItemId: "cart-002",
-  //     name: "Digital Multimeter High Accuracy",
-  //     image: "https://picsum.photos/seed/digital-multimeter/300/300",
-  //     price: 38000.00,
-  //     quantity: 1,
-  //     variants: { model: "DM-9205A" }
-  //   }
-  // ]
-
   const cartItems = cart;
+
+  const calculateTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      const quantity = item.slots;
+      return sum + (item.price * quantity * item.quantity);
+    }, 0);
+  };
+
+  const totalQty = () => {
+    return cartItems.reduce((sum, item) => {
+      const quantity = item.slots;
+      return sum + (quantity * item.quantity);
+    }, 0);
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -94,19 +89,16 @@ const Checkout = () => {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }))
-  }
+  };
 
-  const cartSummary =
-    typeof window === "undefined"
-      ? null
-      : JSON.parse(localStorage.getItem("cartSummary") || "{}");
+  const subtotal = calculateTotal();
 
-  const subtotal = cartSummary?.subtotal ?? 0;
-  const totalQty = cartSummary?.totalQty ?? 0;
-
-  const shipping = 2500
+  const shipping = () =>
+    cartItems.reduce((sum, item) => sum + item.totalShippingFee, 0);
+  
   const tax = subtotal * 0.075
-  const total = subtotal + shipping + tax
+  const shippingFee = shipping();
+  const total = subtotal + shippingFee + tax
 
   useEffect(() => {
     console.log(subtotal.toLocaleString("en-US", { maximumFractionDigits: 0 }))
@@ -139,32 +131,51 @@ const Checkout = () => {
       if(res.status == 200) {
         const deliveryId = res.data.data.id;
 
-        const orderData:any = {
-          totalAmount: subtotal,
-          primaryAmount: 40000,
-          totalShippingFee: shipping,
+        const orderData: any = {
+          totalAmount: total,
+          primaryAmount: subtotal,
+          totalShippingFee: shippingFee,
           deliveryAddressId: deliveryId,
-          totalQuantity: 1,
+          totalQuantity: totalQty(),
           bales: cartItems.map(item => ({
             quantity: item.slots,
             price: item.price,
             totalPrice: item.slots * item.quantity * item.price,
             bale: {
               id: item.productId,
+              productId: item.productId,
               quantity: item.quantity,
+              filled: item.slots,
+              slot: item.totalSlots,
               filledSlot: item.slots,
               price: item.price,
+              oldPrice: item.originalPrice,
+              totalDeliveryFee: (item.totalShippingFee / item.slots) * item.totalSlots,
+              deliveryFee: item.totalShippingFee,
               baleId: item.baleId,
+              endIn: item.endIn,
+              status: item.status,
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
               product: {
                 images: [item.image],
-                name: item.name
+                id: item.productId,
+                supplierId: item.supplierId,
+                price: item.price,
+                oldPrice: item.originalPrice,
+                name: item.name,
+                description: item.description,
+                status: item.status,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt
               },
-              items: item.items
-            }
+            },
+            items: item.items
           })),
           merchantId: user.id
         }
 
+        console.log(orderData);
         const orderRes = await postOrder(orderData);
         if(orderRes.status == 200) {
           toast.success(`Order successfully`, {
@@ -176,7 +187,7 @@ const Checkout = () => {
             draggable: true,
           });
 
-          router.push('/account')
+          const checkoutId = orderRes?.data?.data?.id;
         } else {
           toast.error(`Order not created`, {
             position: "top-right",
@@ -669,7 +680,7 @@ const Checkout = () => {
                         Shipping
                       </p>
                       <p className="text-sm font-medium text-gray-900">
-                        ₦ {shipping.toLocaleString()}
+                        ₦ {shippingFee.toLocaleString()}
                       </p>
                     </div>
                     <div className="flex items-center justify-between">
