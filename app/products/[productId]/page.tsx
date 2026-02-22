@@ -92,8 +92,6 @@ const ProductDetails = () => {
     console.log("baleData changed:", baleData);
   }, [baleData]);
 
-  console.log("productId:", productId);
-
   useEffect(() => {
     if (!baleData) return
     console.log(baleData)
@@ -260,7 +258,7 @@ const ProductDetails = () => {
         addToCart({
           cartItemId: `cart-${baleData.baleId}`,
           productId: baleData.productId,
-          baleId: baleData.baleId,
+          baleId: baleData.id,
           name: baleData.product.name,
           image: baleData.product.images[2],
           supplierId: baleData.product.supplierId,
@@ -430,7 +428,7 @@ const ProductDetails = () => {
           addToCart({
             cartItemId: `cart-${baleData.baleId}`,
             productId: baleData.productId,
-            baleId: baleData.baleId,
+            baleId: baleData.id,
             name: baleData.product.name,
             image: baleData.product.images[2],
             supplierId: baleData.product.supplierId,
@@ -865,7 +863,7 @@ const ProductDetails = () => {
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
-                      baleId: baleData.baleId,
+                      baleId: baleData.id,
                       name: baleData.product.name,
                       image: baleData.product.images[2],
                       supplierId: baleData.product.supplierId,

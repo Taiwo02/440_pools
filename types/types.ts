@@ -312,7 +312,7 @@ export type ProfileResponse = {
 export type CartItem = {
   cartItemId: string,
   productId: number,
-  baleId: string,
+  baleId: number,
   name: string,
   image: string,
   supplierId: number,
@@ -386,7 +386,7 @@ export type VariantAllocation = {
 // For delivery form
 export type DeliveryPayload = {
   firstName: string
-  lastName: string
+  LastName: string
   countryCode: string
   phone: string
   additionalCountryCode: string
@@ -410,17 +410,6 @@ type OrderedItem = {
   unitPrice: number;
 };
 
-// type Order = {
-//   orderId: string;
-//   baleId: string;
-//   supplier: string;
-//   items: OrderItem[];
-//   totalAmount: number;
-//   currency: string;
-//   status: "shipped" | "delivered" | "processing" | "canceled";
-//   createdAt: string;
-// };
-
 export type Order = {
   orderId: string;
   baleId: string;
@@ -431,5 +420,30 @@ export type Order = {
   totalAmount: number;
   currency: string;
   status: OrderStatus;
-  createdAt: string; // ISO date string
+  createdAt: string;
 };
+
+export type SizeItem = {
+  sizeId: number,
+  quantity: number
+}
+
+export type BaleSlotItem = {
+  baleId: number,
+  slotQuantity: number,
+  items: {
+    colorId: number,
+    productSizes: SizeItem[],
+    productId: number
+  }[]
+}
+
+export type BaleSlot = {
+  deliveryAddressId: number | null,
+  bales: BaleSlotItem[]
+}
+
+export type Initiate = {
+  checkoutId: number,
+  type: "lock"
+}

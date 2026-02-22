@@ -84,3 +84,32 @@ export type ProductColor = {
   images: string[];
   status: boolean;
 };
+
+type CartItemSize = {
+  id: number;
+  label: string;
+  type: string | null;
+  formart: string;
+};
+
+type CartItemColor = {
+  id: number;
+  color: string;
+  images: string[];
+  productId: number;
+  status: boolean;
+};
+
+type CartItemVariant = {
+  size: CartItemSize;
+  color: CartItemColor;
+  quantity: number;
+  totalPrice: number;
+};
+
+export type CartItem = {
+  productId: number;
+  baleId: number;
+  slots: number;
+  items: CartItemVariant[];
+};
