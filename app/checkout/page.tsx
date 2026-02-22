@@ -1,17 +1,15 @@
 "use client"
 
 import { useGetUserProfile } from '@/api/auth'
-import { useCreateBaleSlot, useDeliveryMutation, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
+import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
 import { Button, Input } from '@/components/ui'
 import { useCart } from '@/hooks/use-cart'
+import { openPaystackPopup } from '@/types/funcs'
 import { BaleSlot, CartItem, Initiate, SizeItem } from '@/types/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
-
-// @ts-ignore
-import PaystackPop from "@paystack/inline-js";
 
 import {
   RiArrowLeftLine,
@@ -44,6 +42,7 @@ const Checkout = () => {
   const { mutateAsync: postOrder, isPending: isOrderLoading } = useOrderMutation();
   const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
   const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
+  const confirmPayment = useConfirmPayment();
   const { cart } = useCart();
   const router = useRouter();
 
@@ -187,28 +186,17 @@ const Checkout = () => {
             console.log(initiateRes.data);
 
             const accessCode = initiateRes?.data?.data?.accessCode;
-            const reference = initiateRes?.data?.data?.reference;
 
-            const paystack = new PaystackPop();
-
-            paystack.newTransaction({
-              key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
-              accessCode: accessCode,
-
-              onSuccess: async (transaction: any) => {
-                console.log("Payment successful:", transaction);
-
-                // 🔐 VERIFY ON YOUR BACKEND
-                // await verifyPayment(transaction.reference);
-
-                // Redirect after verification
-                // router.push("/checkout/success");
+            await openPaystackPopup(
+              accessCode,
+              async ({ reference }) => {
+                await confirmPayment.mutateAsync(reference);
+                toast.success("Payment successful");
               },
-
-              onCancel: () => {
-                console.log("Payment cancelled");
+              () => {
+                toast.error("Payment cancelled");
               }
-            });
+            );
           } else {
             toast.error(`Failed to initiate payment`, {
               position: "top-right",
@@ -242,6 +230,12 @@ const Checkout = () => {
       }
     }
   }
+
+  const isPlacingOrder =
+    isDeliveryLoading ||
+    isSlotPending ||
+    isInitiatePending ||
+    confirmPayment.isPending;
 
   return (
     <>
@@ -556,20 +550,10 @@ const Checkout = () => {
                   <Button
                     primary
                     onClick={placeOrder}
-                    disabled={submitting}
-                    className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                    isLoading={isPlacingOrder}
+                    className="w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? (
-                      <>
-                        <RiLoader4Line className="text-lg animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <RiCheckLine className="text-lg" />
-                        Place Order
-                      </>
-                    )}
+                    {isPlacingOrder ? "Placing Order..." : "Place Order"}
                   </Button>
 
                   <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">

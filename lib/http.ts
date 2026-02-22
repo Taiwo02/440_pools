@@ -1,6 +1,6 @@
 import axios from "axios";
 import NProgress from "nprogress";
-import { getCrossSubdomainCookie } from "./utils";
+import { deleteCrossSubdomainCookie, getCrossSubdomainCookie } from "./utils";
 
 let activeRequests = 0;
 
@@ -42,8 +42,15 @@ http.interceptors.response.use(
     stopProgress();
     return response;
   },
-  (error) => {
+  async (error) => {
     stopProgress();
+
+    if (error.response?.status === 401) {
+      deleteCrossSubdomainCookie("440_token");
+      localStorage.removeItem("merchant");
+      window.location.href = "/account";
+    }
+
     return Promise.reject(error);
   }
 );
