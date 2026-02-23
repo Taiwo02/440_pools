@@ -133,33 +133,53 @@ const ProductDetails = () => {
     sizeLabel: string,
     quantity: number
   ) => {
-    setAllocations(prev => ({
-      ...prev,
-      [colorId]: {
-        ...prev[colorId],
-        sizes: {
-          ...prev[colorId].sizes,
-          [sizeId]: {
-            sizeId,
-            sizeLabel,
-            quantity
+    setAllocations(prev => {
+      const existingColor = prev[colorId] ?? {
+        colorId,
+        colorLabel: baleData?.product.colors.find(c => c.id === colorId)?.color ?? "",
+        colorImages: baleData?.product.colors.find(c => c.id === colorId)?.images ?? [],
+        sizes: {},
+        quantity: 0,
+      }
+
+      return {
+        ...prev,
+        [colorId]: {
+          ...existingColor,
+          sizes: {
+            ...existingColor.sizes,
+            [sizeId]: {
+              sizeId,
+              sizeLabel,
+              quantity
+            }
           }
         }
       }
-    }))
+    })
   }
 
   const updateColorQuantity = (
     colorId: number,
     quantity: number
   ) => {
-    setAllocations(prev => ({
-      ...prev,
-      [colorId]: {
-        ...prev[colorId],
-        quantity
+    setAllocations(prev => {
+      const existingColor = prev[colorId] ?? {
+        colorId,
+        colorLabel: baleData?.product.colors.find(c => c.id === colorId)?.color ?? "",
+        colorImages: baleData?.product.colors.find(c => c.id === colorId)?.images ?? [],
+        sizes: {},
+        quantity: 0,
       }
-    }))
+
+      return {
+        ...prev,
+        [colorId]: {
+          ...existingColor,
+          quantity
+        }
+      }
+    })
   }
 
   const increaseSizeQty = (
@@ -167,6 +187,9 @@ const ProductDetails = () => {
     sizeId: number,
     sizeLabel: string
   ) => {
+    const currentTotal = totalAllocatedQuantity
+    if (currentTotal >= maxAllowedQuantity) return
+
     const currentQty =
       allocations[colorId]?.sizes?.[sizeId]?.quantity ?? 0
 
@@ -187,6 +210,9 @@ const ProductDetails = () => {
   }
 
   const increaseColorQty = (colorId: number) => {
+    const currentTotal = totalAllocatedQuantity
+    if (currentTotal >= maxAllowedQuantity) return
+
     const currentQty = allocations[colorId]?.quantity ?? 0
     updateColorQuantity(colorId, currentQty + 1)
   }
@@ -250,11 +276,28 @@ const ProductDetails = () => {
   };
 
   const joinPool = () => {
+    if (isAllocationExceeded) {
+      toast.error(
+        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+      )
+      return
+    }
+
+    if (totalAllocatedQuantity !== maxAllowedQuantity) {
+      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+      return
+    }
+
     const token = getCrossSubdomainCookie("440_token");
     if (!token) {
       setNotLoggedIn(true);
     } else {
       if(baleData) {
+        if (totalAllocatedQuantity !== maxAllowedQuantity) {
+          toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+          return
+        }
+
         addToCart({
           cartItemId: `cart-${baleData.baleId}`,
           productId: baleData.productId,
@@ -270,7 +313,7 @@ const ProductDetails = () => {
           totalSlots: baleData.slot,
           totalShippingFee:
             baleData.deliveryFee * formValues.slots,
-          quantity: productsPerSlot,
+          quantity: totalAllocatedQuantity,
           unit: "unit",
           variants: selectedVariants,
           createdAt: baleData.createdAt,
@@ -289,10 +332,10 @@ const ProductDetails = () => {
 
   if (error || !baleData) return <p>Error loading bale</p>;
 
-  const productsPerSlot = Math.ceil(baleData.quantity / baleData.slot);
+  const productsPerSlot = Math.floor(baleData.quantity / baleData.slot);
 
   const sizesList = baleData.product.productSizes.map(s => ({
-    id: s.id,
+    id: s.size.id,
     value: s.size.label,
     label: s.size.label,
   }));
@@ -315,7 +358,16 @@ const ProductDetails = () => {
 
   const hasSizes = sizesList.length > 0
 
-  const items = Object.values(allocations).flatMap(color => {
+  const cleanedAllocations = Object.fromEntries(
+    Object.entries(allocations).filter(([_, color]) => {
+      if (hasSizes) {
+        return Object.values(color.sizes).some(s => s.quantity > 0)
+      }
+      return (color.quantity ?? 0) > 0
+    })
+  )
+
+  const items = Object.values(cleanedAllocations).flatMap(color => {
     // WITH SIZES
     if (hasSizes) {
       return Object.values(color.sizes)
@@ -380,7 +432,7 @@ const ProductDetails = () => {
   )
 
   const maxAllowedQuantity =
-    formValues.slots * (baleData.quantity / baleData.slot)
+    formValues.slots * productsPerSlot
 
   const isAllocationExceeded =
     totalAllocatedQuantity > maxAllowedQuantity
@@ -425,6 +477,10 @@ const ProductDetails = () => {
         authenticate({ user, token });
 
         if (baleData) {
+          if (totalAllocatedQuantity !== maxAllowedQuantity) {
+            toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+            return
+          }
           addToCart({
             cartItemId: `cart-${baleData.baleId}`,
             productId: baleData.productId,
@@ -440,7 +496,7 @@ const ProductDetails = () => {
             totalSlots: baleData.slot,
             totalShippingFee:
               baleData.deliveryFee * formValues.slots,
-            quantity: productsPerSlot,
+            quantity: totalAllocatedQuantity,
             unit: "unit",
             variants: selectedVariants,
             createdAt: baleData.createdAt,
@@ -479,13 +535,6 @@ const ProductDetails = () => {
       });
     }
   }
-
-  const users = [
-    { id: "u1", name: "Jeff" },
-    { id: "u2", name: "Amaka" },
-    { id: "u3", name: "Tunde" },
-    { id: "u4", name: "Zainab" }
-  ];
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
 
@@ -673,7 +722,7 @@ const ProductDetails = () => {
                         <>
                           {sizesList.map(size => {
                             const qty =
-                              allocations[activeColorId].sizes[size.id]?.quantity ?? 0
+                              allocations[activeColorId]?.sizes?.[size.id]?.quantity ?? 0
 
                             return (
                               <div key={size.id} className="flex justify-between items-center">
@@ -860,6 +909,11 @@ const ProductDetails = () => {
                       return
                     }
 
+                    if (totalAllocatedQuantity !== maxAllowedQuantity) {
+                      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+                      return
+                    }
+
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
@@ -875,7 +929,7 @@ const ProductDetails = () => {
                       totalSlots: baleData.slot,
                       totalShippingFee:
                         baleData.deliveryFee * formValues.slots,
-                      quantity: productsPerSlot,
+                      quantity: totalAllocatedQuantity,
                       unit: "unit",
                       variants: selectedVariants,
                       createdAt: baleData.createdAt,
