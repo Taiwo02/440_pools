@@ -312,10 +312,10 @@ export type ProfileResponse = {
 export type CartItem = {
   cartItemId: string,
   productId: number,
-  baleId: string,
+  baleId: number,
   name: string,
   image: string,
-  supplierId: string,
+  supplierId: number,
   price: number,
   originalPrice: number,
   discount: number,
@@ -325,6 +325,11 @@ export type CartItem = {
   totalShippingFee: number,
   quantity: number,
   unit: string,
+  createdAt: string,
+  updatedAt: string,
+  description: string,
+  status: boolean,
+  endIn: string,
   items: {}[],
   variants: Record<string, string | string[]>;
   minOrder?: number,
@@ -371,15 +376,17 @@ type BulkItem = BaseOrderItem & {
   kind: "bulk";
 };
 
+// For the variants of different products
 export type VariantAllocation = {
   size: string | null;
   color: string;
   quantity: number;
 };
 
+// For delivery form
 export type DeliveryPayload = {
   firstName: string
-  lastName: string
+  LastName: string
   countryCode: string
   phone: string
   additionalCountryCode: string
@@ -391,4 +398,52 @@ export type DeliveryPayload = {
   state: string
   setDefault: boolean
   merchantId: number
+}
+
+// For order history
+type OrderStatus = "shipped" | "delivered" | "processing" | "canceled";
+
+type OrderedItem = {
+  productName: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+};
+
+export type Order = {
+  orderId: string;
+  baleId: string;
+  productName: string;
+  supplier: string;
+  quantity: number;
+  unit: string;
+  totalAmount: number;
+  currency: string;
+  status: OrderStatus;
+  createdAt: string;
+};
+
+export type SizeItem = {
+  sizeId: number,
+  quantity: number
+}
+
+export type BaleSlotItem = {
+  baleId: number,
+  slotQuantity: number,
+  items: {
+    colorId: number,
+    productSizes: SizeItem[],
+    productId: number
+  }[]
+}
+
+export type BaleSlot = {
+  deliveryAddressId: number | null,
+  bales: BaleSlotItem[]
+}
+
+export type Initiate = {
+  checkoutId: number,
+  type: "lock"
 }

@@ -84,15 +84,13 @@ const ProductDetails = () => {
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending } = useGetBales();
+  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales();
   const router = useRouter();
   const { addToCart } = useCart();
 
   useEffect(() => {
     console.log("baleData changed:", baleData);
   }, [baleData]);
-
-  console.log("productId:", productId);
 
   useEffect(() => {
     if (!baleData) return
@@ -260,10 +258,10 @@ const ProductDetails = () => {
         addToCart({
           cartItemId: `cart-${baleData.baleId}`,
           productId: baleData.productId,
-          baleId: baleData.baleId,
+          baleId: baleData.id,
           name: baleData.product.name,
           image: baleData.product.images[2],
-          supplierId: `sup-${baleData.product.supplierId}`,
+          supplierId: baleData.product.supplierId,
           price: baleData.product.price,
           originalPrice: baleData.product.oldPrice,
           discount: 10,
@@ -275,6 +273,11 @@ const ProductDetails = () => {
           quantity: productsPerSlot,
           unit: "unit",
           variants: selectedVariants,
+          createdAt: baleData.createdAt,
+          updatedAt: baleData.updatedAt,
+          description: baleData.product.description,
+          status: Boolean(baleData.status == "OPEN"),
+          endIn: baleData.endIn,
           items,
           inStock: true,
         });
@@ -318,14 +321,12 @@ const ProductDetails = () => {
       return Object.values(color.sizes)
         .filter(s => s.quantity > 0)
         .map(s => ({
-          kind: "shoe",
-          quantity: s.quantity,
-          totalPrice: s.quantity * baleData.product.price,
+          // kind: "shoe",
           size: {
             id: s.sizeId,
             label: s.sizeLabel,
-            type: "shoe",
-            format: "usShoeSize",
+            type: baleData.product?.productSizes?.[0]?.size?.type,
+            formart: baleData.product?.productSizes?.[0]?.size?.formart,
           },
           color: {
             id: color.colorId,
@@ -333,7 +334,9 @@ const ProductDetails = () => {
             images: color.colorImages,
             productId: baleData.product.id,
             status: true,
-          }
+          },
+          quantity: s.quantity,
+          totalPrice: s.quantity * baleData.product.price,
         }))
     }
 
@@ -341,16 +344,16 @@ const ProductDetails = () => {
     if (!color.quantity || color.quantity <= 0) return []
 
     return [{
-      kind: "bulk",
-      quantity: color.quantity,
-      totalPrice: color.quantity * baleData.product.price,
+      // kind: "bulk",
       color: {
         id: color.colorId,
         color: color.colorLabel,
         images: color.colorImages,
         productId: baleData.product.id,
         status: true,
-      }
+      },
+      quantity: color.quantity,
+      totalPrice: color.quantity * baleData.product.price,
     }]
   })
 
@@ -425,10 +428,10 @@ const ProductDetails = () => {
           addToCart({
             cartItemId: `cart-${baleData.baleId}`,
             productId: baleData.productId,
-            baleId: baleData.baleId,
+            baleId: baleData.id,
             name: baleData.product.name,
             image: baleData.product.images[2],
-            supplierId: `sup-${baleData.product.supplierId}`,
+            supplierId: baleData.product.supplierId,
             price: baleData.product.price,
             originalPrice: baleData.product.oldPrice,
             discount: 10,
@@ -440,6 +443,11 @@ const ProductDetails = () => {
             quantity: productsPerSlot,
             unit: "unit",
             variants: selectedVariants,
+            createdAt: baleData.createdAt,
+            updatedAt: baleData.updatedAt,
+            description: baleData.product.description,
+            status: Boolean(baleData.status == "OPEN"),
+            endIn: baleData.endIn,
             items,
             inStock: true,
           });
@@ -481,12 +489,20 @@ const ProductDetails = () => {
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
 
-  if (isLoading) {
+  if (isBalesPending) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
         <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
       </div>
     );
+  }
+
+  if (baleError) {
+    return (
+      <div className="flex justify-center items-center w-full my-24">
+        <p className="text-xl">Product not found</p>
+      </div>
+    )
   }
 
   return (
@@ -546,7 +562,7 @@ const ProductDetails = () => {
                       <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
                       {
                         baleData?.product?.supplier?.status &&
-                        <Badge primary className="font-semibold">Verified</Badge>
+                        <Badge variant="primary" className="font-semibold">Verified</Badge>
                       }
                     </div>
                   </div>
@@ -847,10 +863,10 @@ const ProductDetails = () => {
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
-                      baleId: baleData.baleId,
+                      baleId: baleData.id,
                       name: baleData.product.name,
                       image: baleData.product.images[2],
-                      supplierId: `sup-${baleData.product.supplierId}`,
+                      supplierId: baleData.product.supplierId,
                       price: baleData.product.price,
                       originalPrice: baleData.product.oldPrice,
                       discount: 10,
@@ -862,6 +878,11 @@ const ProductDetails = () => {
                       quantity: productsPerSlot,
                       unit: "unit",
                       variants: selectedVariants,
+                      createdAt: baleData.createdAt,
+                      updatedAt: baleData.updatedAt,
+                      description: baleData.product.description,
+                      status: Boolean(baleData.status == "OPEN"),
+                      endIn: baleData.endIn,
                       items,
                       inStock: true,
                     });

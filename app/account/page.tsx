@@ -12,7 +12,10 @@ import { RiLoader5Line, RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
 
 export default function AccountPage() {
   const { logout } = useAuth();
-  const { data: user, isPending, error } = useGetUserProfile();
+  // const { data: user, isPending, error } = useGetUserProfile();
+
+  const merchantString = localStorage.getItem('merchant');
+  const user = merchantString ? JSON.parse(merchantString) : null;
 
   useEffect(() => {
     if(user) {
@@ -20,19 +23,19 @@ export default function AccountPage() {
     }
   }, [user])
 
-  if(isPending) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
-      </div>
-    )
-  }
+  // if(isPending) {
+  //   return (
+  //     <div className="flex justify-center items-center w-full h-screen">
+  //       <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
+  //     </div>
+  //   )
+  // }
   
-  if (error) return (
-    <div className="flex justify-center items-center w-full h-screen">
-      <p>Error loading user</p>
-    </div>
-  );
+  // if (error) return (
+  //   <div className="flex justify-center items-center w-full h-screen">
+  //     <p>Error loading user</p>
+  //   </div>
+  // );
   
   
   return (
