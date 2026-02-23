@@ -67,12 +67,12 @@ const SuppliersSection = () => {
                 <div>
                   <h3 className="text-xl">{supplier.name}</h3>
                   <div className="flex gap-1">
-                    <Badge secondary className='capitalize'>
+                    <Badge variant="secondary" className='capitalize'>
                       { supplier.verificationStatus }
                     </Badge>
                     {
                       supplier.badges.length != 0 ? 
-                      <Badge primary className='capitalize'>
+                      <Badge variant="primary" className='capitalize'>
                         {supplier.badges[0]}
                       </Badge> : ''
                     }
