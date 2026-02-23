@@ -34,8 +34,9 @@ interface ProfileData {
 }
 
 const Checkout = () => {
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   // const { data: user, isPending ,error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
@@ -71,12 +72,16 @@ const Checkout = () => {
     saveInfo: false,
     setDefault: false,
     sameAsBilling: true
-  })
+  });
+
+  useEffect(() => {
+    const merchantString = localStorage.getItem("merchant");
+    if (merchantString) {
+      setUser(JSON.parse(merchantString));
+    }
+  }, []);
 
   const cartItems: CartItem[] = cart;
-  
-  const merchantString = localStorage.getItem('merchant');
-  const user = merchantString ? JSON.parse(merchantString) : null;
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
