@@ -16,20 +16,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
   RiGroupFill,
-  RiLoader4Fill,
   RiLoader5Line,
-  RiRocket2Fill,
-  RiShieldCheckFill,
-  RiShip2Fill,
-  RiStarFill,
-  RiStarHalfFill,
-  RiTimeFill,
+  RiRocket2Fill
 } from "react-icons/ri";
 import { toast } from "react-toastify";
-import { dailyDeals } from "@/components/product/data";
 import Recommended from "@/components/product/Recommended";
 
 type FormValues = {
@@ -125,7 +116,56 @@ const ProductDetails = () => {
         quantity: 0,
       },
     }))
-  }, [baleData])
+  }, [baleData]);
+
+  const hasColors = baleData!?.product?.colors.length > 0
+  const DEFAULT_COLOR_ID = 0
+
+  useEffect(() => {
+    if (!baleData) return;
+
+    if (!hasColors) {
+      setActiveColorId(DEFAULT_COLOR_ID);
+
+      setAllocations(prev => ({
+        ...prev,
+        [DEFAULT_COLOR_ID]: prev[DEFAULT_COLOR_ID] ?? {
+          colorId: DEFAULT_COLOR_ID,
+          colorLabel: "Default",
+          colorImages: baleData.product.images ?? [],
+          sizes: {},
+          quantity: 0,
+        }
+      }));
+    }
+  }, [baleData, hasColors]);
+
+  if (error || !baleData) return <p>Error loading bale</p>;
+
+  const productsPerSlot =
+    baleData.slot > 0
+      ? Math.floor(baleData.quantity / baleData.slot)
+      : 0;
+
+  const sizesList = baleData.product.productSizes.map(s => ({
+    id: s.size.id,
+    value: s.size.label,
+    label: s.size.label,
+  }));
+
+  const colorsList = baleData.product.colors.map(c => ({
+    value: c.color,
+    label: c.color,
+    node: (
+      <img
+        src={c.images[0]}
+        alt={c.color}
+        className="w-10 h-10 rounded-l-lg object-cover"
+      />
+    ),
+  }));
+
+  const hasSizes = sizesList.length > 0
 
   const updateSizeQuantity = (
     colorId: number,
@@ -133,33 +173,53 @@ const ProductDetails = () => {
     sizeLabel: string,
     quantity: number
   ) => {
-    setAllocations(prev => ({
-      ...prev,
-      [colorId]: {
-        ...prev[colorId],
-        sizes: {
-          ...prev[colorId].sizes,
-          [sizeId]: {
-            sizeId,
-            sizeLabel,
-            quantity
+    setAllocations(prev => {
+      const existingColor = prev[colorId] ?? {
+        colorId,
+        colorLabel: baleData?.product.colors.find(c => c.id === colorId)?.color ?? "",
+        colorImages: baleData?.product.colors.find(c => c.id === colorId)?.images ?? [],
+        sizes: {},
+        quantity: 0,
+      }
+
+      return {
+        ...prev,
+        [colorId]: {
+          ...existingColor,
+          sizes: {
+            ...existingColor.sizes,
+            [sizeId]: {
+              sizeId,
+              sizeLabel,
+              quantity
+            }
           }
         }
       }
-    }))
+    })
   }
 
   const updateColorQuantity = (
     colorId: number,
     quantity: number
   ) => {
-    setAllocations(prev => ({
-      ...prev,
-      [colorId]: {
-        ...prev[colorId],
-        quantity
+    setAllocations(prev => {
+      const existingColor = prev[colorId] ?? {
+        colorId,
+        colorLabel: baleData?.product.colors.find(c => c.id === colorId)?.color ?? "",
+        colorImages: baleData?.product.colors.find(c => c.id === colorId)?.images ?? [],
+        sizes: {},
+        quantity: 0,
       }
-    }))
+
+      return {
+        ...prev,
+        [colorId]: {
+          ...existingColor,
+          quantity
+        }
+      }
+    })
   }
 
   const increaseSizeQty = (
@@ -167,49 +227,68 @@ const ProductDetails = () => {
     sizeId: number,
     sizeLabel: string
   ) => {
-    const currentQty =
-      allocations[colorId]?.sizes?.[sizeId]?.quantity ?? 0
+    const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
-    updateSizeQuantity(colorId, sizeId, sizeLabel, currentQty + 1)
-  }
+    const currentTotal = totalAllocatedQuantity;
+    if (currentTotal >= maxAllowedQuantity) return;
+
+    const currentQty =
+      allocations[resolvedColorId]?.sizes?.[sizeId]?.quantity ?? 0;
+
+    updateSizeQuantity(resolvedColorId, sizeId, sizeLabel, currentQty + 1);
+  };
 
   const decreaseSizeQty = (
     colorId: number,
     sizeId: number,
     sizeLabel: string
   ) => {
+    const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
+
     const currentQty =
-      allocations[colorId]?.sizes?.[sizeId]?.quantity ?? 0
+      allocations[resolvedColorId]?.sizes?.[sizeId]?.quantity ?? 0;
 
-    if (currentQty <= 0) return
+    if (currentQty <= 0) return;
 
-    updateSizeQuantity(colorId, sizeId, sizeLabel, currentQty - 1)
-  }
+    updateSizeQuantity(resolvedColorId, sizeId, sizeLabel, currentQty - 1);
+  };
 
   const increaseColorQty = (colorId: number) => {
-    const currentQty = allocations[colorId]?.quantity ?? 0
-    updateColorQuantity(colorId, currentQty + 1)
-  }
+    const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
+
+    const currentTotal = totalAllocatedQuantity;
+    if (currentTotal >= maxAllowedQuantity) return;
+
+    const currentQty = allocations[resolvedColorId]?.quantity ?? 0;
+
+    updateColorQuantity(resolvedColorId, currentQty + 1);
+  };
 
   const decreaseColorQty = (colorId: number) => {
-    const currentQty = allocations[colorId]?.quantity ?? 0
-    if (currentQty <= 0) return
-    updateColorQuantity(colorId, currentQty - 1)
-  }
+    const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
+
+    const currentQty = allocations[resolvedColorId]?.quantity ?? 0;
+
+    if (currentQty <= 0) return;
+
+    updateColorQuantity(resolvedColorId, currentQty - 1);
+  };
 
   const getColorQuantity = (colorId: number) => {
-    const allocation = allocations[colorId]
-    if (!allocation) return 0
+    const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
+
+    const allocation = allocations[resolvedColorId];
+    if (!allocation) return 0;
 
     if (hasSizes) {
       return Object.values(allocation.sizes ?? {}).reduce(
         (sum, s) => sum + (s.quantity ?? 0),
         0
-      )
+      );
     }
 
-    return allocation.quantity ?? 0
-  }
+    return allocation.quantity ?? 0;
+  };
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -250,6 +329,18 @@ const ProductDetails = () => {
   };
 
   const joinPool = () => {
+    if (isAllocationExceeded) {
+      toast.error(
+        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+      )
+      return
+    }
+
+    if (totalAllocatedQuantity !== maxAllowedQuantity) {
+      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+      return
+    }
+
     const token = getCrossSubdomainCookie("440_token");
     if (!token) {
       setNotLoggedIn(true);
@@ -270,7 +361,7 @@ const ProductDetails = () => {
           totalSlots: baleData.slot,
           totalShippingFee:
             baleData.deliveryFee * formValues.slots,
-          quantity: productsPerSlot,
+          quantity: totalAllocatedQuantity,
           unit: "unit",
           variants: selectedVariants,
           createdAt: baleData.createdAt,
@@ -287,35 +378,20 @@ const ProductDetails = () => {
     }
   };
 
-  if (error || !baleData) return <p>Error loading bale</p>;
-
-  const productsPerSlot = Math.ceil(baleData.quantity / baleData.slot);
-
-  const sizesList = baleData.product.productSizes.map(s => ({
-    id: s.id,
-    value: s.size.label,
-    label: s.size.label,
-  }));
-
-  const colorsList = baleData.product.colors.map(c => ({
-    value: c.color,
-    label: c.color,
-    node: (
-      <img
-        src={c.images[0]}
-        alt={c.color}
-        className="w-10 h-10 rounded-l-lg object-cover"
-      />
-    ),
-  }));
-
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-US", { maximumFractionDigits: 0 })
   }
 
-  const hasSizes = sizesList.length > 0
+  const cleanedAllocations = Object.fromEntries(
+    Object.entries(allocations).filter(([_, color]) => {
+      if (hasSizes) {
+        return Object.values(color.sizes).some(s => s.quantity > 0)
+      }
+      return (color.quantity ?? 0) > 0
+    })
+  )
 
-  const items = Object.values(allocations).flatMap(color => {
+  const items = Object.values(cleanedAllocations).flatMap(color => {
     // WITH SIZES
     if (hasSizes) {
       return Object.values(color.sizes)
@@ -380,7 +456,7 @@ const ProductDetails = () => {
   )
 
   const maxAllowedQuantity =
-    formValues.slots * (baleData.quantity / baleData.slot)
+    formValues.slots * productsPerSlot
 
   const isAllocationExceeded =
     totalAllocatedQuantity > maxAllowedQuantity
@@ -425,6 +501,10 @@ const ProductDetails = () => {
         authenticate({ user, token });
 
         if (baleData) {
+          if (totalAllocatedQuantity !== maxAllowedQuantity) {
+            toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+            return
+          }
           addToCart({
             cartItemId: `cart-${baleData.baleId}`,
             productId: baleData.productId,
@@ -440,7 +520,7 @@ const ProductDetails = () => {
             totalSlots: baleData.slot,
             totalShippingFee:
               baleData.deliveryFee * formValues.slots,
-            quantity: productsPerSlot,
+            quantity: totalAllocatedQuantity,
             unit: "unit",
             variants: selectedVariants,
             createdAt: baleData.createdAt,
@@ -479,13 +559,6 @@ const ProductDetails = () => {
       });
     }
   }
-
-  const users = [
-    { id: "u1", name: "Jeff" },
-    { id: "u2", name: "Amaka" },
-    { id: "u3", name: "Tunde" },
-    { id: "u4", name: "Zainab" }
-  ];
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
 
@@ -622,9 +695,14 @@ const ProductDetails = () => {
                     {
                       colorsList.map((color, index) => {
                         const isChecked = formValues.colors.includes(color.value)
-                        const qty = getColorQuantity(
-                          baleData.product.colors.find(c => c.color === color.value)?.id!
-                        )
+
+                        const colorObj = baleData.product.colors.find(
+                          c => c.color === color.value
+                        );
+
+                        if (!colorObj) return null;
+
+                        const qty = getColorQuantity(colorObj.id);
 
                         return (
                           <label
@@ -657,7 +735,7 @@ const ProductDetails = () => {
                 </div>
               )}
 
-              {activeColorId && (
+              {activeColorId !== null && (
                 <>
                   <div className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto" } my-4`}>
                     <div className="flex justify-between">
@@ -673,7 +751,7 @@ const ProductDetails = () => {
                         <>
                           {sizesList.map(size => {
                             const qty =
-                              allocations[activeColorId].sizes[size.id]?.quantity ?? 0
+                              allocations[activeColorId]?.sizes?.[size.id]?.quantity ?? 0
 
                             return (
                               <div key={size.id} className="flex justify-between items-center">
@@ -722,7 +800,7 @@ const ProductDetails = () => {
                       {!hasSizes && (
                         <div className="flex justify-between items-center">
                           <span className="text-sm capitalize">
-                            {allocations[activeColorId].colorLabel}
+                            {allocations[activeColorId!]?.colorLabel}
                           </span>
 
                           <div className="flex items-stretch">
@@ -860,6 +938,11 @@ const ProductDetails = () => {
                       return
                     }
 
+                    if (totalAllocatedQuantity !== maxAllowedQuantity) {
+                      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+                      return
+                    }
+
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
@@ -875,7 +958,7 @@ const ProductDetails = () => {
                       totalSlots: baleData.slot,
                       totalShippingFee:
                         baleData.deliveryFee * formValues.slots,
-                      quantity: productsPerSlot,
+                      quantity: totalAllocatedQuantity,
                       unit: "unit",
                       variants: selectedVariants,
                       createdAt: baleData.createdAt,

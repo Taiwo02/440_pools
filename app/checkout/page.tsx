@@ -73,10 +73,16 @@ const Checkout = () => {
     sameAsBilling: true
   })
 
+  const [user, setUser] = useState<{ id: number | string; email?: string; phone?: string; address?: string } | null>(null)
+
   const cartItems: CartItem[] = cart;
-  
-  const merchantString = localStorage.getItem('merchant');
-  const user = merchantString ? JSON.parse(merchantString) : null;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const merchantString = localStorage.getItem('merchant');
+      setUser(merchantString ? JSON.parse(merchantString) : null);
+    }
+  }, []);
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
@@ -129,7 +135,7 @@ const Checkout = () => {
         city: formData.city,
         state: formData.state,
         setDefault: false,
-        merchantId: user.id
+        merchantId: Number(user.id)
       }
 
       const res = await postDelivery(deliveryData);

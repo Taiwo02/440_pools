@@ -68,7 +68,7 @@ const AccountLogin = () => {
           router.replace("/account");
         }
         
-        // window.location.reload();
+        window.location.reload();
       } else {
         toast.success(`Something went wrong`, {
           position: "top-right",
