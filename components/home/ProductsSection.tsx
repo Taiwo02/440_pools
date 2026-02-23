@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link';
-import { RiArrowRightSLine, RiLoader5Line } from 'react-icons/ri';
+import { RiArrowRightSLine, RiLoader5Line, RiSignalWifiErrorLine } from 'react-icons/ri';
 import { Button, Card, Progress } from '../ui';
 import Image from 'next/image';
 import { useGetBales } from '@/api/bale';
@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import ProductCard from '../product/ProductCard';
 
 const ProductsSection = () => {
-  const { data: allBales = [], isPending } = useGetBales();
+  const { data: allBales = [], isPending, error } = useGetBales();
 
   useEffect(() => {
     if (allBales) {
@@ -17,7 +17,13 @@ const ProductsSection = () => {
     }
   }, [allBales]);
 
-  // const slicedBales = allBales.slice(1, 6);
+  if(error) {
+    return (
+      <div className="flex justify-center items-center w-full my-16">
+        <p className="text-xl">Products not found</p>
+      </div>
+    )
+  }
 
   return (
     <section className='mb-8'>
@@ -36,14 +42,19 @@ const ProductsSection = () => {
           isPending ?
             <div className="flex justify-center items-center w-full my-16">
               <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
-            </div> :
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-4 my-4">
-              {
-                allBales.map(bale => (
-                  <ProductCard bale={bale} key={bale.id} />
-                ))
-              }
-            </div>
+            </div> : 
+            error ? 
+              <div className="flex flex-col gap-4 justify-center items-center w-full my-16">
+                <RiSignalWifiErrorLine />
+                <p className="text-xl">Products not found</p>
+              </div> :
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-4 my-4">
+                {
+                  allBales.map(bale => (
+                    <ProductCard bale={bale} key={bale.id} />
+                  ))
+                }
+              </div>
         }
       </div>
     </section>

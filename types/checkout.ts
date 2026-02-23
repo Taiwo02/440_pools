@@ -18,6 +18,7 @@ export type CheckoutBaleInfo = {
     name: string;
     images: string[];
   };
+  items: BaleItem[];
 };
 
 export type CheckoutBale = {
@@ -72,7 +73,7 @@ export type ProductSize = {
   id: number;
   label: string;
   formart: string; // keeping backend typo for compatibility
-  type: "shoe" | "clothing";
+  type: "shoe" | "clothing" | "bulk";
 };
 
 export type ProductColor = {
@@ -82,4 +83,33 @@ export type ProductColor = {
   otherColor: string;
   images: string[];
   status: boolean;
+};
+
+type CartItemSize = {
+  id: number;
+  label: string;
+  type: string | null;
+  formart: string;
+};
+
+type CartItemColor = {
+  id: number;
+  color: string;
+  images: string[];
+  productId: number;
+  status: boolean;
+};
+
+type CartItemVariant = {
+  size: CartItemSize;
+  color: CartItemColor;
+  quantity: number;
+  totalPrice: number;
+};
+
+export type CartItem = {
+  productId: number;
+  baleId: number;
+  slots: number;
+  items: CartItemVariant[];
 };

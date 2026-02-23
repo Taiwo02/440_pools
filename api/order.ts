@@ -1,7 +1,7 @@
 import http from "@/lib/http";
 import { CheckoutPayload } from "@/types/checkout";
-import { DeliveryPayload } from "@/types/types";
-import { useMutation } from "@tanstack/react-query";
+import { BaleSlot, DeliveryPayload, Initiate } from "@/types/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useDeliveryMutation = () => {
   return useMutation({
@@ -16,5 +16,32 @@ export const useOrderMutation = () => {
     mutationFn: ({merchantId, ...body}: CheckoutPayload) => {
       return http.post(`/buyer/order?merchantId=${merchantId}`, body);
     },
+  });
+};
+
+export const useCreateBaleSlot = () => {
+  return useMutation({
+    mutationFn: (body: BaleSlot) => {
+      return http.post(`/buyer/checkout-intent`, body);
+    },
+  });
+};
+
+export const useInitiateSlotPayment = () => {
+  return useMutation({
+    mutationFn: (body: Initiate) => {
+      return http.post(`/buyer/initiate-payment`, body);
+    },
+  });
+};
+
+export const useConfirmPayment = () => {
+  return useMutation({
+    mutationFn: async (reference: string) => {
+      const res = await http.get(
+        `/buyer/confirm-payment?reference=${reference}`
+      );
+      return res?.data?.data;
+    }
   });
 };

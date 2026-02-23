@@ -53,8 +53,8 @@ const AccountLogin = () => {
           draggable: true,
         });
 
-        const token = res.data?.token;
-        const user = res.data;
+        const token = res.data?.data?.token;
+        const user = res.data?.data?.customer;
 
         authenticate({ user, token });
 
@@ -68,7 +68,7 @@ const AccountLogin = () => {
           router.replace("/account");
         }
         
-        window.location.reload();
+        // window.location.reload();
       } else {
         toast.success(`Something went wrong`, {
           position: "top-right",

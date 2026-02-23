@@ -1,13 +1,16 @@
 "use client"
 
 import { useGetUserProfile } from '@/api/auth'
-import { useDeliveryMutation, useOrderMutation } from '@/api/order'
+import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
 import { Button, Input } from '@/components/ui'
 import { useCart } from '@/hooks/use-cart'
+import { openPaystackPopup } from '@/types/funcs'
+import { BaleSlot, CartItem, Initiate, SizeItem } from '@/types/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
+
 import {
   RiArrowLeftLine,
   RiShieldCheckLine,
@@ -34,9 +37,12 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
-  const { data: user, isPending ,error } = useGetUserProfile();
+  // const { data: user, isPending ,error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
   const { mutateAsync: postOrder, isPending: isOrderLoading } = useOrderMutation();
+  const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
+  const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
+  const confirmPayment = useConfirmPayment();
   const { cart } = useCart();
   const router = useRouter();
 
@@ -67,26 +73,24 @@ const Checkout = () => {
     sameAsBilling: true
   })
 
-  // const cartItems = [
-  //   {
-  //     cartItemId: "cart-001",
-  //     name: "Advanced Industrial Optical Sensor Module",
-  //     image: "https://picsum.photos/seed/sensor-module/300/300",
-  //     price: 15000.00,
-  //     quantity: 2,
-  //     variants: { size: "Standard", color: "Black" }
-  //   },
-  //   {
-  //     cartItemId: "cart-002",
-  //     name: "Digital Multimeter High Accuracy",
-  //     image: "https://picsum.photos/seed/digital-multimeter/300/300",
-  //     price: 38000.00,
-  //     quantity: 1,
-  //     variants: { model: "DM-9205A" }
-  //   }
-  // ]
+  const cartItems: CartItem[] = cart;
+  
+  const merchantString = localStorage.getItem('merchant');
+  const user = merchantString ? JSON.parse(merchantString) : null;
 
-  const cartItems = cart;
+  const calculateTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      const quantity = item.slots;
+      return sum + (item.price * quantity * item.quantity);
+    }, 0);
+  };
+
+  const totalQty = () => {
+    return cartItems.reduce((sum, item) => {
+      const quantity = item.slots;
+      return sum + (quantity * item.quantity);
+    }, 0);
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -94,34 +98,27 @@ const Checkout = () => {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }))
-  }
+  };
 
-  const cartSummary =
-    typeof window === "undefined"
-      ? null
-      : JSON.parse(localStorage.getItem("cartSummary") || "{}");
+  const subtotal = calculateTotal();
 
-  const subtotal = cartSummary?.subtotal ?? 0;
-  const totalQty = cartSummary?.totalQty ?? 0;
-
-  const shipping = 2500
+  const shipping = () =>
+    cartItems.reduce((sum, item) => sum + item.totalShippingFee, 0);
+  
   const tax = subtotal * 0.075
-  const total = subtotal + shipping + tax
+  const shippingFee = shipping();
+  const total = subtotal + shippingFee + tax
 
   useEffect(() => {
     console.log(subtotal.toLocaleString("en-US", { maximumFractionDigits: 0 }))
     console.log(JSON.stringify(cartItems))
   }, [cartItems]);
 
-  useEffect(() => {
-    console.log(user)
-  }, [user]);
-
   const placeOrder = async () => {
     if(user && cartItems) {
       const deliveryData = {
         firstName: formData.firstName,
-        lastName: formData.lastName,
+        LastName: formData.lastName,
         countryCode: formData.countryCode,
         phone: formData.phone,
         additionalCountryCode: formData.additionalCountryCode,
@@ -136,49 +133,82 @@ const Checkout = () => {
       }
 
       const res = await postDelivery(deliveryData);
-      if(res.status == 200) {
+      if (res.status === 200 || res.status === 201) {
         const deliveryId = res.data.data.id;
 
-        const orderData:any = {
-          totalAmount: subtotal,
-          primaryAmount: 40000,
-          totalShippingFee: shipping,
-          deliveryAddressId: deliveryId,
-          totalQuantity: 1,
-          bales: cartItems.map(item => ({
-            quantity: item.slots,
-            price: item.price,
-            totalPrice: item.slots * item.quantity * item.price,
-            bale: {
-              id: item.productId,
-              quantity: item.quantity,
-              filledSlot: item.slots,
-              price: item.price,
+        const slotData: BaleSlot = {
+          deliveryAddressId: deliveryId ?? null,
+          bales: cartItems.map((item: any) => {
+            const groupedByColor = item.items.reduce((acc: any, current: any) => {
+              const colorId = current.color.id;
+
+              if (!acc[colorId]) {
+                acc[colorId] = {
+                  colorId,
+                  productId: item.productId,
+                  productSizes: []
+                };
+              }
+
+              acc[colorId].productSizes.push({
+                sizeId: current.size.id,
+                quantity: current.quantity
+              });
+
+              return acc;
+            }, {} as Record<number, {
+              colorId: number;
+              productId: number;
+              productSizes: SizeItem[];
+            }>);
+
+            return {
               baleId: item.baleId,
-              product: {
-                images: [item.image],
-                name: item.name
+              slotQuantity: item.slots,
+              items: Object.values(groupedByColor)
+            };
+          })
+        };
+
+        const createRes = await createSlot(slotData);
+        if (createRes.status === 200 || createRes.status === 201) {
+          console.log(createRes.data)
+          const checkoutId = createRes?.data?.data?.id;
+
+          const initiateData: Initiate = {
+            checkoutId,
+            type: "lock"
+          }
+
+          const initiateRes = await initiatePayment(initiateData);
+
+          if(initiateRes.status === 200 || initiateRes.status === 201) {
+            console.log(initiateRes.data);
+
+            const accessCode = initiateRes?.data?.data?.accessCode;
+
+            await openPaystackPopup(
+              accessCode,
+              async ({ reference }) => {
+                await confirmPayment.mutateAsync(reference);
+                toast.success("Payment successful");
               },
-              items: item.items
-            }
-          })),
-          merchantId: user.id
-        }
-
-        const orderRes = await postOrder(orderData);
-        if(orderRes.status == 200) {
-          toast.success(`Order successfully`, {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-
-          router.push('/account')
+              () => {
+                toast.error("Payment cancelled");
+              }
+            );
+          } else {
+            toast.error(`Failed to initiate payment`, {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            });
+          }
         } else {
-          toast.error(`Order not created`, {
+          toast.error(`Something went wrong with creating slot`, {
             position: "top-right",
             autoClose: 2000,
             hideProgressBar: false,
@@ -187,6 +217,7 @@ const Checkout = () => {
             draggable: true,
           });
         }
+        
       } else {
         toast.error(`Something went wrong`, {
           position: "top-right",
@@ -199,6 +230,12 @@ const Checkout = () => {
       }
     }
   }
+
+  const isPlacingOrder =
+    isDeliveryLoading ||
+    isSlotPending ||
+    isInitiatePending ||
+    confirmPayment.isPending;
 
   return (
     <>
@@ -429,189 +466,6 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="rounded-md bg-white border border-gray-100 p-5 sm:p-6">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                      <RiBankCardLine className="text-green-600 text-lg" />
-                    </div>
-                    <h2 className="text-lg font-medium text-gray-900">
-                      Payment Method
-                    </h2>
-                  </div>
-
-                  <div className="space-y-3 mb-5">
-                    <label
-                      className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors
-  ${formData.paymentMethod === 'card'
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-300 hover:border-orange-400'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="card"
-                        checked={formData.paymentMethod === 'card'}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
-                      />
-                      <div className="ml-3 flex items-center gap-3 flex-1">
-                        <RiBankCardLine className="text-gray-600 text-xl" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Credit/Debit Card</p>
-                          <p className="text-xs text-gray-500">Visa, Mastercard, Verve</p>
-                        </div>
-                      </div>
-                    </label>
-
-                    <label
-                      className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors
-  ${formData.paymentMethod === 'transfer'
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-300 hover:border-orange-400'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="transfer"
-                        checked={formData.paymentMethod === 'transfer'}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
-                      />
-                      <div className="ml-3 flex items-center gap-3 flex-1">
-                        <RiSecurePaymentLine className="text-gray-600 text-xl" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Bank Transfer</p>
-                          <p className="text-xs text-gray-500">Direct bank transfer</p>
-                        </div>
-                      </div>
-                    </label>
-
-                    <label
-                      className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors
-  ${formData.paymentMethod === 'wallet'
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-300 hover:border-orange-400'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="wallet"
-                        checked={formData.paymentMethod === 'wallet'}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 appearance-none rounded-full border-2 border-gray-400 bg-white checked:bg-orange-500 checked:border-orange-500 cursor-pointer transition-all"
-                      />
-                      <div className="ml-3 flex items-center gap-3 flex-1">
-                        <RiSecurePaymentLine className="text-gray-600 text-xl" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Digital Wallet</p>
-                          <p className="text-xs text-gray-500">Paystack, Flutterwave</p>
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-
-                  {formData.paymentMethod === 'card' && (
-                    <div className="space-y-4 pt-4 border-t border-gray-200">
-                      <div>
-                        <label className="block text-sm font-normal text-gray-700 mb-2">
-                          Card Number
-                        </label>
-                        <input
-                          type="text"
-                          name="cardNumber"
-                          value={formData.cardNumber}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                          placeholder="1234 5678 9012 3456"
-                          maxLength={19}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-normal text-gray-700 mb-2">
-                          Cardholder Name
-                        </label>
-                        <input
-                          type="text"
-                          name="cardName"
-                          value={formData.cardName}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                          placeholder="John Doe"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-normal text-gray-700 mb-2">
-                            Expiry Date
-                          </label>
-                          <input
-                            type="text"
-                            name="expiryDate"
-                            value={formData.expiryDate}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="MM/YY"
-                            maxLength={5}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-normal text-gray-700 mb-2">
-                            CVV
-                          </label>
-                          <input
-                            type="text"
-                            name="cvv"
-                            value={formData.cvv}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="123"
-                            maxLength={3}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="rounded-lg bg-white border border-gray-200 p-5 sm:p-6 space-y-3">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="saveInfo"
-                      checked={formData.saveInfo}
-                      onChange={handleInputChange}
-                      className="mt-1 w-4 h-4 text-blue-600 rounded"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Save my information</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Save my information for faster checkout next time
-                      </p>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="setDefault"
-                      checked={formData.setDefault}
-                      onChange={handleInputChange}
-                      className="mt-1 w-4 h-4 text-blue-600 rounded"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Set as default address</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Use this address as default for future orders
-                      </p>
-                    </div>
-                  </label>
-                </div>
               </div>
             </div>
 
@@ -669,7 +523,7 @@ const Checkout = () => {
                         Shipping
                       </p>
                       <p className="text-sm font-medium text-gray-900">
-                        ₦ {shipping.toLocaleString()}
+                        ₦ {shippingFee.toLocaleString()}
                       </p>
                     </div>
                     <div className="flex items-center justify-between">
@@ -696,20 +550,10 @@ const Checkout = () => {
                   <Button
                     primary
                     onClick={placeOrder}
-                    disabled={submitting}
-                    className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                    isLoading={isPlacingOrder}
+                    className="w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? (
-                      <>
-                        <RiLoader4Line className="text-lg animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <RiCheckLine className="text-lg" />
-                        Place Order
-                      </>
-                    )}
+                    {isPlacingOrder ? "Placing Order..." : "Place Order"}
                   </Button>
 
                   <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">

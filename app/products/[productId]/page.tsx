@@ -10,9 +10,8 @@ import { Tabs } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
-import { Login, VariantAllocation } from "@/types/types";
+import { Login } from "@/types/types";
 import { AxiosError } from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -84,13 +83,18 @@ const ProductDetails = () => {
 
   // Hooks
   const { productId } = useParams<{ productId: string }>();
-  const { data: baleData, isPending, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending } = useGetBales();
+  const { data: baleData, isLoading, error } = useGetSingleBale(productId);
+  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales();
   const router = useRouter();
   const { addToCart } = useCart();
 
   useEffect(() => {
+    console.log("baleData changed:", baleData);
+  }, [baleData]);
+
+  useEffect(() => {
     if (!baleData) return
+    console.log(baleData)
 
     if (formValues.colors.length === 0) {
       setActiveColorId(null)
@@ -254,10 +258,10 @@ const ProductDetails = () => {
         addToCart({
           cartItemId: `cart-${baleData.baleId}`,
           productId: baleData.productId,
-          baleId: baleData.baleId,
+          baleId: baleData.id,
           name: baleData.product.name,
           image: baleData.product.images[2],
-          supplierId: `sup-${baleData.product.supplierId}`,
+          supplierId: baleData.product.supplierId,
           price: baleData.product.price,
           originalPrice: baleData.product.oldPrice,
           discount: 10,
@@ -269,6 +273,11 @@ const ProductDetails = () => {
           quantity: productsPerSlot,
           unit: "unit",
           variants: selectedVariants,
+          createdAt: baleData.createdAt,
+          updatedAt: baleData.updatedAt,
+          description: baleData.product.description,
+          status: Boolean(baleData.status == "OPEN"),
+          endIn: baleData.endIn,
           items,
           inStock: true,
         });
@@ -277,14 +286,6 @@ const ProductDetails = () => {
       }
     }
   };
-
-  if (isPending) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
-      </div>
-    );
-  }
 
   if (error || !baleData) return <p>Error loading bale</p>;
 
@@ -320,14 +321,12 @@ const ProductDetails = () => {
       return Object.values(color.sizes)
         .filter(s => s.quantity > 0)
         .map(s => ({
-          kind: "shoe",
-          quantity: s.quantity,
-          totalPrice: s.quantity * baleData.product.price,
+          // kind: "shoe",
           size: {
             id: s.sizeId,
             label: s.sizeLabel,
-            type: "shoe",
-            format: "usShoeSize",
+            type: baleData.product?.productSizes?.[0]?.size?.type,
+            formart: baleData.product?.productSizes?.[0]?.size?.formart,
           },
           color: {
             id: color.colorId,
@@ -335,7 +334,9 @@ const ProductDetails = () => {
             images: color.colorImages,
             productId: baleData.product.id,
             status: true,
-          }
+          },
+          quantity: s.quantity,
+          totalPrice: s.quantity * baleData.product.price,
         }))
     }
 
@@ -343,16 +344,16 @@ const ProductDetails = () => {
     if (!color.quantity || color.quantity <= 0) return []
 
     return [{
-      kind: "bulk",
-      quantity: color.quantity,
-      totalPrice: color.quantity * baleData.product.price,
+      // kind: "bulk",
       color: {
         id: color.colorId,
         color: color.colorLabel,
         images: color.colorImages,
         productId: baleData.product.id,
         status: true,
-      }
+      },
+      quantity: color.quantity,
+      totalPrice: color.quantity * baleData.product.price,
     }]
   })
 
@@ -427,10 +428,10 @@ const ProductDetails = () => {
           addToCart({
             cartItemId: `cart-${baleData.baleId}`,
             productId: baleData.productId,
-            baleId: baleData.baleId,
+            baleId: baleData.id,
             name: baleData.product.name,
             image: baleData.product.images[2],
-            supplierId: `sup-${baleData.product.supplierId}`,
+            supplierId: baleData.product.supplierId,
             price: baleData.product.price,
             originalPrice: baleData.product.oldPrice,
             discount: 10,
@@ -442,6 +443,11 @@ const ProductDetails = () => {
             quantity: productsPerSlot,
             unit: "unit",
             variants: selectedVariants,
+            createdAt: baleData.createdAt,
+            updatedAt: baleData.updatedAt,
+            description: baleData.product.description,
+            status: Boolean(baleData.status == "OPEN"),
+            endIn: baleData.endIn,
             items,
             inStock: true,
           });
@@ -482,7 +488,22 @@ const ProductDetails = () => {
   ];
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
-  
+
+  if (isBalesPending) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+      </div>
+    );
+  }
+
+  if (baleError) {
+    return (
+      <div className="flex justify-center items-center w-full my-24">
+        <p className="text-xl">Product not found</p>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -532,23 +553,26 @@ const ProductDetails = () => {
                   </Tabs.Content>
                 </Tabs>
               </div>
-              <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
-                <div className="flex items-center gap-4">
-                  <img src={baleData?.product.supplier.image} alt="" className="w-16 aspect-square rounded-full" />
-                  <div>
-                    <h2 className="text-xl">{baleData.product.supplier.name}</h2>
-                    {
-                      baleData.product.supplier.status &&
-                      <Badge primary className="font-semibold">Verified</Badge>
-                    }
+              {
+                baleData?.product?.supplier &&
+                <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
+                  <div className="flex items-center gap-4">
+                    <img src={baleData?.product?.supplier?.image} alt="" className="w-16 aspect-square rounded-full" />
+                    <div>
+                      <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
+                      {
+                        baleData?.product?.supplier?.status &&
+                        <Badge variant="primary" className="font-semibold">Verified</Badge>
+                      }
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button primary className="py-2! rounded-xl!">
+                      View Profile
+                    </Button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Button primary className="py-2! rounded-xl!">
-                    View Profile
-                  </Button>
-                </div>
-              </div>
+              }
             </div>
 
             {/* RIGHT */}
@@ -839,10 +863,10 @@ const ProductDetails = () => {
                     addToCart({
                       cartItemId: `cart-${baleData.baleId}`,
                       productId: baleData.productId,
-                      baleId: baleData.baleId,
+                      baleId: baleData.id,
                       name: baleData.product.name,
                       image: baleData.product.images[2],
-                      supplierId: `sup-${baleData.product.supplierId}`,
+                      supplierId: baleData.product.supplierId,
                       price: baleData.product.price,
                       originalPrice: baleData.product.oldPrice,
                       discount: 10,
@@ -854,6 +878,11 @@ const ProductDetails = () => {
                       quantity: productsPerSlot,
                       unit: "unit",
                       variants: selectedVariants,
+                      createdAt: baleData.createdAt,
+                      updatedAt: baleData.updatedAt,
+                      description: baleData.product.description,
+                      status: Boolean(baleData.status == "OPEN"),
+                      endIn: baleData.endIn,
                       items,
                       inStock: true,
                     });

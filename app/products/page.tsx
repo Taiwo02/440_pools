@@ -8,7 +8,7 @@ import * as Slider from '@radix-ui/react-slider';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiStarFill } from "react-icons/ri";
+import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +20,7 @@ const Products = () => {
   const [minValue, setMinValue] = useState(0)
   const [maxValue, setMaxValue] = useState(8000)
 
-  const { data: allBales = [], isPending } = useGetBales();
+  const { data: allBales = [], isPending, error } = useGetBales();
 
   if (!allBales || allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;
@@ -220,6 +220,11 @@ const Products = () => {
                 <div className="flex justify-center items-center w-full my-16">
                   <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
                 </div> :
+                error ? 
+                  <div className="flex flex-col gap-4 justify-center items-center w-full my-16">
+                    <RiSignalWifiErrorLine />
+                    <p className="text-xl">Products not found</p>
+                  </div>:
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-8">
                     {
                       visibleData.map(bale => (

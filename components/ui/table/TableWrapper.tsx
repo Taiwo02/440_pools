@@ -123,16 +123,19 @@ export const Table: React.FC<
                     onFilter?.(e.target.value);
                   }}
                   placeholder="Filter..."
-                  className="border rounded px-3 py-2 w-full max-w-xs"
+                  className="border border-(--border-default) focus:outline-none focus:ring-2 focus:ring-(--primary) rounded px-3 py-2 w-full max-w-xs"
                 />
               )}
 
               {onPageSizeChange && (
-                <Dropdown
-                  value={Number(pageSize)}
-                  options={pageSizeOptions}
-                  onChange={onPageSizeChange}
-                />
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold">Rows per page:-</p>
+                  <Dropdown
+                    value={Number(pageSize)}
+                    options={pageSizeOptions}
+                    onChange={onPageSizeChange}
+                  />
+                </div>
               )}
             </div>
           )}
@@ -242,25 +245,36 @@ export const TableCell: React.FC<
 export const TablePagination: React.FC<{
   page: number;
   totalPages: number;
+  startIndex: number;
+  endIndex: number;
+  totalItems: number;
+  itemLabel: string;
   onPageChange: (page: number) => void;
-}> = ({ page, totalPages, onPageChange }) => (
-  <div className="flex items-center gap-2 mt-4">
-    <Button
-      disabled={page <= 1}
-      onClick={() => onPageChange(page - 1)}
-    >
-      <RiArrowLeftSLine />
-    </Button>
+}> = ({ page, totalPages, onPageChange, startIndex, endIndex, totalItems ,itemLabel }) => (
+  <div className="flex items-center justify-between bg-(--border-default) py-2 px-4">
+    <div className="hidden md:block">
+      <p className="text-sm">Showing <b>{startIndex}</b> to <b>{endIndex}</b> of <b>{totalItems}</b> {itemLabel}</p>
+    </div>
+    <div className="flex items-center gap-2">
+      <Button
+        disabled={page <= 1}
+        onClick={() => onPageChange(page - 1)}
+        className="px-3!"
+      >
+        <RiArrowLeftSLine />
+      </Button>
 
-    <span>
-      Page {page} of {totalPages}
-    </span>
+      <span>
+        Page {page} of {totalPages}
+      </span>
 
-    <Button
-      disabled={page >= totalPages}
-      onClick={() => onPageChange(page + 1)}
-    >
-      <RiArrowRightSLine />
-    </Button>
+      <Button
+        disabled={page >= totalPages}
+        onClick={() => onPageChange(page + 1)}
+        className="px-3!"
+      >
+        <RiArrowRightSLine />
+      </Button>
+    </div>
   </div>
 );

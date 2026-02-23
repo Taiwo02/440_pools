@@ -1,7 +1,7 @@
-import { noToken } from "@/lib/http"
+import http from "@/lib/http";
 import { userHttp } from "@/lib/user_auth";
 import { Login, ProfileData, RegisterPayload } from "@/types/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useRegisterMutation = () => {
   return useMutation({
@@ -14,7 +14,7 @@ export const useRegisterMutation = () => {
 export const useLoginMutation = () => {
   return useMutation({
     mutationFn: (body: Login) => {
-      return userHttp.post("/login", body);
+      return http.post("/buyer/login", body);
     },
   });
 };
