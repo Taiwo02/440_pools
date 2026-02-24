@@ -34,8 +34,9 @@ interface ProfileData {
 }
 
 const Checkout = () => {
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   // const { data: user, isPending ,error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
@@ -71,18 +72,16 @@ const Checkout = () => {
     saveInfo: false,
     setDefault: false,
     sameAsBilling: true
-  })
-
-  const [user, setUser] = useState<{ id: number | string; email?: string; phone?: string; address?: string } | null>(null)
-
-  const cartItems: CartItem[] = cart;
+  });
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const merchantString = localStorage.getItem('merchant');
-      setUser(merchantString ? JSON.parse(merchantString) : null);
+    const merchantString = localStorage.getItem("merchant");
+    if (merchantString) {
+      setUser(JSON.parse(merchantString));
     }
   }, []);
+
+  const cartItems: CartItem[] = cart;
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
@@ -198,6 +197,7 @@ const Checkout = () => {
               async ({ reference }) => {
                 await confirmPayment.mutateAsync(reference);
                 toast.success("Payment successful");
+                router.push('/account');
               },
               () => {
                 toast.error("Payment cancelled");

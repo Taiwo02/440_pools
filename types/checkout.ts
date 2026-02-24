@@ -113,3 +113,40 @@ export type CartItem = {
   slots: number;
   items: CartItemVariant[];
 };
+
+export const ORDER_STATUSES = [
+  "all",
+  "CREATED",
+  "LOCKED",
+  "AWAITING_BALANCE",
+  "PARTIALLY_PAID",
+  "PAID_IN_FULL",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "COMPLETED",
+  "CANCELLED",
+  "REFUNDED",
+  "DEFAULTED",
+  "DISPUTE_RAISED",
+] as const;
+
+export type OrderStatuses = typeof ORDER_STATUSES[number];
+
+export type OrderStatus = "CREATED" | "LOCKED" | "AWAITING_BALANCE" | "PARTIALLY_PAID" | "PAID_IN_FULL" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "COMPLETED" | "CANCELLED" | "REFUNDED" | "DEFAULTED" | "DISPUTE_RAISED" | "all";
+
+export type OrderList = {
+  id: number,
+  checkoutId: number,
+  baleId: number,
+  shipmentId: string | null,
+  status: OrderStatus,
+  lockPaymentId: number | null,
+  totalAmount: number | null,
+  amountPaid: number | null,
+  createdAt: string,
+  updatedAt: string,
+  deletedAt: string | null,
+  remaining: number | null
+}
