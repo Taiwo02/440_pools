@@ -134,7 +134,7 @@ const Checkout = () => {
         city: formData.city,
         state: formData.state,
         setDefault: false,
-        merchantId: user.id
+        merchantId: Number(user.id)
       }
 
       const res = await postDelivery(deliveryData);
