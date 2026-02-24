@@ -4,7 +4,7 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { cn } from "./utils";
 
 type DropdownProps<T extends string | number> = {
-  options: T[];
+  options: readonly T[];
   value: T;
   onChange: (value: T) => void;
   className?: string;

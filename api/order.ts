@@ -45,3 +45,13 @@ export const useConfirmPayment = () => {
     }
   });
 };
+
+export const useGetAllOrders = () => {
+  return useQuery({
+    queryKey: ["order"],
+    queryFn: async () => {
+      const res = await http.get("/buyer/orders");
+      return res?.data?.data?.data ?? [];
+    }
+  });
+};

@@ -1,17 +1,19 @@
 "use client"
 
 import { Order } from '@/types/types';
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TablePagination, TableRow } from '../ui/table/TableWrapper';
 import { Badge, Button, Dropdown } from '../ui';
-import { orders } from './order';
+import { useGetAllOrders } from '@/api/order';
+import { ORDER_STATUSES, OrderList, OrderStatus, OrderStatuses } from '@/types/checkout';
 
 const OrderHistory = () => {
+  const { data: ordersList = [], isPending: isOrdersLoading } = useGetAllOrders();
+
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [statusFilter, setStatusFilter] = useState<Order["status"] | "all">("all");
-  const [supplierFilter, setSupplierFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus>("all");
   const [dateRange, setDateRange] = useState<{
     start: string | null;
     end: string | null;
@@ -20,31 +22,26 @@ const OrderHistory = () => {
     end: null,
   });
 
-  const suppliers = useMemo(() => {
-    return ["all", ...new Set(orders.map(o => o.supplier))];
-  }, [orders]);
+  useEffect(() => {
+    if (ordersList) console.log(ordersList);
+  }, [ordersList])
 
-  const filteredData: Order[] = useMemo(() => {
-    return orders.filter(order => {
-      // Status filter
+  const filteredData = useMemo((): OrderList[] => {
+    return ordersList.filter((order: OrderList) => {
       const matchesStatus =
         statusFilter === "all" || order.status === statusFilter;
 
-      // Supplier filter
-      const matchesSupplier =
-        supplierFilter === "all" || order.supplier === supplierFilter;
-
-      // Date range filter
       const orderDate = new Date(order.createdAt);
+
       const matchesStart =
         !dateRange.start || orderDate >= new Date(dateRange.start);
 
       const matchesEnd =
         !dateRange.end || orderDate <= new Date(dateRange.end);
 
-      return matchesStatus && matchesSupplier && matchesStart && matchesEnd;
+      return matchesStatus && matchesStart && matchesEnd;
     });
-  }, [orders, statusFilter, supplierFilter, dateRange]);
+  }, [ordersList, statusFilter, dateRange]);
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
@@ -52,16 +49,6 @@ const OrderHistory = () => {
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
-  // For the badges
-  const statusVariantMap: Record<Order["status"],
-    "primary" | "secondary" | "success" | "danger"
-  > = {
-    shipped: "primary",
-    delivered: "success",
-    processing: "secondary",
-    canceled: "danger",
-  };
 
   return (
     <div>
@@ -72,20 +59,9 @@ const OrderHistory = () => {
             <p className="text-sm font-semibold mb-1">Order Statuses</p>
             <Dropdown
               value={statusFilter}
-              options={["all", "shipped", "delivered", "processing", "canceled"]}
-              onChange={(e) => {
-                setStatusFilter(e as any);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-          <div>
-            <p className="text-sm font-semibold mb-1">Suppliers</p>
-            <Dropdown
-              value={supplierFilter}
-              options={suppliers}
-              onChange={(e) => {
-                setSupplierFilter(e);
+              options={ORDER_STATUSES}
+              onChange={(value) => {
+                setStatusFilter(value as OrderStatuses);
                 setCurrentPage(1);
               }}
             />
@@ -118,33 +94,45 @@ const OrderHistory = () => {
       <Table aria-label='Order History Table' pageSize={rowsPerPage} className='border border-(--border-default)'>
         <TableHeader>
           <TableRow>
-            <TableColumn>Order ID</TableColumn>
+            <TableColumn>Checkout ID</TableColumn>
             <TableColumn>Pool ID</TableColumn>
-            <TableColumn>Product(s)</TableColumn>
-            <TableColumn>Supplier</TableColumn>
-            <TableColumn>Quantity</TableColumn>
-            <TableColumn>Units</TableColumn>
+            <TableColumn>Shipment ID</TableColumn>
+            <TableColumn>Lock Payment ID</TableColumn>
             <TableColumn>Total Amount</TableColumn>
+            <TableColumn>Amount Paid</TableColumn>
             <TableColumn>Status</TableColumn>
+            <TableColumn>Created At</TableColumn>
             <TableColumn>Actions</TableColumn>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody isLoading={isOrdersLoading}>
           {
             paginatedData.map(order => (
-              <TableRow key={order.orderId}>
-                <TableCell>{ order.orderId }</TableCell>
+              <TableRow key={order.id}>
+                <TableCell>{ order.checkoutId }</TableCell>
                 <TableCell>{ order.baleId }</TableCell>
-                <TableCell>{ order.productName }</TableCell>
-                <TableCell>{ order.supplier }</TableCell>
-                <TableCell>{ order.quantity }</TableCell>
-                <TableCell>{ order.unit }</TableCell>
-                <TableCell>{ order.totalAmount }</TableCell>
                 <TableCell>
-                  <Badge variant={statusVariantMap[order.status]} className='font-semibold'>
-                    {order.status}
-                  </Badge>
+                  { 
+                    order.shipmentId == null ? <span className='text-(--text-muted)'>null</span> : order.shipmentId
+                  }
                 </TableCell>
+                <TableCell>
+                  {
+                    order.lockPaymentId == null ? <span className='text-(--text-muted)'>null</span> : order.lockPaymentId
+                  }
+                </TableCell>
+                <TableCell>
+                  {
+                    order.totalAmount == null ? <span className='text-(--text-muted)'>null</span> : order.totalAmount
+                  }
+                </TableCell>
+                <TableCell>
+                  {
+                    order.amountPaid == null ? <span className='text-(--text-muted)'>null</span> : order.amountPaid
+                  }
+                </TableCell>
+                <TableCell>{ order.status }</TableCell>
+                <TableCell>{ order.createdAt }</TableCell>
                 <TableCell>
                   <Button className='py-1! px-2! text-sm rounded!'>
                     Details
@@ -162,7 +150,7 @@ const OrderHistory = () => {
         startIndex={startIndex + 1}
         endIndex={endIndex}
         totalItems={filteredData.length}
-        itemLabel="orders"
+        itemLabel="ordersList"
       />
     </div>
   )
