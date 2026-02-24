@@ -3,6 +3,7 @@ import { CheckoutPayload } from "@/types/checkout";
 import { BaleSlot, DeliveryPayload, Initiate } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+// Deliveries
 export const useDeliveryMutation = () => {
   return useMutation({
     mutationFn: ({ merchantId, ...body }: DeliveryPayload) => {
@@ -10,6 +11,16 @@ export const useDeliveryMutation = () => {
     },
   });
 };
+
+export const useGetDeliveries = () => {
+  return useQuery({
+    queryKey: ["delivery"],
+    queryFn: async () => {
+      const res = await http.get("/buyer/deliveries");
+      return res?.data?.data ?? [];
+    }
+  });
+}
 
 export const useOrderMutation = () => {
   return useMutation({
@@ -19,6 +30,7 @@ export const useOrderMutation = () => {
   });
 };
 
+// Create Bale slot
 export const useCreateBaleSlot = () => {
   return useMutation({
     mutationFn: (body: BaleSlot) => {
@@ -35,6 +47,7 @@ export const useInitiateSlotPayment = () => {
   });
 };
 
+// Confirm Payment
 export const useConfirmPayment = () => {
   return useMutation({
     mutationFn: async (reference: string) => {
@@ -46,6 +59,7 @@ export const useConfirmPayment = () => {
   });
 };
 
+// Orders
 export const useGetAllOrders = () => {
   return useQuery({
     queryKey: ["order"],
