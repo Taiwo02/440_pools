@@ -197,6 +197,7 @@ const Checkout = () => {
               async ({ reference }) => {
                 await confirmPayment.mutateAsync(reference);
                 toast.success("Payment successful");
+                router.push('/account');
               },
               () => {
                 toast.error("Payment cancelled");
