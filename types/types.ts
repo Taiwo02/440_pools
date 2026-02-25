@@ -436,9 +436,10 @@ export type BaleSlotItem = {
   baleId: number,
   slotQuantity: number,
   items: {
-    colorId: number,
-    productSizes: SizeItem[],
-    productId: number
+    colorId?: number | null,
+    productSizes?: SizeItem[],
+    productId: number,
+    quantity?: number
   }[]
 }
 

@@ -392,46 +392,53 @@ const ProductDetails = () => {
   )
 
   const items = Object.values(cleanedAllocations).flatMap(color => {
+
+    const hasValidColor = color.colorId && color.colorId !== 0;
+
     // WITH SIZES
     if (hasSizes) {
       return Object.values(color.sizes)
         .filter(s => s.quantity > 0)
         .map(s => ({
-          // kind: "shoe",
           size: {
             id: s.sizeId,
             label: s.sizeLabel,
             type: baleData.product?.productSizes?.[0]?.size?.type,
             formart: baleData.product?.productSizes?.[0]?.size?.formart,
           },
-          color: {
-            id: color.colorId,
-            color: color.colorLabel,
-            images: color.colorImages,
-            productId: baleData.product.id,
-            status: true,
-          },
+          ...(hasValidColor && {
+            color: {
+              id: color.colorId,
+              color: color.colorLabel,
+              images: color.colorImages,
+              productId: baleData.product.id,
+              status: true,
+            }
+          }),
+
           quantity: s.quantity,
           totalPrice: s.quantity * baleData.product.price,
-        }))
+        }));
     }
 
     // NO SIZES
-    if (!color.quantity || color.quantity <= 0) return []
+    if (!color.quantity || color.quantity <= 0) return [];
 
     return [{
-      // kind: "bulk",
-      color: {
-        id: color.colorId,
-        color: color.colorLabel,
-        images: color.colorImages,
-        productId: baleData.product.id,
-        status: true,
-      },
+      ...(hasValidColor && {
+        color: {
+          id: color.colorId,
+          color: color.colorLabel,
+          images: color.colorImages,
+          productId: baleData.product.id,
+          status: true,
+        }
+      }),
+
       quantity: color.quantity,
       totalPrice: color.quantity * baleData.product.price,
-    }]
-  })
+    }];
+  });
 
   const selectedVariants = {
     sizes: formValues.sizes,

@@ -8,6 +8,7 @@ import { Badge, Button, Input } from '@/components/ui'
 import { useCart } from '@/hooks/use-cart'
 import { openPaystackPopup } from '@/types/funcs'
 import { BaleSlot, CartItem, DeliveryPayload, Initiate, SizeItem } from '@/types/types'
+import { AxiosError } from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -24,7 +25,8 @@ import {
   RiUser3Line,
   RiBankCardLine,
   RiCheckLine,
-  RiLoader4Line
+  RiLoader4Line,
+  RiLoader5Line
 } from 'react-icons/ri'
 import { toast } from 'react-toastify'
 
@@ -176,31 +178,94 @@ const Checkout = () => {
         return;
       }
 
+      // const slotData: BaleSlot = {
+      //   deliveryAddressId: deliveryId,
+      //   bales: cartItems.map((item: any) => {
+      //     const groupedByColor = item.items.reduce((acc: any, current: any) => {
+      //       const colorId = current.color.id;
+
+      //       if (!acc[colorId]) {
+      //         acc[colorId] = {
+      //           colorId,
+      //           productId: item.productId,
+      //           productSizes: []
+      //         };
+      //       }
+
+      //       acc[colorId].productSizes.push({
+      //         sizeId: current.size.id,
+      //         quantity: current.quantity
+      //       });
+
+      //       return acc;
+      //     }, {} as Record<number, {
+      //       colorId: number;
+      //       productId: number;
+      //       productSizes: SizeItem[];
+      //     }>);
+
+      //     return {
+      //       baleId: item.baleId,
+      //       slotQuantity: item.slots,
+      //       items: Object.values(groupedByColor)
+      //     };
+      //   })
+      // };
+
       const slotData: BaleSlot = {
         deliveryAddressId: deliveryId,
         bales: cartItems.map((item: any) => {
-          const groupedByColor = item.items.reduce((acc: any, current: any) => {
-            const colorId = current.color.id;
+          // No variants (no sizes/colors)
+          if (!item.items || item.items.length === 0) {
+            return {
+              baleId: item.baleId,
+              slotQuantity: item.slots,
+              items: [
+                {
+                  productId: item.productId,
+                  quantity: item.quantity
+                }
+              ]
+            };
+          }
 
-            if (!acc[colorId]) {
-              acc[colorId] = {
-                colorId,
-                productId: item.productId,
-                productSizes: []
-              };
-            }
+          // Has sizes/colors
+          const groupedByColor = item.items.reduce(
+            (
+              acc: Record<
+                number,
+                {
+                  colorId: number;
+                  productId: number;
+                  productSizes: SizeItem[];
+                  quantity?: number;
+                }
+              >,
+              current: any
+            ) => {
+              const colorId = current.color?.id;
 
-            acc[colorId].productSizes.push({
-              sizeId: current.size.id,
-              quantity: current.quantity
-            });
+              if (!acc[colorId]) {
+                acc[colorId] = {
+                  colorId,
+                  productId: item.productId,
+                  productSizes: [],
+                  quantity: 0
+                };
+              }
 
-            return acc;
-          }, {} as Record<number, {
-            colorId: number;
-            productId: number;
-            productSizes: SizeItem[];
-          }>);
+              acc[colorId].productSizes.push({
+                sizeId: current.size?.id,
+                quantity: current.quantity
+              });
+
+              // Optional: keep total quantity per color
+              acc[colorId].quantity! += current.quantity;
+
+              return acc;
+            },
+            {}
+          );
 
           return {
             baleId: item.baleId,
@@ -259,7 +324,11 @@ const Checkout = () => {
         });
       }
     } catch (error) {
-      toast.error(`Something went wrong`, {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(
+        err.response?.data?.message ??
+        err.message ??
+        "Something went wrong, please try again", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -300,213 +369,219 @@ const Checkout = () => {
               {
                 deliveries.length <= 0 ? 
                   <div className="space-y-6">
-
-                    <div className="rounded-md bg-white border border-gray-100 p-5 sm:p-6">
-                      <div className="flex items-center gap-3 mb-5">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <RiTruckLine className="text-blue-600 text-lg" />
-                        </div>
-                        <h2 className="text-lg font-medium text-gray-900">
-                          Shipping Information
-                        </h2>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              First Name <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                              <input
-                                type="text"
-                                name="firstName"
-                                value={formData.firstName}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="John"
-                              />
+                    {
+                      isDeliveriesLoading ?
+                      <div className="rounded-lg bg-white border border-gray-200 flex justify-center items-center w-full h-100 mb-5">
+                        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+                      </div> : 
+                        <div className="rounded-md bg-white border border-gray-100 p-5 sm:p-6">
+                          <div className="flex items-center gap-3 mb-5">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                              <RiTruckLine className="text-blue-600 text-lg" />
                             </div>
+                            <h2 className="text-lg font-medium text-gray-900">
+                              Shipping Information
+                            </h2>
                           </div>
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              Last Name <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                              <input
-                                type="text"
-                                name="LastName"
-                                value={formData.LastName}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Doe"
-                              />
-                            </div>
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              Email Address <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                              <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="john.doe@example.com"
-                              />
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  First Name <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                  <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                  <input
+                                    type="text"
+                                    name="firstName"
+                                    value={formData.firstName}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    placeholder="John"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  Last Name <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                  <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                  <input
+                                    type="text"
+                                    name="LastName"
+                                    value={formData.LastName}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    placeholder="Doe"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              Phone Number <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative flex gap-2">
-                              <select
-                                name="countryCode"
-                                value={formData.countryCode}
-                                onChange={handleInputChange}
-                                className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              >
-                                <option value="+234">+234</option>
-                                <option value="+1">+1</option>
-                                <option value="+44">+44</option>
-                              </select>
-                              <div className="relative flex-1">
-                                <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  Email Address <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                  <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                  <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    placeholder="john.doe@example.com"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  Phone Number <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative flex gap-2">
+                                  <select
+                                    name="countryCode"
+                                    value={formData.countryCode}
+                                    onChange={handleInputChange}
+                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  >
+                                    <option value="+234">+234</option>
+                                    <option value="+1">+1</option>
+                                    <option value="+44">+44</option>
+                                  </select>
+                                  <div className="relative flex-1">
+                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                      type="tel"
+                                      name="phone"
+                                      value={formData.phone}
+                                      onChange={handleInputChange}
+                                      required
+                                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      placeholder="8102637956"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  Additional Phone (Optional)
+                                </label>
+                                <div className="relative flex gap-2">
+                                  <select
+                                    name="additionalCountryCode"
+                                    value={formData.additionalCountryCode}
+                                    onChange={handleInputChange}
+                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  >
+                                    <option value="+234">+234</option>
+                                    <option value="+1">+1</option>
+                                    <option value="+44">+44</option>
+                                  </select>
+                                  <div className="relative flex-1">
+                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                      type="tel"
+                                      name="additionalPhone"
+                                      value={formData.additionalPhone}
+                                      onChange={handleInputChange}
+                                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      placeholder="9063786452"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-normal text-gray-700 mb-2">
+                                Street Address <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <RiMapPinLine className="absolute left-3 top-3 text-gray-400" />
                                 <input
-                                  type="tel"
-                                  name="phone"
-                                  value={formData.phone}
+                                  type="text"
+                                  name="address"
+                                  value={formData.address}
                                   onChange={handleInputChange}
                                   required
                                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="8102637956"
+                                  placeholder="123 Main Street, Apartment 4B"
                                 />
                               </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              Additional Phone (Optional)
-                            </label>
-                            <div className="relative flex gap-2">
-                              <select
-                                name="additionalCountryCode"
-                                value={formData.additionalCountryCode}
+                            <div>
+                              <label className="block text-sm font-normal text-gray-700 mb-2">
+                                Additional Information (Optional)
+                              </label>
+                              <input
+                                type="text"
+                                name="additionalInfo"
+                                value={formData.additionalInfo}
                                 onChange={handleInputChange}
-                                className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              >
-                                <option value="+234">+234</option>
-                                <option value="+1">+1</option>
-                                <option value="+44">+44</option>
-                              </select>
-                              <div className="relative flex-1">
-                                <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="Landmark, special instructions, etc."
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  City <span className="text-red-500">*</span>
+                                </label>
                                 <input
-                                  type="tel"
-                                  name="additionalPhone"
-                                  value={formData.additionalPhone}
+                                  type="text"
+                                  name="city"
+                                  value={formData.city}
                                   onChange={handleInputChange}
-                                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="9063786452"
+                                  required
+                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  placeholder="Lagos"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  State <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  name="state"
+                                  value={formData.state}
+                                  onChange={handleInputChange}
+                                  required
+                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  placeholder="Lagos"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-normal text-gray-700 mb-2">
+                                  Region <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  name="region"
+                                  value={formData.region}
+                                  onChange={handleInputChange}
+                                  required
+                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  placeholder="Gbagada"
                                 />
                               </div>
                             </div>
                           </div>
                         </div>
-
-                        <div>
-                          <label className="block text-sm font-normal text-gray-700 mb-2">
-                            Street Address <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <RiMapPinLine className="absolute left-3 top-3 text-gray-400" />
-                            <input
-                              type="text"
-                              name="address"
-                              value={formData.address}
-                              onChange={handleInputChange}
-                              required
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="123 Main Street, Apartment 4B"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-normal text-gray-700 mb-2">
-                            Additional Information (Optional)
-                          </label>
-                          <input
-                            type="text"
-                            name="additionalInfo"
-                            value={formData.additionalInfo}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                            placeholder="Landmark, special instructions, etc."
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              City <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="city"
-                              value={formData.city}
-                              onChange={handleInputChange}
-                              required
-                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="Lagos"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              State <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="state"
-                              value={formData.state}
-                              onChange={handleInputChange}
-                              required
-                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="Lagos"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-normal text-gray-700 mb-2">
-                              Region <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="region"
-                              value={formData.region}
-                              onChange={handleInputChange}
-                              required
-                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                              placeholder="Gbagada"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    }
+                    
                   </div> :
                   <div className="rounded-lg bg-white border border-gray-200 p-5 sm:p-6">
                     <h3 className="text-lg font-medium mb-4">Delivery Address(es)</h3>
