@@ -1,6 +1,5 @@
 "use client"
 
-import { Order } from '@/types/types';
 import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TablePagination, TableRow } from '../ui/table/TableWrapper';
 import { Badge, Button, Dropdown } from '../ui';
@@ -54,7 +53,7 @@ const OrderHistory = () => {
     <div>
       <div className="bg-(--bg-page) p-3 rounded-2xl mb-6">
         <h3 className="text-xl mb-2">Filters</h3>
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div>
             <p className="text-sm font-semibold mb-1">Order Statuses</p>
             <Dropdown
@@ -96,7 +95,6 @@ const OrderHistory = () => {
           <TableRow>
             <TableColumn>Checkout ID</TableColumn>
             <TableColumn>Pool ID</TableColumn>
-            <TableColumn>Shipment ID</TableColumn>
             <TableColumn>Lock Payment ID</TableColumn>
             <TableColumn>Total Amount</TableColumn>
             <TableColumn>Amount Paid</TableColumn>
@@ -111,11 +109,6 @@ const OrderHistory = () => {
               <TableRow key={order.id}>
                 <TableCell>{ order.checkoutId }</TableCell>
                 <TableCell>{ order.baleId }</TableCell>
-                <TableCell>
-                  { 
-                    order.shipmentId == null ? <span className='text-(--text-muted)'>null</span> : order.shipmentId
-                  }
-                </TableCell>
                 <TableCell>
                   {
                     order.lockPaymentId == null ? <span className='text-(--text-muted)'>null</span> : order.lockPaymentId
@@ -150,7 +143,7 @@ const OrderHistory = () => {
         startIndex={startIndex + 1}
         endIndex={endIndex}
         totalItems={filteredData.length}
-        itemLabel="ordersList"
+        itemLabel="order(s)"
       />
     </div>
   )

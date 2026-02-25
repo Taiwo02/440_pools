@@ -385,6 +385,7 @@ export type VariantAllocation = {
 
 // For delivery form
 export type DeliveryPayload = {
+  id?: number
   firstName: string
   LastName: string
   countryCode: string
@@ -397,7 +398,10 @@ export type DeliveryPayload = {
   city: string
   state: string
   setDefault: boolean
-  merchantId: number
+  status?: boolean,
+  createdAt?: string | null
+  updatedAt?: string | null
+  merchantId?: number
 }
 
 // For order history
@@ -432,9 +436,10 @@ export type BaleSlotItem = {
   baleId: number,
   slotQuantity: number,
   items: {
-    colorId: number,
-    productSizes: SizeItem[],
-    productId: number
+    colorId?: number | null,
+    productSizes?: SizeItem[],
+    productId: number,
+    quantity?: number
   }[]
 }
 
