@@ -54,9 +54,10 @@ const AccountLogin = () => {
         });
 
         const token = res.data?.data?.token;
+        const refreshToken = res.data?.data?.refreshToken;
         const user = res.data?.data?.customer;
 
-        authenticate({ user, token });
+        authenticate({ user, token, refreshToken });
 
         const redirectUrl = localStorage.getItem('redirectAfterLogin');
         

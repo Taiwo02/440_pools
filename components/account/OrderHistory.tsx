@@ -5,12 +5,17 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TablePagination,
 import { Badge, Button, Dropdown } from '../ui';
 import { useGetAllOrders } from '@/api/order';
 import { ORDER_STATUSES, OrderList, OrderStatus, OrderStatuses } from '@/types/checkout';
+import MyModal from '../core/modal';
+import SingleOrder from './SingleOrder';
+import { getOrderStatusVariant } from './orderStatusBadge';
 
 const OrderHistory = () => {
   const { data: ordersList = [], isPending: isOrdersLoading } = useGetAllOrders();
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrderID, setSelectedOrderID] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<OrderStatus>("all");
   const [dateRange, setDateRange] = useState<{
@@ -48,6 +53,11 @@ const OrderHistory = () => {
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+  const handleClick = (orderId: number) => {
+    setSelectedOrderID(orderId);
+    setIsModalOpen(true);
+  }
 
   return (
     <div>
@@ -124,10 +134,14 @@ const OrderHistory = () => {
                     order.amountPaid == null ? <span className='text-(--text-muted)'>null</span> : order.amountPaid
                   }
                 </TableCell>
-                <TableCell>{ order.status }</TableCell>
+                <TableCell>
+                  <Badge variant={getOrderStatusVariant(order.status)} className="font-semibold">
+                    {order.status.replaceAll("_", " ")}
+                  </Badge>
+                </TableCell>
                 <TableCell>{ order.createdAt }</TableCell>
                 <TableCell>
-                  <Button className='py-1! px-2! text-sm rounded!'>
+                  <Button className='py-1! px-2! text-sm rounded!' onClick={() => handleClick(order.id)}>
                     Details
                   </Button>
                 </TableCell>
@@ -145,6 +159,13 @@ const OrderHistory = () => {
         totalItems={filteredData.length}
         itemLabel="order(s)"
       />
+
+      <MyModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      >
+        <SingleOrder orderId={selectedOrderID} />
+      </MyModal>
     </div>
   )
 }

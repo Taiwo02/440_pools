@@ -1,6 +1,6 @@
 import axios from "axios";
 import NProgress from "nprogress";
-import { deleteCrossSubdomainCookie, getCrossSubdomainCookie } from "./utils";
+import { deleteCrossSubdomainCookie, getCrossSubdomainCookie, setCrossSubdomainCookie } from "./utils";
 
 let activeRequests = 0;
 
@@ -45,10 +45,36 @@ http.interceptors.response.use(
   async (error) => {
     stopProgress();
 
-    if (error.response?.status === 401) {
-      deleteCrossSubdomainCookie("440_token");
-      localStorage.removeItem("merchant");
-      window.location.href = "/account";
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/buyer/refresh-token")
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = getCrossSubdomainCookie("440_refresh_token");
+
+        const res = await http.post("/buyer/refresh-token", {
+          refreshToken,
+        });
+
+        const newAccessToken = res.data.data.accessToken;
+
+        setCrossSubdomainCookie("440_token", newAccessToken, 1);
+
+        originalRequest.headers.authorization =
+          `Bearer ${newAccessToken}`;
+
+        return http(originalRequest);
+      } catch (refreshError) {
+        deleteCrossSubdomainCookie("440_token");
+        deleteCrossSubdomainCookie("440_refresh_token");
+        localStorage.removeItem("merchant");
+        window.location.href = '/account';
+      }
     }
 
     return Promise.reject(error);

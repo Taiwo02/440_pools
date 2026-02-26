@@ -69,3 +69,14 @@ export const useGetAllOrders = () => {
     }
   });
 };
+
+export const useGetSingleOrder = (id: number) => {
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: async () => {
+      const res = await http.get(`/buyer/orders/${id}`);
+      return res?.data?.data;
+    },
+    enabled: !!id
+  });
+};
