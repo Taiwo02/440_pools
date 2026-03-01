@@ -61,9 +61,10 @@ http.interceptors.response.use(
           refreshToken,
         });
 
-        const newAccessToken = res.data.data.accessToken;
-
+        const newAccessToken = res.data.data.token;
+        const newRefreshToken = res.data.data.refreshToken;
         setCrossSubdomainCookie("440_token", newAccessToken, 1);
+        setCrossSubdomainCookie("440_refresh_token", newRefreshToken, 30);
 
         originalRequest.headers.authorization =
           `Bearer ${newAccessToken}`;

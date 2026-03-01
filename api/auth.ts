@@ -23,7 +23,7 @@ export const useGetUserProfile = () => {
   return useQuery<ProfileData>({
     queryKey: ["user"],
     queryFn: async () => {
-      const res = await userHttp.get("/profile");
+      const res = await http.get("/profile");
       return res?.data?.data;
     }
   })

@@ -12,7 +12,7 @@ import { RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
 export default function AccountPage() {
   const [user, setUser] = useState<any>(null);
   const { logout } = useAuth();
-  // const { data: user, isPending, error } = useGetUserProfile();
+  const { data: person, isPending, error } = useGetUserProfile();
   
 
   useEffect(() => {
@@ -21,6 +21,11 @@ export default function AccountPage() {
       setUser(JSON.parse(merchantString));
     }
   }, []);
+
+  useEffect(() => {
+    if(person) console.log(person)
+  }, [person])
+  
 
   // if(isPending) {
   //   return (
