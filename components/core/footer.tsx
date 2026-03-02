@@ -1,9 +1,13 @@
+import Link from 'next/link';
 import React from 'react';
 import {
   RiGlobalLine,
   RiThumbUpFill,
   RiMailFill,
-  RiLayoutGridFill
+  RiLayoutGridFill,
+  RiFacebookFill,
+  RiTiktokFill,
+  RiInstagramLine
 } from 'react-icons/ri';
 
 const Footer = () => {
@@ -11,38 +15,42 @@ const Footer = () => {
     <footer className="bg-(--bg-surface) pt-16 pb-12 px-6 md:px-12 lg:px-24 border-t border-gray-100">
       <div className="mx-auto">
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
 
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <div className="bg-(--primary) p-2 rounded-lg flex items-center justify-center">
-                <RiLayoutGridFill className="text-white text-xl" />
-              </div>
-              <span className="font-bold text-xl tracking-tight text-(--text-primary)">GLOBALSOURCE</span>
+              <Link href={'/'} className="text-2xl font-bold shrink-0 ">
+                <img src="/images/440_Logo.png" alt="" className='w-20 aspect-square' />
+              </Link>
             </div>
             <p className="text-(--text-muted) text-[14px] leading-relaxed mb-6 max-w-60">
               The leading B2B marketplace for global trade and wholesale bulk purchasing.
             </p>
             <div className="flex gap-3">
-              <SocialIcon icon={<RiGlobalLine size={20} />} />
-              <SocialIcon icon={<RiThumbUpFill size={20} />} />
-              <SocialIcon icon={<RiMailFill size={20} />} />
+              <SocialIcon icon={<RiFacebookFill size={20} />} href='https://facebook.com' />
+              <SocialIcon icon={<RiTiktokFill size={20} />} href='https://tiktok.com' />
+              <SocialIcon icon={<RiInstagramLine size={20} />} href='https://instagram.com' />
             </div>
           </div>
 
           {/* Links Sections */}
           <FooterColumn
             title="Trade Platform"
-            links={['All Categories', 'Group Buying', 'Ready to Ship', 'Post an RFQ']}
+            links={[
+              { label: 'All Categories', href: '/products' }, 
+              { label: 'Ongoing Pools', href: '/products' }, 
+              { label: 'Relisted Pools', href: '/products' }, 
+              { label: 'All Pools', href: '/products' }
+            ]}
           />
           <FooterColumn
-            title="For Suppliers"
-            links={['Sell on GlobalSource', 'Verified Factories', 'Learning Center', 'Partnerships']}
-          />
-          <FooterColumn
-            title="Support"
-            links={['Help Center', 'Trade Assurance', 'Safety & Security', 'Logistics Tracking']}
+            title="Legal"
+            links={[
+              { label: 'Terms of Service', href: '/products' },
+              { label: 'Privacy Policy', href: '/products' },
+              { label: 'Legal Note', href: '/products' }
+            ]}
           />
 
           {/* Newsletter Section */}
@@ -64,7 +72,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
-            © 2024 GLOBALSOURCE B2B NETWORK. ALL RIGHTS RESERVED.
+            © { new Date().getFullYear() } 440 GLOBAL SHOPPING. ALL RIGHTS RESERVED.
           </p>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
             {['Privacy Policy', 'Terms of Use', 'Legal Note'].map((item) => (
@@ -80,15 +88,15 @@ const Footer = () => {
 };
 
 // Internal Helper: Column
-const FooterColumn = ({ title, links }: { title: string, links: string[] }) => (
+const FooterColumn = ({ title, links }: { title: string, links: { label: string, href: string }[] }) => (
   <div className="flex flex-col">
     <h4 className="font-bold text-[#1a2b3c] text-[11px] uppercase tracking-widest mb-6">{title}</h4>
     <ul className="space-y-4">
-      {links.map((link) => (
-        <li key={link}>
-          <a href="#" className="text-[14px] text-slate-500 font-semibold hover:text-[#ff7a00] transition-colors">
-            {link}
-          </a>
+      {links.map((link, index) => (
+        <li key={index}>
+          <Link href={link.href} className="text-[14px] text-slate-500 font-semibold hover:text-[#ff7a00] transition-colors">
+            {link.label}
+          </Link>
         </li>
       ))}
     </ul>
@@ -96,8 +104,8 @@ const FooterColumn = ({ title, links }: { title: string, links: string[] }) => (
 );
 
 // Internal Helper: Social Icon
-const SocialIcon = ({ icon }: { icon: React.ReactNode }) => (
-  <a href="#" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-white hover:text-[#ff7a00] hover:shadow-md transition-all border border-transparent hover:border-slate-100">
+const SocialIcon = ({ icon, href }: { icon: React.ReactNode, href: string }) => (
+  <a href={href} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-white hover:text-[#ff7a00] hover:shadow-md transition-all border border-transparent hover:border-slate-100">
     {icon}
   </a>
 );
