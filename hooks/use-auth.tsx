@@ -14,6 +14,7 @@ type User = {
 type AuthData = {
   user: User | null;
   token?: string;
+  refreshToken?: string;
 };
 
 type AuthContextType = {
@@ -49,12 +50,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setAuthenticated(true);
     if (data.token) {
-      setCrossSubdomainCookie("440_token", data.token, 30);
+      setCrossSubdomainCookie("440_token", data.token, 1);
+    }
+    if (data.refreshToken) {
+      setCrossSubdomainCookie("440_refresh_token", data.refreshToken, 30);
     }
   };
 
   const logout = () => {
     deleteCrossSubdomainCookie("440_token");
+    deleteCrossSubdomainCookie("440_refresh_token");
     localStorage.removeItem("merchant");
     window.location.reload();
   }

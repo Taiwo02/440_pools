@@ -27,7 +27,6 @@ const MyModal = ({ isModalOpen, setIsModalOpen, children }: Props) => {
           width: window.innerWidth > 768 ? '70%' : '90%',
           left: window.innerWidth > 768 ? '15%' : '5%',
           height: window.innerWidth > 768 ? 'auto' : '90%',
-          overflow: 'auto',
           backgroundColor: '#fff',
           borderRadius: '20px',
           border: 'none',

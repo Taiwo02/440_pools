@@ -1,7 +1,7 @@
 import { cn } from './utils'
 
 type Props = {
-  variant: "primary" | "secondary" | "warning" | "success" | "danger";
+  variant?: "primary" | "secondary" | "warning" | "success" | "danger";
   children: string | React.ReactNode;
   className?: string;
 }
@@ -36,6 +36,7 @@ const Badge = ({ variant, children ,className }: Props) => {
       <span className={cn("text-xs py-1 p-2 rounded-full bg-red-200 text-red-700", className)}>{children}</span>
     )
   }
+
   return (
     <span className={cn("text-xs py-1 p-2 rounded-full bg-slate-200 text-black", className)}>{children}</span>
   )

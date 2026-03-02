@@ -1,20 +1,18 @@
 "use client"
 
 import { useGetUserProfile } from "@/api/auth";
-import { useGetAllOrders } from "@/api/order";
 import Deliveries from "@/components/account/Deliveries";
 import OrderHistory from "@/components/account/OrderHistory";
 import { Button } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { RiLoader5Line, RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
+import { RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
 
 export default function AccountPage() {
   const [user, setUser] = useState<any>(null);
   const { logout } = useAuth();
-  // const { data: user, isPending, error } = useGetUserProfile();
+  const { data: person, isPending, error } = useGetUserProfile();
   
 
   useEffect(() => {
@@ -23,6 +21,11 @@ export default function AccountPage() {
       setUser(JSON.parse(merchantString));
     }
   }, []);
+
+  useEffect(() => {
+    if(person) console.log(person)
+  }, [person])
+  
 
   // if(isPending) {
   //   return (

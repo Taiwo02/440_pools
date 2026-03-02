@@ -82,7 +82,7 @@ const DeliveryForm = ({ setIsModalOpen }: Props) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-auto">
 
       <div className="">
         <div className="flex items-center gap-3 mb-5">

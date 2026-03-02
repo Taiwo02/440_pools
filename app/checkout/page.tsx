@@ -53,7 +53,7 @@ const Checkout = () => {
   const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
   const { data: deliveries = [], isPending: isDeliveriesLoading } = useGetDeliveries();
   const confirmPayment = useConfirmPayment();
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -178,40 +178,6 @@ const Checkout = () => {
         return;
       }
 
-      // const slotData: BaleSlot = {
-      //   deliveryAddressId: deliveryId,
-      //   bales: cartItems.map((item: any) => {
-      //     const groupedByColor = item.items.reduce((acc: any, current: any) => {
-      //       const colorId = current.color.id;
-
-      //       if (!acc[colorId]) {
-      //         acc[colorId] = {
-      //           colorId,
-      //           productId: item.productId,
-      //           productSizes: []
-      //         };
-      //       }
-
-      //       acc[colorId].productSizes.push({
-      //         sizeId: current.size.id,
-      //         quantity: current.quantity
-      //       });
-
-      //       return acc;
-      //     }, {} as Record<number, {
-      //       colorId: number;
-      //       productId: number;
-      //       productSizes: SizeItem[];
-      //     }>);
-
-      //     return {
-      //       baleId: item.baleId,
-      //       slotQuantity: item.slots,
-      //       items: Object.values(groupedByColor)
-      //     };
-      //   })
-      // };
-
       const slotData: BaleSlot = {
         deliveryAddressId: deliveryId,
         bales: cartItems.map((item: any) => {
@@ -297,6 +263,7 @@ const Checkout = () => {
             async ({ reference }) => {
               await confirmPayment.mutateAsync(reference);
               toast.success("Payment successful");
+              clearCart();
               router.push('/account');
             },
             () => {

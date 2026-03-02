@@ -5,12 +5,18 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TablePagination,
 import { Badge, Button, Dropdown } from '../ui';
 import { useGetAllOrders } from '@/api/order';
 import { ORDER_STATUSES, OrderList, OrderStatus, OrderStatuses } from '@/types/checkout';
+import MyModal from '../core/modal';
+import SingleOrder from './SingleOrder';
+import { getOrderStatusVariant } from './orderStatusBadge';
+import OrderCard from './OrderCard';
 
 const OrderHistory = () => {
   const { data: ordersList = [], isPending: isOrdersLoading } = useGetAllOrders();
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrderID, setSelectedOrderID] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<OrderStatus>("all");
   const [dateRange, setDateRange] = useState<{
@@ -48,6 +54,11 @@ const OrderHistory = () => {
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+  const handleClick = (orderId: number) => {
+    setSelectedOrderID(orderId);
+    setIsModalOpen(true);
+  }
 
   return (
     <div>
@@ -90,52 +101,13 @@ const OrderHistory = () => {
 
         </div>
       </div>
-      <Table aria-label='Order History Table' pageSize={rowsPerPage} className='border border-(--border-default)'>
-        <TableHeader>
-          <TableRow>
-            <TableColumn>Checkout ID</TableColumn>
-            <TableColumn>Pool ID</TableColumn>
-            <TableColumn>Lock Payment ID</TableColumn>
-            <TableColumn>Total Amount</TableColumn>
-            <TableColumn>Amount Paid</TableColumn>
-            <TableColumn>Status</TableColumn>
-            <TableColumn>Created At</TableColumn>
-            <TableColumn>Actions</TableColumn>
-          </TableRow>
-        </TableHeader>
-        <TableBody isLoading={isOrdersLoading}>
-          {
-            paginatedData.map(order => (
-              <TableRow key={order.id}>
-                <TableCell>{ order.checkoutId }</TableCell>
-                <TableCell>{ order.baleId }</TableCell>
-                <TableCell>
-                  {
-                    order.lockPaymentId == null ? <span className='text-(--text-muted)'>null</span> : order.lockPaymentId
-                  }
-                </TableCell>
-                <TableCell>
-                  {
-                    order.totalAmount == null ? <span className='text-(--text-muted)'>null</span> : order.totalAmount
-                  }
-                </TableCell>
-                <TableCell>
-                  {
-                    order.amountPaid == null ? <span className='text-(--text-muted)'>null</span> : order.amountPaid
-                  }
-                </TableCell>
-                <TableCell>{ order.status }</TableCell>
-                <TableCell>{ order.createdAt }</TableCell>
-                <TableCell>
-                  <Button className='py-1! px-2! text-sm rounded!'>
-                    Details
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          }
-        </TableBody>
-      </Table>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {
+          paginatedData.map(order => (
+            <OrderCard order={order} key={order.id} />
+          ))
+        }
+      </div>
       <TablePagination
         page={currentPage}
         totalPages={totalPages}
