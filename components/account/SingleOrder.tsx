@@ -143,7 +143,7 @@ const SingleOrder = ({ orderId }: Props) => {
         </div>
         <div className="flex justify-between items-end py-1">
           <p>Remaining Amount</p>
-          <span className="font-semibold text-lg">{order.order.totalAmount - order.order.amountPaid}</span>
+          <span className="font-semibold text-lg">{(order.order.totalAmount - order.order.amountPaid).toFixed(2)}</span>
         </div>
       </div>
     </div>
