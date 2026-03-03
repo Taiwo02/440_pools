@@ -97,7 +97,7 @@ const AccountLogin = () => {
   }
 
   return (
-    <div className='h-screen flex flex-col justify-center items-center'>
+    <div className='h-screen flex flex-col justify-center items-center px-6'>
       <Card className='w-full md:w-150 md:p-12!'>
         <form onSubmit={handleSubmit}>
           <div className="my-4">

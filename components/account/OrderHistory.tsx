@@ -9,6 +9,7 @@ import MyModal from '../core/modal';
 import SingleOrder from './SingleOrder';
 import { getOrderStatusVariant } from './orderStatusBadge';
 import OrderCard from './OrderCard';
+import { RiLoader5Line } from 'react-icons/ri';
 
 const OrderHistory = () => {
   const { data: ordersList = [], isPending: isOrdersLoading } = useGetAllOrders();
@@ -55,11 +56,6 @@ const OrderHistory = () => {
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
-  const handleClick = (orderId: number) => {
-    setSelectedOrderID(orderId);
-    setIsModalOpen(true);
-  }
-
   return (
     <div>
       <div className="bg-(--bg-page) p-3 rounded-2xl mb-6">
@@ -101,22 +97,31 @@ const OrderHistory = () => {
 
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {
-          paginatedData.map(order => (
-            <OrderCard order={order} key={order.id} />
-          ))
-        }
-      </div>
-      <TablePagination
-        page={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        startIndex={startIndex + 1}
-        endIndex={endIndex}
-        totalItems={filteredData.length}
-        itemLabel="order(s)"
-      />
+      {
+        isOrdersLoading ? 
+          <div className="flex justify-center items-center w-full py-20">
+            <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+          </div> : 
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {
+                paginatedData.map(order => (
+                  <OrderCard order={order} key={order.id} />
+                ))
+              }
+            </div>
+            <TablePagination
+              page={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              startIndex={startIndex + 1}
+              endIndex={endIndex}
+              totalItems={filteredData.length}
+              itemLabel="order(s)"
+            />
+          </>
+      }
+      
     </div>
   )
 }

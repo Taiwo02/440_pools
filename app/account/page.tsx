@@ -92,11 +92,11 @@ export default function AccountPage() {
               <span>Deliveries</span>
             </Tabs.Trigger>
             <Tabs.Trigger
-              value="reviews"
+              value="suggested"
               className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
             >
-              <span className="block md:hidden">Reviews</span>
-              <span className="md:block hidden">Product Reviews</span>
+              <span className="block md:hidden">Suggested</span>
+              <span className="md:block hidden">Suggested For You</span>
             </Tabs.Trigger>
           </Tabs.List>
         
@@ -106,8 +106,8 @@ export default function AccountPage() {
           <Tabs.Content value="deliveries" className="pt-4">
             <Deliveries />
           </Tabs.Content>
-          <Tabs.Content value="reviews" className="pt-4">
-            Reviews content goes here
+          <Tabs.Content value="suggested" className="pt-4">
+            Suggested Products goes here
           </Tabs.Content>
         </Tabs>
       </div>
