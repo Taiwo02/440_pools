@@ -41,7 +41,7 @@ const OrderCard = ({ order }: Props) => {
               Quantity: {order.totalItemsInOrder}
             </span>
             <div className="relative mb-8 md:mb-0">
-              <Countdown endDate={order.bale.endDate} />
+              <Countdown endDate={order?.bale?.endDate!} />
             </div>
           </div>
           <div className='text-end shrink-0'>

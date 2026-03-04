@@ -66,11 +66,11 @@ const ProductDetails = () => {
   const { authenticate } = useAuth();
 
   // For color selection
-  const [activeColorId, setActiveColorId] = useState<number | null>(null)
-  const [allocations, setAllocations] = useState<AllocationState>({})
+  const [activeColorId, setActiveColorId] = useState<number | null>(null);
+  const [allocations, setAllocations] = useState<AllocationState>({});
 
   // For login modal display
-  const [notLoggedIn, setNotLoggedIn] = useState(false)
+  const [notLoggedIn, setNotLoggedIn] = useState(false);
 
   // Hooks
   const { productId } = useParams<{ productId: string }>();

@@ -56,6 +56,15 @@ export type Login = {
   password: string;
 }
 
+export type Merchant = {
+  id: number,
+  name: string,
+  email: string,
+  phone: string,
+  picture: string | null,
+  address: string
+};
+
 export type RegisterPayload = {
   email: string;
   owner: string;

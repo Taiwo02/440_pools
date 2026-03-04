@@ -150,17 +150,19 @@ export type OrderList = {
   deletedAt: string | null,
   bale: {
     price: number,
-    status: "OPEN" | "CLOSED",
+    status: "OPEN" | "CLOSED" | "COMPLETED",
     filledSlots: number,
     slots: number,
-    endDate: string,
+    quantity: number,
+    itemsPerSlot: number,
+    endDate: string | null,
     product: {
       name: string,
       images: string[]
     }
   },
-  slotCount: number,
+  slotCount: number | null,
   itemsPerSlot: number,
-  totalItemsInOrder: number,
+  totalItemsInOrder: number | null,
   remaining: number | null
 }

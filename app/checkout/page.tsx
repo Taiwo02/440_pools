@@ -37,17 +37,16 @@ interface ProfileData {
   email: string
 }
 
-type Merchant = {
-  id: string;
-  phone: string;
-  email: string;
-};
+// type Merchant = {
+//   id: string;
+//   phone: string;
+//   email: string;
+// };
 
 const Checkout = () => {
-  const [user, setUser] = useState<Merchant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // const { data: user, isPending ,error } = useGetUserProfile();
+  const { data: user, isPending: isUserPending, error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
   const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
   const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
@@ -55,13 +54,6 @@ const Checkout = () => {
   const confirmPayment = useConfirmPayment();
   const { cart, clearCart } = useCart();
   const router = useRouter();
-
-  useEffect(() => {
-    const merchantString = localStorage.getItem("merchant");
-    if (merchantString) {
-      setUser(JSON.parse(merchantString));
-    }
-  }, []);
 
   useEffect(() => {
     if (deliveries.length > 0) {
@@ -161,7 +153,7 @@ const Checkout = () => {
           city: formData.city,
           state: formData.state,
           setDefault: true,
-          merchantId: Number(user.id)
+          merchantId: user.id
         }
 
         const res = await postDelivery(deliveryData);

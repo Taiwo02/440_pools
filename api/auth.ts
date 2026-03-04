@@ -1,6 +1,6 @@
 import http from "@/lib/http";
 import { userHttp } from "@/lib/user_auth";
-import { Login, ProfileData, RegisterPayload } from "@/types/types";
+import { Login, Merchant, ProfileData, RegisterPayload } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useRegisterMutation = () => {
@@ -20,11 +20,11 @@ export const useLoginMutation = () => {
 };
 
 export const useGetUserProfile = () => {
-  return useQuery<ProfileData>({
+  return useQuery<Merchant>({
     queryKey: ["user"],
     queryFn: async () => {
-      const res = await http.get("/profile");
-      return res?.data?.data;
+      const res = await http.get("/buyer/profile");
+      return res?.data?.data?.profile;
     }
   })
 };

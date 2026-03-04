@@ -7,39 +7,27 @@ import { Button } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
-import { RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
+import { RiLoader5Line, RiLogoutCircleLine, RiUser5Fill } from "react-icons/ri";
 
 export default function AccountPage() {
-  const [user, setUser] = useState<any>(null);
   const { logout } = useAuth();
   const { data: person, isPending, error } = useGetUserProfile();
-  
 
   useEffect(() => {
-    const merchantString = localStorage.getItem("merchant");
-    if (merchantString) {
-      setUser(JSON.parse(merchantString));
-    }
-  }, []);
-
-  useEffect(() => {
-    if(person) console.log(person)
-  }, [person])
+    if(person) console.log(person);
+  }, [person]);
   
-
-  // if(isPending) {
-  //   return (
-  //     <div className="flex justify-center items-center w-full h-screen">
-  //       <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
-  //     </div>
-  //   )
-  // }
+  if (isPending) return (
+    <div className="flex justify-center items-center w-full h-screen">
+      <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
+    </div>
+  )
   
-  // if (error) return (
-  //   <div className="flex justify-center items-center w-full h-screen">
-  //     <p>Error loading user</p>
-  //   </div>
-  // );
+  if (error) return (
+    <div className="flex justify-center items-center w-full h-screen">
+      <p>Error loading user</p>
+    </div>
+  );
   
   
   return (
@@ -52,7 +40,7 @@ export default function AccountPage() {
           <div>
             <p className="font-bold">Business Name</p>
             <p className="uppercase">
-              {user?.name}
+              {person?.name}
             </p>
           </div>
         </div>
@@ -60,13 +48,13 @@ export default function AccountPage() {
           <div>
             <p className="font-bold">Email Address</p>
             <p className="uppercase">
-              {user?.email}
+              {person?.email}
             </p>
           </div>
           <div>
             <p className="font-bold">Phone Number</p>
             <p className="uppercase">
-              {user?.phone}
+              {person?.phone}
             </p>
           </div> 
         </div>
