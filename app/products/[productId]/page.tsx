@@ -22,11 +22,13 @@ import {
 } from "react-icons/ri";
 import { toast } from "react-toastify";
 import Recommended from "@/components/product/Recommended";
+import Switch from "react-switch";
 
 type FormValues = {
   sizes: string[];
   colors: string[];
   slots: number;
+  directQty: number;
 };
 
 type SizeAllocation = {
@@ -44,14 +46,18 @@ type ColorAllocation = {
 }
 
 
-type AllocationState = Record<number, ColorAllocation> // key = colorId
+type AllocationState = Record<number, ColorAllocation>
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     sizes: [],
     colors: [],
     slots: 1,
+    directQty: 1
   });
+
+  // State for switch
+  const [checked, setChecked] = useState(false);
 
   // Login form state
   const [loginValues, setLoginValues] = useState<Login>({
@@ -230,7 +236,11 @@ const ProductDetails = () => {
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (currentTotal >= maxAllowedQuantity) return;
+    if(checked) {
+      if (currentTotal >= maxDirectAllowedQuantity) return;
+    } else {
+      if (currentTotal >= maxAllowedQuantity) return;
+    }
 
     const currentQty =
       allocations[resolvedColorId]?.sizes?.[sizeId]?.quantity ?? 0;
@@ -257,7 +267,11 @@ const ProductDetails = () => {
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (currentTotal >= maxAllowedQuantity) return;
+    if (checked) {
+      if (currentTotal >= maxDirectAllowedQuantity) return;
+    } else {
+      if (currentTotal >= maxAllowedQuantity) return;
+    }
 
     const currentQty = allocations[resolvedColorId]?.quantity ?? 0;
 
@@ -465,7 +479,12 @@ const ProductDetails = () => {
   const maxAllowedQuantity =
     formValues.slots * productsPerSlot
 
+  const maxDirectAllowedQuantity = 
+    formValues.directQty
+
   const isAllocationExceeded =
+    checked ? 
+    totalAllocatedQuantity > maxDirectAllowedQuantity : 
     totalAllocatedQuantity > maxAllowedQuantity
 
   // Handle login input state
@@ -568,6 +587,11 @@ const ProductDetails = () => {
   }
 
   const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
+
+  const handleSwitchChange = (value: boolean) => {
+    setChecked(value);
+    setAllocations({});
+  };
 
   if (isBalesPending) {
     return (
@@ -846,42 +870,94 @@ const ProductDetails = () => {
                 </>
               )}
 
-              {/* Slots */}
-              <div className="my-4 pt-4">
-                <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                  Slots
-                </p>
-                <div className="flex items-stretch">
-                  <Button
-                    className="rounded-r-none rounded-l-xl! py-2!"
-                    disabled={formValues.slots === 1}
-                    onClick={() =>
-                      setFormValues(p => ({ ...p, slots: p.slots - 1 }))
-                    }
-                    primary
-                  >
-                    -
-                  </Button>
-                  <Input
-                    element="input"
-                    input_type="text"
-                    name="quantity"
-                    value={formValues.slots}
-                    handler={handleChange}
-                    genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
-                  />
-                  <Button
-                    className="rounded-l-none rounded-r-xl! py-2!"
-                    onClick={() =>
-                      setFormValues(p => ({ ...p, slots: p.slots + 1 }))
-                    }
-                    primary
-                  >
-                    +
-                  </Button>
-                </div>
+              <div className="mt-8! flex gap-3 items-center p-4 rounded-lg w-fit bg-(--bg-muted)">
+                <p className="text-sm">Join Pool</p>
+
+                <Switch
+                  checked={checked}
+                  onChange={handleSwitchChange}
+                  onColor="#f97316"
+                  offColor="#ffedd5"
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                />
+
+                <p className="text-sm">Buy Directly</p>
               </div>
+              
+              {
+                checked ? 
+                  <div className="my-4">
+                    <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                      Direct Order Quantity
+                    </p>
+                    <div className="flex items-stretch">
+                      <Button
+                        className="rounded-r-none rounded-l-xl! py-2!"
+                        disabled={formValues.directQty === 1}
+                        onClick={() =>
+                          setFormValues(p => ({ ...p, directQty: p.directQty - 1 }))
+                        }
+                        primary
+                      >
+                        -
+                      </Button>
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="quantity"
+                        value={formValues.directQty}
+                        handler={handleChange}
+                        genStyle="my-0!"
+                        styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                      />
+                      <Button
+                        className="rounded-l-none rounded-r-xl! py-2!"
+                        onClick={() =>
+                          setFormValues(p => ({ ...p, directQty: p.directQty + 1 }))
+                        }
+                        primary
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div> :
+                  <div className="my-4">
+                    <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                      Slots
+                    </p>
+                    <div className="flex items-stretch">
+                      <Button
+                        className="rounded-r-none rounded-l-xl! py-2!"
+                        disabled={formValues.slots === 1}
+                        onClick={() =>
+                          setFormValues(p => ({ ...p, slots: p.slots - 1 }))
+                        }
+                        primary
+                      >
+                        -
+                      </Button>
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="quantity"
+                        value={formValues.slots}
+                        handler={handleChange}
+                        genStyle="my-0!"
+                        styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                      />
+                      <Button
+                        className="rounded-l-none rounded-r-xl! py-2!"
+                        onClick={() =>
+                          setFormValues(p => ({ ...p, slots: p.slots + 1 }))
+                        }
+                        primary
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+              }
 
               {/* Mobile Tab List */}
               <div className="block md:hidden rounded-2xl bg-(--bg-surface) w-full mb-8">
