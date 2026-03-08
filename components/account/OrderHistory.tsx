@@ -1,21 +1,27 @@
-"use client"
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react'
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TablePagination, TableRow } from '../ui/table/TableWrapper';
-import { Badge, Button, Dropdown } from '../ui';
-import { useGetAllOrders } from '@/api/order';
-import { ORDER_STATUSES, OrderList, OrderStatus, OrderStatuses } from '@/types/checkout';
-import MyModal from '../core/modal';
-import SingleOrder from './SingleOrder';
-import { getOrderStatusVariant } from './orderStatusBadge';
-import OrderCard from './OrderCard';
+import React, { useMemo, useState } from "react";
+import { Dropdown, Button } from "../ui";
+import { useGetAllOrders } from "@/api/order";
+import {
+  ORDER_STATUSES,
+  OrderList,
+  OrderStatus,
+  OrderStatuses,
+} from "@/types/checkout";
+import MyModal from "../core/modal";
+import SingleOrder from "./SingleOrder";
+import OrderCard from "./OrderCard";
+import { TablePagination } from "../ui/table/TableWrapper";
+import { RiLoader5Line } from "react-icons/ri";
 
 const OrderHistory = () => {
-  const { data: ordersList = [], isPending: isOrdersLoading } = useGetAllOrders();
+  const { data: ordersList = [], isPending } = useGetAllOrders();
 
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage] = useState(9);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrderID, setSelectedOrderID] = useState(0);
+
+  const [selectedOrderID, setSelectedOrderID] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<OrderStatus>("all");
@@ -27,11 +33,8 @@ const OrderHistory = () => {
     end: null,
   });
 
-  useEffect(() => {
-    if (ordersList) console.log(ordersList);
-  }, [ordersList])
-
-  const filteredData = useMemo((): OrderList[] => {
+  // Filtering
+  const filteredOrders = useMemo((): OrderList[] => {
     return ordersList.filter((order: OrderList) => {
       const matchesStatus =
         statusFilter === "all" || order.status === statusFilter;
@@ -48,25 +51,22 @@ const OrderHistory = () => {
     });
   }, [ordersList, statusFilter, dateRange]);
 
+  // Pagination
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
-
-  const paginatedData = filteredData.slice(startIndex, endIndex);
-
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
-  const handleClick = (orderId: number) => {
-    setSelectedOrderID(orderId);
-    setIsModalOpen(true);
-  }
+  const endIndex = Math.min(startIndex + rowsPerPage, filteredOrders.length);
+  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
   return (
-    <div>
-      <div className="bg-(--bg-page) p-3 rounded-2xl mb-6">
-        <h3 className="text-xl mb-2">Filters</h3>
-        <div className="flex flex-col md:flex-row gap-4">
+    <div className="space-y-6">
+
+      {/* ---------------- Filters Section ---------------- */}
+      <div className="bg-(--bg-page) p-4 rounded-2xl">
+        <h3 className="text-xl font-semibold mb-4">Order History</h3>
+
+        <div className="flex flex-col md:flex-row gap-4 items-end">
           <div>
-            <p className="text-sm font-semibold mb-1">Order Statuses</p>
+            <p className="text-sm font-medium mb-1">Status</p>
             <Dropdown
               value={statusFilter}
               options={ORDER_STATUSES}
@@ -77,48 +77,89 @@ const OrderHistory = () => {
             />
           </div>
 
-          {/* Date Range */}
-          <div className="">
-            <p className="text-sm font-semibold mb-1">Start Date</p>
+          <div>
+            <p className="text-sm font-medium mb-1">Start Date</p>
             <input
               type="date"
+              className="border border-(--border-default) rounded px-3 py-2 bg-(--bg-surface)"
               onChange={(e) =>
-                setDateRange(prev => ({ ...prev, start: e.target.value }))
+                setDateRange((prev) => ({
+                  ...prev,
+                  start: e.target.value,
+                }))
               }
-              className='border border-(--border-default) rounded py-2 px-3 bg-(--bg-surface)'
-            />
-          </div>
-          <div className="">
-            <p className="text-sm font-semibold mb-1">End Date</p>
-            <input
-              type="date"
-              onChange={(e) =>
-                setDateRange(prev => ({ ...prev, end: e.target.value }))
-              }
-              className='border border-(--border-default) rounded py-2 px-3 bg-(--bg-surface)'
             />
           </div>
 
+          <div>
+            <p className="text-sm font-medium mb-1">End Date</p>
+            <input
+              type="date"
+              className="border border-(--border-default) rounded px-3 py-2 bg-(--bg-surface)"
+              onChange={(e) =>
+                setDateRange((prev) => ({
+                  ...prev,
+                  end: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <Button
+            onClick={() => {
+              setStatusFilter("all");
+              setDateRange({ start: null, end: null });
+              setCurrentPage(1);
+            }}
+          >
+            Reset
+          </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {
-          paginatedData.map(order => (
-            <OrderCard order={order} key={order.id} />
-          ))
-        }
-      </div>
-      <TablePagination
-        page={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        startIndex={startIndex + 1}
-        endIndex={endIndex}
-        totalItems={filteredData.length}
-        itemLabel="order(s)"
-      />
-    </div>
-  )
-}
 
-export default OrderHistory
+      {/* ---------------- Orders Grid ---------------- */}
+      {isPending ? (
+        <div className="flex justify-center items-center py-20">
+          <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-16 text-(--text-muted)">
+          No orders found.
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+              />
+            ))}
+          </div>
+
+          <TablePagination
+            page={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            startIndex={startIndex + 1}
+            endIndex={endIndex}
+            totalItems={filteredOrders.length}
+            itemLabel="order(s)"
+          />
+        </>
+      )}
+
+      {/* ---------------- Order Details Modal ---------------- */}
+      <MyModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      >
+        {selectedOrderID && (
+          <SingleOrder orderId={selectedOrderID} />
+        )}
+      </MyModal>
+    </div>
+  );
+};
+
+export default OrderHistory;

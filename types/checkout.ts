@@ -148,5 +148,21 @@ export type OrderList = {
   createdAt: string,
   updatedAt: string,
   deletedAt: string | null,
+  bale: {
+    price: number,
+    status: "OPEN" | "CLOSED" | "COMPLETED",
+    filledSlots: number,
+    slots: number,
+    quantity: number,
+    itemsPerSlot: number,
+    endDate: string | null,
+    product: {
+      name: string,
+      images: string[]
+    }
+  },
+  slotCount: number | null,
+  itemsPerSlot: number,
+  totalItemsInOrder: number | null,
   remaining: number | null
 }
