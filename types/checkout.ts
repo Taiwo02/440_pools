@@ -100,9 +100,9 @@ type CartItemColor = {
   status: boolean;
 };
 
-type CartItemVariant = {
-  size: CartItemSize;
-  color: CartItemColor;
+export type CartItemVariant = {
+  size?: CartItemSize;
+  color?: CartItemColor;
   quantity: number;
   totalPrice: number;
 };
