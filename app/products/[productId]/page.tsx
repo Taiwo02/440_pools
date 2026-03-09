@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import {
   RiArrowLeftSLine,
   RiBankCardFill,
+  RiCloseLine,
   RiGroup2Fill,
   RiLoader5Line,
 } from "react-icons/ri";
@@ -33,6 +34,9 @@ const ProductDetails = () => {
 
   // State for switch
   const [buyDirectly, setBuyDirectly] = useState(false);
+
+  // Buy modal
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   // For color selection
   const [activeColorId, setActiveColorId] = useState<number | null>(null);
@@ -353,6 +357,115 @@ const ProductDetails = () => {
 
         router.push('/checkout');
       }
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (isAllocationExceeded) {
+      toast.error(
+        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+      )
+      return
+    }
+
+    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
+      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+      return
+    }
+
+    setShowBuyModal(false);
+
+    const token = getCrossSubdomainCookie("440_token");
+
+    if (!token) {
+      setNotLoggedIn(true);
+      return;
+    }
+
+    if (baleData) {
+      addToBuyCart({
+        cartItemId: `cart-${baleData.baleId}`,
+        productId: baleData.productId,
+        baleId: baleData.id,
+        name: baleData.product.name,
+        image: baleData.product.images[2],
+        supplierId: baleData.product.supplierId,
+        price: baleData.product.price,
+        originalPrice: baleData.product.oldPrice,
+        discount: 10,
+        currency: "NGN",
+        slots: formValues.slots,
+        totalSlots: baleData.slot,
+        totalShippingFee: baleData.deliveryFee * formValues.slots,
+        quantity: totalAllocatedQuantity,
+        unit: "unit",
+        variants: selectedVariants,
+        createdAt: baleData.createdAt,
+        updatedAt: baleData.updatedAt,
+        description: baleData.product.description,
+        status: Boolean(baleData.status == "OPEN"),
+        endIn: baleData.endIn,
+        items,
+        inStock: true,
+      });
+
+      toast.success("Added to cart");
+    }
+
+    router.push('/checkout');
+  };
+
+  const handleAddToCart = () => {
+    if (isAllocationExceeded) {
+      toast.error(
+        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+      )
+      return
+    }
+
+    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
+      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+      return
+    }
+
+    setShowBuyModal(false);
+
+    const token = getCrossSubdomainCookie("440_token");
+    
+
+    if (!token) {
+      setNotLoggedIn(true);
+      return;
+    }
+
+    if (baleData) {
+      addToBuyCart({
+        cartItemId: `cart-${baleData.baleId}`,
+        productId: baleData.productId,
+        baleId: baleData.id,
+        name: baleData.product.name,
+        image: baleData.product.images[2],
+        supplierId: baleData.product.supplierId,
+        price: baleData.product.price,
+        originalPrice: baleData.product.oldPrice,
+        discount: 10,
+        currency: "NGN",
+        slots: formValues.slots,
+        totalSlots: baleData.slot,
+        totalShippingFee: baleData.deliveryFee * formValues.slots,
+        quantity: totalAllocatedQuantity,
+        unit: "unit",
+        variants: selectedVariants,
+        createdAt: baleData.createdAt,
+        updatedAt: baleData.updatedAt,
+        description: baleData.product.description,
+        status: Boolean(baleData.status == "OPEN"),
+        endIn: baleData.endIn,
+        items,
+        inStock: true,
+      });
+
+      toast.success("Added to cart");
     }
   };
 
@@ -692,7 +805,7 @@ const ProductDetails = () => {
                   primary
                   className={`uppercase ${buyDirectly ? 'flex' : 'hidden'} gap-2 items-center`}
                   disabled={Boolean(formValues.slots == 0)}
-                  onClick={buyNow}
+                  onClick={() => setShowBuyModal(true)}
                 >
                   Proceed
                 </Button>
@@ -732,7 +845,49 @@ const ProductDetails = () => {
           selectedVariants={selectedVariants}
           items={items}
           buyDirectly={buyDirectly}
+          setNotLoggedIn={setNotLoggedIn}
         />
+      )}
+
+      {/* Buy modal */}
+      {showBuyModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-(--bg-surface) rounded-xl p-6 w-[90%] max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                Choose an action
+              </h3>
+              <button
+                className="text-sm text-gray-500 cursor-pointer"
+                onClick={() => setShowBuyModal(false)}
+              >
+                <RiCloseLine />
+              </button>
+            </div>
+
+            <p className="text-sm mb-6">
+              Do you want to buy immediately or add this item to your cart?
+            </p>
+
+            <div className="flex gap-4">
+              <Button
+                primary
+                className="flex-1 uppercase"
+                onClick={handleBuyNow}
+              >
+                Buy Now
+              </Button>
+
+              <Button
+                primary
+                className="flex-1 ring-2 ring-(--primary) bg-transparent text-(--primary)! uppercase"
+                onClick={handleAddToCart}
+              >
+                Add to Cart
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </>
 

@@ -13,41 +13,23 @@ import {
   RiSecurePaymentLine,
   RiRefund2Line,
   RiPercentLine,
-  RiArrowRightLine,
-  RiShieldCheckFill,
-  RiCurrencyFill,
   RiLoader4Fill
 } from 'react-icons/ri'
-import { BsGraphDownArrow } from 'react-icons/bs';
-import { useCart } from '@/hooks/use-cart';
 import { getCrossSubdomainCookie } from '@/lib/utils';
+import { useBuy } from '@/hooks/use-buy';
 
 const Cart = () => {
   const router = useRouter();
-  const [formValues, setFormValues] = useState<Record<string, number>>({
-    'cart-001': 0,
-    'cart-002': 0,
-    'cart-003': 0,
-    'cart-004': 0,
-  })
-
-// const [formValues, setFormValues] = useState<Record<string, number>>(() => {
-//   const initialValues: Record<string, number> = {};
-//   cartItems.forEach(item => {
-//     initialValues[item.cartItemId] = item.quantity;
-//   });
-//   return initialValues;
-// });
 
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { buyCart, removeFromBuyCart, updateBuyQuantity, clearBuyCart } = useBuy();
 
-  const cartItems = cart;
+  const cartItems = buyCart;
 
   useEffect(() => {
-    console.log(JSON.stringify(cart))
-  }, [cart])
+    console.log(JSON.stringify(buyCart))
+  }, [buyCart])
   
 
   // const cartItems = [
@@ -142,7 +124,7 @@ const Cart = () => {
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    updateQuantity(cartItemId, validSlots);
+    updateBuyQuantity(cartItemId, validSlots);
 
     setLoadingItems(prev => ({ ...prev, [cartItemId]: false }));
 
@@ -218,7 +200,7 @@ const Cart = () => {
             <Button 
               className='bg-(--error)! hover:bg-(--error)/50!'
               disabled={Boolean(cartItems.length == 0)}
-              onClick={clearCart}
+              onClick={clearBuyCart}
             >
               <RiDeleteBinLine />
               Clear Cart
@@ -238,7 +220,7 @@ const Cart = () => {
                       const minOrder = item.minOrder ||0
 
                       const removeItem = (id: string) => {
-                        removeFromCart(id);
+                        removeFromBuyCart(id);
                         toast.error(`Product removed`, {
                           position: "top-right",
                           autoClose: 2000,

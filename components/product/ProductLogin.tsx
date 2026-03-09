@@ -13,6 +13,7 @@ import { CartItem, CartItemVariant } from "@/types/checkout"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useBuy } from "@/hooks/use-buy"
+import { RiCloseLine } from "react-icons/ri"
 
 type Props = {
   baleData: SingleBale,
@@ -24,10 +25,11 @@ type Props = {
     colors: string[];
   },
   items: CartItemVariant[],
-  buyDirectly: boolean
+  buyDirectly: boolean,
+  setNotLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, formValues, selectedVariants, items, buyDirectly }: Props) => {
+const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, formValues, selectedVariants, items, buyDirectly, setNotLoggedIn }: Props) => {
   // Login form state
   const [loginValues, setLoginValues] = useState<Login>({
     phone: '',
@@ -179,9 +181,17 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, fo
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
       <Card className='w-full md:w-150 md:p-12!'>
         <form onSubmit={handleSubmit}>
-          <div className="my-4">
-            <h1 className="text-3xl">Login</h1>
-            <p className="text-(--text-muted)">Enter your details to log into your account</p>
+          <div className="flex items-start justify-between mb-4">
+            <div className="my-4">
+              <h1 className="text-3xl">Login</h1>
+              <p className="text-(--text-muted)">Enter your details to log into your account</p>
+            </div>
+            <button
+              className="text-sm text-gray-500 cursor-pointer"
+              onClick={() => setNotLoggedIn(false)}
+            >
+              <RiCloseLine size={24} className="mt-4" />
+            </button>
           </div>
           <Input
             input_type="text"
