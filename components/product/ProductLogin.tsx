@@ -19,6 +19,7 @@ type Props = {
   baleData: SingleBale,
   totalAllocatedQuantity: number,
   maxAllowedQuantity: number,
+  maxDirectAllowedQuantity: number
   formValues: FormValues,
   selectedVariants: {
     sizes: string[];
@@ -29,7 +30,7 @@ type Props = {
   setNotLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, formValues, selectedVariants, items, buyDirectly, setNotLoggedIn }: Props) => {
+const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, maxDirectAllowedQuantity, formValues, selectedVariants, items, buyDirectly, setNotLoggedIn }: Props) => {
   // Login form state
   const [loginValues, setLoginValues] = useState<Login>({
     phone: '',
@@ -88,9 +89,16 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, fo
         authenticate({ user, token, refreshToken });
 
         if (baleData) {
-          if (totalAllocatedQuantity !== maxAllowedQuantity) {
-            toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
-            return
+          if(buyDirectly) {
+            if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
+              toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+              return
+            }
+          } else {
+            if (totalAllocatedQuantity !== maxAllowedQuantity) {
+              toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+              return
+            }
           }
 
           if (buyDirectly) {
