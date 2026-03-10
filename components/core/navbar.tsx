@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { usePathname } from 'next/navigation'
 import SearchForm from './search'
-import { useCart } from '@/hooks/use-cart'
+import { useBuy } from '@/hooks/use-buy';
 
 const Navbar = () => {
   const [category, setCategory] = useState('Electronics')
@@ -36,7 +36,7 @@ const Navbar = () => {
     "Baby Products",
   ];
   const [searchTerm, setSearchTerm] = useState('')
-  const { cart } = useCart();
+  const { buyCart } = useBuy();
 
   const navLinks = [
     {
@@ -56,7 +56,7 @@ const Navbar = () => {
         <>
           <RiShoppingCartLine />
           <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold -top-1 left-2">
-            {cart.length}
+            {buyCart.length}
           </div>
         </>
     },
@@ -166,7 +166,7 @@ const Navbar = () => {
           <Link href={'/cart'} className="p-2 relative">
             <RiShoppingCartLine />
             <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold top-0 right-0">
-              { cart.length }
+              { buyCart.length }
             </div>
           </Link>
           <button

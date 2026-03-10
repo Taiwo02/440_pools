@@ -29,6 +29,7 @@ export const deleteCrossSubdomainCookie = (name: string): void => {
   setCrossSubdomainCookie(name, "", -1);
 };
 
+// For joining slot
 const CART_KEY = "cart";
 
 export const getStoredCart = (): CartItem[] => {
@@ -38,4 +39,16 @@ export const getStoredCart = (): CartItem[] => {
 
 export const setStoredCart = (cart: CartItem[]) => {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+};
+
+// For buying directly from supplier
+const BUY_KEY = "buy";
+
+export const getStoredBuyCart = (): CartItem[] => {
+  if (typeof window === "undefined") return [];
+  return JSON.parse(localStorage.getItem(BUY_KEY) || "[]");
+};
+
+export const setStoredBuyCart = (buy: CartItem[]) => {
+  localStorage.setItem(BUY_KEY, JSON.stringify(buy));
 };

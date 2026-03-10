@@ -461,3 +461,27 @@ export type Initiate = {
   checkoutId: number,
   type: "lock"
 }
+
+export type FormValues = {
+  sizes: string[];
+  colors: string[];
+  slots: number;
+  directQty: number;
+};
+
+type SizeAllocation = {
+  sizeId: number
+  sizeLabel: string
+  quantity: number
+}
+
+type ColorAllocation = {
+  colorId: number
+  colorLabel: string
+  colorImages: string[]
+  quantity?: number
+  sizes: Record<number, SizeAllocation>
+}
+
+
+export type AllocationState = Record<number, ColorAllocation>
