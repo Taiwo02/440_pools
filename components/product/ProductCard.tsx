@@ -23,13 +23,13 @@ const ProductCard = ({ bale }: Props) => {
       className='p-0!'
     >
       <div className="relative">
-        <Image src={bale.product.images[0]} alt='' width={0} height={0} className='w-full h-40 md:h-70 aspect-square rounded-t-2xl object-cover' unoptimized />
+        <Image src={bale.product.images[0]} alt='' width={0} height={0} className='w-full h-40 rounded-t-2xl object-cover' unoptimized />
       </div>
       <Countdown
         endDate={bale.endIn}
         // className='text-[8px] md:text-xs!'
       />
-      <div className="p-2 md:p-4">
+      <div className="p-2">
         <p className="md:text-lg font-bold line-clamp-2">{bale.product.name}</p>
         <div className="md:my-2">
           <div className="flex justify-between items-center flex-wrap">

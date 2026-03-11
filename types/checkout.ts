@@ -166,3 +166,20 @@ export type OrderList = {
   totalItemsInOrder: number | null,
   remaining: number | null
 }
+
+export type DirectOrderPayload = {
+  items: {
+    productId: number,
+    colorId: number | null,
+    sizeId: number | null,
+    quantity: number
+  },
+  paymentOption: "split" | "full",
+  upfrontPercent: number,
+  deliveryAddressId: number
+}
+
+export type DirectInitiate = {
+  type: "full-remaining",
+  id?: number
+}

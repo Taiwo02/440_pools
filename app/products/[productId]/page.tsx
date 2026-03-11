@@ -276,11 +276,9 @@ const ProductDetails = () => {
         items,
         inStock: true,
       });
-
-      toast.success("Added to cart");
     }
 
-    router.push('/checkout');
+    router.push('/checkout?direct_order=true');
   };
 
   const handleAddToCart = () => {
@@ -651,7 +649,7 @@ const ProductDetails = () => {
                 className="text-sm text-gray-500 cursor-pointer"
                 onClick={() => setShowBuyModal(false)}
               >
-                <RiCloseLine />
+                <RiCloseLine size={24} />
               </button>
             </div>
 

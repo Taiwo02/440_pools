@@ -5,6 +5,7 @@ import { RiMailLine, RiMapPinLine, RiPhoneLine, RiUser3Line } from "react-icons/
 import { Button } from "../ui";
 import { useDeliveryMutation } from "@/api/order";
 import { toast } from "react-toastify";
+import { useGetUserProfile } from "@/api/auth";
 
 type Props = {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -17,22 +18,14 @@ type Merchant = {
 };
 
 const DeliveryForm = ({ setIsModalOpen }: Props) => {
-  const [user, setUser] = useState<Merchant | null>(null);
-  const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
-
-  useEffect(() => {
-    const merchantString = localStorage.getItem("merchant");
-    if (merchantString) {
-      setUser(JSON.parse(merchantString));
-    }
-    console.log(user);
-  }, []);
+  const { data: person, isPending, error } = useGetUserProfile();
+  const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();;
 
   const [formData, setFormData] = useState({
     firstName: '',
     LastName: '',
-    email: user?.email ?? '',
-    phone: user?.phone ?? '',
+    email: person?.email ?? '',
+    phone: person?.phone ?? '',
     countryCode: '+234',
     additionalPhone: '',
     additionalCountryCode: '+234',
@@ -67,7 +60,7 @@ const DeliveryForm = ({ setIsModalOpen }: Props) => {
       city: formData.city,
       state: formData.state,
       setDefault: false,
-      merchantId: Number(user?.id)
+      merchantId: Number(person?.id)
     }
 
     const res = await postDelivery(deliveryData);

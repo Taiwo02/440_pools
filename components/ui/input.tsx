@@ -82,7 +82,7 @@ const Input = React.memo(({
           required={required}
           disabled={disabled}
           className={cn(
-            "w-full p-3 bg-[var(--bg-surface)] rounded-lg border border-slate-200 focus:border focus:outline-[var(--primary)] placeholder:text-[var(--muted)]",
+            "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary) placeholder:text-(--muted)",
             styling
           )}
         >
@@ -109,7 +109,7 @@ const Input = React.memo(({
           disabled={disabled}
           rows={5}
           className={cn(
-            "w-full p-3 bg-[var(--bg-surface)] rounded-lg border border-slate-200 focus:border focus:outline-[var(--primary)]",
+            "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)",
             styling
           )}
         />
@@ -130,7 +130,7 @@ const Input = React.memo(({
                 key={option}
                 className={cn(
                   "border rounded-lg p-3 cursor-pointer transition",
-                  checked ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-gray-300 hover:border-[var(--primary)]",
+                  checked ? "border-(--primary) bg-(--primary) text-white" : "border-gray-300 hover:border-(--primary)",
                   styling
                 )}
               >
@@ -166,7 +166,7 @@ const Input = React.memo(({
                 key={option.value}
                 className={cn(
                   "border rounded-md p-2 cursor-pointer transition flex items-center justify-center",
-                  checked ? "border-[var(--primary)] ring-2 ring-[var(--primary)]" : "border-gray-300 hover:border-[var(--primary)]",
+                  checked ? "border-(--primary) ring-2 ring-(--primary)" : "border-gray-300 hover:border-(--primary)",
                   styling
                 )}
               >
@@ -202,7 +202,7 @@ const Input = React.memo(({
           required={required}
           disabled={disabled}
           className={cn(
-            "w-full p-3 bg-[var(--bg-surface)] rounded-lg border border-slate-200 focus:border focus:outline-[var(--primary)]",
+            "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary)",
             !!leftIcon && "pl-10",
             styling
           )}

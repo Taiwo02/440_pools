@@ -48,7 +48,7 @@ const ProductsSection = () => {
                 <RiSignalWifiErrorLine />
                 <p className="text-xl">Products not found</p>
               </div> :
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-4 my-4">
+              <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 md:gap-4 my-4">
                 {
                   allBales.map(bale => (
                     <ProductCard bale={bale} key={bale.id} />

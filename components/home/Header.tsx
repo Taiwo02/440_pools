@@ -8,7 +8,7 @@ import Link from 'next/link';
 const Header = () => {
   return (
     <header className="h-110 md:h-120 flex items-stretch gap-4 md:px-20 pt-36 md:pt-24">
-      <div className="hidden md:block md:w-80">
+      <div className="hidden md:block md:w-60">
         <Card className='h-full p-0! overflow-hidden'>
           <div className="py-3 px-6 bg-(--bg-muted)">
             <h4 className="text-xl">Categories</h4>
@@ -16,7 +16,7 @@ const Header = () => {
           <div className="overflow-y-auto h-full pb-4">
             {
               industries.map((industry, index) => (
-                <Link key={index} href={''} className="py-2 px-6 border-b border-(--border-default) flex items-center gap-2">
+                <Link key={index} href={''} className="py-2 px-3 border-b border-(--border-default) flex items-center gap-2">
                   { industry.icon }
                   { industry.name }
                 </Link>
