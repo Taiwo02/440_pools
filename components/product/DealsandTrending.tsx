@@ -91,9 +91,8 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
             </div> : 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {slicedBales.map(item => (
-                <Link href={`/products/${item.id}`}>
+                <Link key={item.id} href={`/products/${item.id}`}>
                   <Card
-                    key={item.id}
                     className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
                   >
                     <img

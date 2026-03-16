@@ -24,7 +24,7 @@ const ProductCard = ({ bale }: Props) => {
         className='p-0! rounded-lg'
       >
         <div className="relative">
-          <Image src={bale.product.images[1]} alt='' width={0} height={0} className='w-full h-40 rounded-t-lg object-cover' unoptimized />
+          <Image src={bale.product.images?.[0]} alt='' width={0} height={0} className='w-full h-40 rounded-t-lg object-cover' unoptimized />
         </div>
         <Countdown
           endDate={bale.endIn}

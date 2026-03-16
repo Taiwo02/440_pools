@@ -35,36 +35,33 @@ const Recommended = ({ products }: Props) => {
         >
           {products.map(item => (
             <SwiperSlide key={item.id}>
-              <Card
-                className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
-              >
-                <img
-                  src={item.product.images[0]}
-                  alt={item.product.name}
-                  className="w-full h-34 mb-2 rounded-t-lg object-cover"
-                />
-                <div className="px-2 pb-2">
-                  <p className="text-sm font-medium truncate">{item.product.name}</p>
-                  <p className="text-orange-600 font-semibold text-sm">
-                    &#8358;{item.price.toFixed(2)}
-                  </p>
-                  <div className="flex justify-between items-center flex-wrap mt-2">
-                    <p className="font-bold text-(--primary) text-sm">
-                      {item.filledSlot}/{item.slot} joined
-                    </p>
-                  </div>
-                  <Progress
-                    totalQty={item.slot}
-                    currentQty={item.filledSlot}
-                    className='my-0!'
+              <Link href={`/products/${item.id}`}>
+                <Card
+                  className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
+                >
+                  <img
+                    src={item.product.images[0]}
+                    alt={item.product.name}
+                    className="w-full h-34 mb-2 rounded-t-lg object-cover"
                   />
-                  <Link href={`/products/${item.id}`}>
-                    <Button primary isFullWidth className='mt-2 py-2! rounded-lg!'>
-                      Join Pool
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
+                  <div className="px-2 pb-2">
+                    <p className="text-sm font-medium truncate">{item.product.name}</p>
+                    <p className="text-orange-600 font-semibold text-sm">
+                      &#8358;{item.price.toFixed(2)}
+                    </p>
+                    <div className="flex justify-between items-center flex-wrap mt-2">
+                      <p className="font-bold text-(--primary) text-sm">
+                        {item.filledSlot}/{item.slot} joined
+                      </p>
+                    </div>
+                    <Progress
+                      totalQty={item.slot}
+                      currentQty={item.filledSlot}
+                      className='my-0!'
+                    />
+                  </div>
+                </Card>
+              </Link>    
             </SwiperSlide>
           ))}
         </Swiper>

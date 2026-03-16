@@ -76,7 +76,7 @@ const BuyDirectProductInfo = (
             Colors
           </p>
           {/* Color selection (unchanged UI, just wired) */}
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className={`grid grid-cols-2 gap-2 mt-1 ${colorsList.length > 8 ? "h-80" : "h-auto"} overflow-auto`}>
             {
               colorsList.map((color, index) => {
                 const isChecked = formValues.colors.includes(color.value)
@@ -224,21 +224,6 @@ const BuyDirectProductInfo = (
         </>
       )}
 
-      {/* <div className="mt-8! flex gap-3 items-center p-4 rounded-lg w-fit bg-(--bg-muted)">
-        <p className="text-sm">Join Pool</p>
-
-        <Switch
-          checked={buyDirectly}
-          onChange={handleSwitchChange}
-          onColor="#f97316"
-          offColor="#ffedd5"
-          uncheckedIcon={false}
-          checkedIcon={false}
-        />
-
-        <p className="text-sm">Buy Directly</p>
-      </div> */}
-
       <div className="pt-8 my-4">
         <p className="uppercase text-sm font-semibold text-(--text-muted)">
           Direct Order Quantity
@@ -274,80 +259,6 @@ const BuyDirectProductInfo = (
           </Button>
         </div>
       </div>
-
-      {/* {
-        buyDirectly ?
-          <div className="my-4">
-            <p className="uppercase text-sm font-semibold text-(--text-muted)">
-              Direct Order Quantity
-            </p>
-            <div className="flex items-stretch">
-              <Button
-                className="rounded-r-none rounded-l-xl! py-2!"
-                disabled={formValues.directQty === 1}
-                onClick={() =>
-                  setFormValues(p => ({ ...p, directQty: p.directQty - 1 }))
-                }
-                primary
-              >
-                -
-              </Button>
-              <Input
-                element="input"
-                input_type="text"
-                name="quantity"
-                value={formValues.directQty}
-                handler={handleChange}
-                genStyle="my-0!"
-                styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
-              />
-              <Button
-                className="rounded-l-none rounded-r-xl! py-2!"
-                onClick={() =>
-                  setFormValues(p => ({ ...p, directQty: p.directQty + 1 }))
-                }
-                primary
-              >
-                +
-              </Button>
-            </div>
-          </div> :
-          <div className="my-4">
-            <p className="uppercase text-sm font-semibold text-(--text-muted)">
-              Slots
-            </p>
-            <div className="flex items-stretch">
-              <Button
-                className="rounded-r-none rounded-l-xl! py-2!"
-                disabled={formValues.slots === 1}
-                onClick={() =>
-                  setFormValues(p => ({ ...p, slots: p.slots - 1 }))
-                }
-                primary
-              >
-                -
-              </Button>
-              <Input
-                element="input"
-                input_type="text"
-                name="quantity"
-                value={formValues.slots}
-                handler={handleChange}
-                genStyle="my-0!"
-                styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
-              />
-              <Button
-                className="rounded-l-none rounded-r-xl! py-2!"
-                onClick={() =>
-                  setFormValues(p => ({ ...p, slots: p.slots + 1 }))
-                }
-                primary
-              >
-                +
-              </Button>
-            </div>
-          </div>  
-      } */}
     </div>
   )
 }
