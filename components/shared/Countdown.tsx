@@ -62,7 +62,7 @@ export default function Countdown({ endDate, className }: CountdownProps) {
   return (
     <div
       className={cn(
-        `absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full ${(timeLeft.days < 0 && timeLeft.hours < 0) || isEnded ? "bg-red-500/70" : "bg-black/60"} px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xl`,
+        `absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full ${(timeLeft.days < 0 && timeLeft.hours < 0) || isEnded ? "bg-red-500/70" : "bg-(--primary)"} px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xl`,
         className
       )}
     >
