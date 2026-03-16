@@ -1,30 +1,62 @@
 "use client"
 
 import { useGetBales } from "@/api/bale";
+import { useGetCategories, useGetMarkets } from "@/api/product";
 import ProductCard from "@/components/product/ProductCard";
 import { Button, Card, Pagination, Progress } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
+import { CategoryDetails } from "@/types/types";
 import * as Slider from '@radix-ui/react-slider';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
 
+type Filters = {
+  categories: string[]
+  priceRange: { min: number; max: number }
+  supplierRating: number[]
+  markets: string[]
+}
+
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const MAX = 10000
-  const MIN = 0
-  const [minValue, setMinValue] = useState(0)
-  const [maxValue, setMaxValue] = useState(8000)
+  const [filters, setFilters] = useState<Filters>({
+    categories: [],
+    priceRange: { min: 0, max: 10000 },
+    supplierRating: [],
+    markets: []
+  });
 
   const { data: allBales = [], isPending, error } = useGetBales();
+  const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+
+  useEffect(() => {
+    if(categories) console.log(categories)
+  }, [categories]);
 
   if (!allBales || allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;
   }
+
+  // Handler for categories, markets and supplier rating
+  const toggleFilter = (
+    key: "categories" | "supplierRating" | "markets",
+    value: string | number,
+    checked: boolean
+  ) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: checked
+        ? [...prev[key], value]
+        : prev[key].filter((item: any) => item !== value)
+    }))
+  }
+
+  const supplierRatings = [1, 2, 3, 4, 5];
 
   // FILTER before pagination
   const filteredData = allBales.filter((row) => {
@@ -69,22 +101,37 @@ const Products = () => {
                   <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
                 </Accordion.Trigger>
                 <Accordion.Content id="one">
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    Fashion
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    Electronics
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    Machinery
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    Luxury
-                  </div>
+                  {
+                    isCategoriesError ?
+                      <div className="">
+                        No categories found
+                      </div> :
+                      isCategoriesPending ?
+                        <div className="my-6">
+                          <RiLoader5Line size={24} className='animate-spin text-(--primary)' />
+                        </div> :
+                        categories.length == 0 ?
+                          <div className="">
+                            No categories found
+                          </div> : 
+                          categories.map((category: CategoryDetails, index: any) => (
+                            <div className="my-2 flex items-center gap-2" key={index}>
+                              <input
+                                type="checkbox"
+                                value={category.categorySlug!}
+                                onChange={(e) =>
+                                  toggleFilter(
+                                    "categories",
+                                    category.categorySlug!,
+                                    e.target.checked
+                                  )
+                                }
+                                checked={filters.categories.includes(category.categorySlug!)}
+                              />
+                              <span className="truncate">{category.name}</span>
+                            </div>
+                          ))
+                  }
                 </Accordion.Content>
               </Accordion.Item>
               <Accordion.Item id="two">
@@ -98,12 +145,14 @@ const Products = () => {
                 <Accordion.Content id="two">
                   <Slider.Root
                     className="relative flex items-center w-full h-5 my-2"
-                    value={[minValue, maxValue]}
+                    value={[filters.priceRange.min, filters.priceRange.max]}
                     max={10000}
                     step={1}
                     onValueChange={([min, max]) => {
-                      setMinValue(min)
-                      setMaxValue(max)
+                      setFilters(prev => ({
+                        ...prev,
+                        priceRange: { min, max }
+                      }))
                     }}
                   >
                     {/* Track */}
@@ -114,14 +163,14 @@ const Products = () => {
                     {/* Min Thumb */}
                     <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
                       <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {minValue}
+                        {filters.priceRange.min}
                       </span>
                     </Slider.Thumb>
 
                     {/* Max Thumb */}
                     <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
                       <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {maxValue}
+                        {filters.priceRange.max}
                       </span>
                     </Slider.Thumb>
                   </Slider.Root>
@@ -137,26 +186,20 @@ const Products = () => {
                   <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
                 </Accordion.Trigger>
                 <Accordion.Content id="three">
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    1 <RiStarFill />
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    2 <RiStarFill />
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    3 <RiStarFill />
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    4 <RiStarFill />
-                  </div>
-                  <div className="my-2 flex items-center gap-2">
-                    <input type="checkbox" />
-                    5 <RiStarFill />
-                  </div>
+                  {
+                    supplierRatings.map((rating, index) => (
+                      <div className="my-2 flex items-center gap-2" key={index}>
+                        <input
+                          type="checkbox"
+                          onChange={(e) =>
+                            toggleFilter("supplierRating", rating, e.target.checked)
+                          }
+                          checked={filters.supplierRating.includes(rating)}
+                        />
+                        {rating} <RiStarFill />
+                      </div>
+                    ))
+                  }
                 </Accordion.Content>
               </Accordion.Item>
               <Accordion.Item id="four">
@@ -225,7 +268,7 @@ const Products = () => {
                     <RiSignalWifiErrorLine />
                     <p className="text-xl">Products not found</p>
                   </div>:
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-8">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
                     {
                       visibleData.map(bale => (
                         <ProductCard bale={bale} key={bale.id} />

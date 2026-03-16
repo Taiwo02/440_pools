@@ -56,11 +56,14 @@ const OrderCard = ({ order }: Props) => {
                   >
                     Payment Option: {order.paymentOption}
                   </span>
-                  <span
-                    className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                  >
-                    Upfront Percentage: {order.upfrontPercent}%
-                  </span>
+                  {
+                    order.upfrontPercent != null &&
+                    <span
+                      className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
+                    >
+                      Upfront Percentage: {order.upfrontPercent}%
+                    </span>
+                  }
                 </div>
             }
           </div>
