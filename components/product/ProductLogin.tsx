@@ -158,7 +158,11 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
           }
         }
 
-        router.push('/checkout');
+        if(buyDirectly) {
+          router.push('/checkout?direct_order=true');
+        } else {
+          router.push('/checkout')
+        }
       } else {
         toast.success(`Something went wrong`, {
           position: "top-right",

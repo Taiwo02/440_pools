@@ -1,17 +1,18 @@
 "use client"
 
 import { useGetUserProfile } from '@/api/auth'
-import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useGetDeliveries, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
+import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useDirectOrder, useGetDeliveries, useInitiateDirectPayment, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
 import DeliveryForm from '@/components/checkout/DeliveryForm'
+import * as Slider from "@radix-ui/react-slider";
 import MyModal from '@/components/core/modal'
 import { Badge, Button, Input } from '@/components/ui'
+import { useBuy } from '@/hooks/use-buy'
 import { useCart } from '@/hooks/use-cart'
 import { openPaystackPopup } from '@/types/funcs'
 import { BaleSlot, CartItem, DeliveryPayload, Initiate, SizeItem } from '@/types/types'
 import { AxiosError } from 'axios'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 
 import {
@@ -26,34 +27,37 @@ import {
   RiBankCardLine,
   RiCheckLine,
   RiLoader4Line,
-  RiLoader5Line
+  RiLoader5Line,
+  RiCloseLine
 } from 'react-icons/ri'
 import { toast } from 'react-toastify'
-
-interface ProfileData {
-  account_name: string
-  address: string
-  phone: string
-  email: string
-}
-
-// type Merchant = {
-//   id: string;
-//   phone: string;
-//   email: string;
-// };
+import { DirectInitiate, DirectOrderPayload } from '@/types/checkout';
 
 const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [paymentMode, setPaymentMode] = useState("split");
+  const [upfrontPercent, setUpfrontPercent] = useState(50);
 
   const { data: user, isPending: isUserPending, error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
+
+  // Slot Payment
   const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
   const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
-  const { data: deliveries = [], isPending: isDeliveriesLoading } = useGetDeliveries();
+
+  const { mutateAsync: orderDirect, isPending: isDirectPending } = useDirectOrder();
+  const { mutateAsync: orderInitiate, isPending: isDirectInitiatePending } = useInitiateDirectPayment();
+
   const confirmPayment = useConfirmPayment();
+
+  const { data: deliveries = [], isPending: isDeliveriesLoading } = useGetDeliveries();
+  
   const { cart, clearCart } = useCart();
+  const { buyCart, clearBuyCart } = useBuy();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const directOrder = searchParams.get("direct_order");
 
   useEffect(() => {
     if (deliveries.length > 0) {
@@ -93,7 +97,22 @@ const Checkout = () => {
     region: '',
   });
 
-  const cartItems: CartItem[] = cart;
+  let cartItems: CartItem[];
+
+  if (directOrder === "true") {
+    cartItems = buyCart;
+  } else {
+    cartItems = cart;
+  }
+
+  const min = 50;
+  const max = 100;
+  const step = 10;
+
+  const marks = Array.from(
+    { length: (max - min) / step + 1 },
+    (_, i) => min + i * step
+  );
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
@@ -298,10 +317,153 @@ const Checkout = () => {
     }
   }
 
+  const makePayment = async () => {
+    if (!user || !cartItems) return;
+    let deliveryId: number | null = null;
+
+    setIsPaymentOpen(false);
+
+    try {
+      // Use selected address
+      if (deliveries.length > 0) {
+        if (!selectedDelivery?.id) {
+          toast.error("Please select a delivery address");
+          return;
+        }
+
+        deliveryId = selectedDelivery.id;
+      }
+
+      if (deliveries.length === 0) {
+        const deliveryData = {
+          firstName: formData.firstName,
+          LastName: formData.LastName,
+          countryCode: formData.countryCode,
+          phone: formData.phone,
+          additionalCountryCode: formData.additionalCountryCode,
+          additionalPhone: formData.additionalPhone,
+          address: formData.address,
+          additionalInfo: formData.additionalInfo,
+          region: formData.region,
+          city: formData.city,
+          state: formData.state,
+          setDefault: true,
+          merchantId: user.id
+        }
+
+        const res = await postDelivery(deliveryData);
+        if (res.status !== 200 && res.status !== 201) {
+          toast.error("Failed to create delivery address");
+          return;
+        }
+
+        deliveryId = res.data.data.id;
+      }
+
+      if (!deliveryId) {
+        toast.error("No delivery address available");
+        return;
+      }
+
+      const payloadItems: any =
+        cartItems[0].items.length > 0
+          ? cartItems[0].items.map((item: any) => ({
+            productId: cartItems[0].productId,
+            colorId: item.color?.id ? Number(item.color.id) : null,
+            sizeId: item.size?.id ? Number(item.size.id) : null,
+            quantity: Number(item.quantity),
+          }))
+          : [
+            {
+              productId: cartItems[0].productId,
+              colorId: null,
+              sizeId: null,
+              quantity: Number(cartItems[0].quantity),
+            },
+          ];
+
+      const directOrderPay: DirectOrderPayload = {
+        items: payloadItems,
+        paymentOption: upfrontPercent < 100 ? "split" : "full",
+        upfrontPercent: upfrontPercent,
+        deliveryAddressId: deliveryId,
+      };
+
+      const directRes = await orderDirect(directOrderPay);
+
+      if (directRes.status === 200 || directRes.status === 201) {
+        console.log(directRes.data);
+        const orderId = directRes.data.data.order.id;
+
+        const initiatePayload: DirectInitiate = {
+          type: "full-remaining",
+          id: orderId
+        }
+
+        const initiateDirect = await orderInitiate(initiatePayload);
+
+        if (initiateDirect.status === 200 || initiateDirect.status === 201) {
+          console.log(initiateDirect.data)
+          const accessCode = initiateDirect?.data?.data?.accessCode;
+
+          await openPaystackPopup(
+            accessCode,
+            async ({ reference }) => {
+              await confirmPayment.mutateAsync(reference);
+              toast.success("Payment successful");
+              clearBuyCart();
+              router.push('/account');
+            },
+            () => {
+              toast.error("Payment cancelled");
+            }
+          );
+        } else {
+          toast.error(`Failed to initiate payment`, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+      } else {
+        toast.error(`Failed to initiate order`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(
+        err.response?.data?.message ??
+        err.message ??
+        "Something went wrong, please try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }
+
   const isPlacingOrder =
     isDeliveryLoading ||
     isSlotPending ||
     isInitiatePending ||
+    confirmPayment.isPending;
+
+  const isPlacingDirectOrder = 
+    isDirectPending ||
+    isDirectInitiatePending ||
     confirmPayment.isPending;
 
   return (
@@ -678,11 +840,11 @@ const Checkout = () => {
 
                   <Button
                     primary
-                    onClick={placeOrder}
-                    isLoading={isPlacingOrder}
+                    onClick={directOrder === "true" ? () => setIsPaymentOpen(true) : placeOrder}
+                    isLoading={directOrder ? isPlacingDirectOrder : isPlacingOrder}
                     className="w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isPlacingOrder ? "Placing Order..." : "Place Order"}
+                    {isPlacingOrder || isPlacingDirectOrder ? "Placing Order..." : "Place Order"}
                   </Button>
 
                   <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">
@@ -709,8 +871,76 @@ const Checkout = () => {
       {
         isModalOpen &&
         <MyModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}>
-            <DeliveryForm setIsModalOpen={setIsModalOpen} />
+          <DeliveryForm setIsModalOpen={setIsModalOpen} />
         </MyModal>
+      }
+
+      {
+        isPaymentOpen &&
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-(--bg-surface) rounded-xl p-6 w-[90%] max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                Continue with your purchase
+              </h3>
+              <button
+                className="text-sm text-gray-500 cursor-pointer"
+                onClick={() => setIsPaymentOpen(false)}
+              >
+                <RiCloseLine size={24} />
+              </button>
+            </div>
+            <p className="mt-2 text-sm">
+              If you want, you can choose to pay part of the money instead of the full payment
+            </p>
+
+            <div className="w-full max-w-md mt-4 mb-8">
+              <Slider.Root
+                className="relative flex items-center w-full"
+                min={min}
+                max={max}
+                step={step}
+                value={[upfrontPercent]}
+                onValueChange={(v) => setUpfrontPercent(v[0])}
+              >
+                <Slider.Track className="bg-gray-200 relative grow rounded-full h-2">
+                  <Slider.Range className="absolute bg-(--primary) h-full rounded-full" />
+                </Slider.Track>
+
+                <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full" />
+              </Slider.Root>
+
+              {/* Marker labels */}
+              <div className="relative w-[95%] left-[2.5%] mt-1">
+                {marks.map((mark) => {
+                  const percent = ((mark - min) / (max - min)) * 100;
+
+                  return (
+                    <span
+                      key={mark}
+                      style={{
+                        position: "absolute",
+                        left: `${percent}%`,
+                        transform: "translateX(-50%)",
+                      }}
+                      className="text-[10px] text-(--text-muted)"
+                    >
+                      {mark}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Button
+              primary
+              className="flex-1 uppercase ml-auto"
+              onClick={makePayment}
+            >
+              Make payment
+            </Button>
+          </div>
+        </div>
       }
     </>
     

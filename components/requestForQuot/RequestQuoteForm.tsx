@@ -195,7 +195,7 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
                   </span>
                   {idx < 2 && (
                     <div
-                      className={`hidden sm:block w-12 h-[2px] ${
+                      className={`hidden sm:block w-12 h-0.5 ${
                         step > n ? "bg-(--primary)" : "bg-gray-300"
                       }`}
                     />
@@ -239,7 +239,7 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
                         onChange={(e) =>
                           setCurrentProduct((p) => ({ ...p, description: e.target.value }))
                         }
-                        className="w-full p-3 border border-gray-300 rounded-lg text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent"
+                        className="w-full p-3 border border-gray-300 rounded-lg text-sm min-h-25 resize-none focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent"
                       />
                     </div>
                     <div>
