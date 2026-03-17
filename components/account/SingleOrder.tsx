@@ -187,6 +187,11 @@ const SingleOrder = ({ orderId }: Props) => {
           </span>
         </div>
       </div>
+
+      {/* Pay Remainder */}
+      {
+        
+      }
     </div>
   )
 }

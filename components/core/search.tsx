@@ -13,7 +13,7 @@ const SearchForm = ({category, setCategory, productCategories, searchTerm, setSe
     "
   >
     {/* Category dropdown – hidden on mobile */}
-    <div className="hidden lg:block">
+    {/* <div className="hidden lg:block">
       <Dropdown
         value={category}
         onChange={value => setCategory(value)}
@@ -21,7 +21,7 @@ const SearchForm = ({category, setCategory, productCategories, searchTerm, setSe
         className="p-3! rounded-l-full!"
         dropClass="w-50!"
       />
-    </div>
+    </div> */}
 
     {/* Search input */}
     <input
