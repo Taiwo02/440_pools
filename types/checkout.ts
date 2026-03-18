@@ -209,3 +209,13 @@ export type DirectInitiate = {
   type: "full-remaining",
   id?: number
 }
+
+export type InitiatePayment = {
+  flowType: "BALE" | "DIRECT",
+  action: "LOCK" | "HALF" | "FULL" | "UPFRONT" | "REMAINDER" | "INSTALLMENT_ENTRY",
+  paymentType?: "WALLET" | "CARD",
+  pin?: string | null, // required when paymentType is "WALLET"
+  checkoutId?: number, //required when "BALE" && ["LOCK", "HALF", "FULL"]
+  returnUrl?: "https://shop.4401.live/verify",
+  orderId?: number //required when action is ["UPFRONT", "REMAINDER", "INSTALLMENT_ENTRY"]
+}

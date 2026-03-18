@@ -448,7 +448,7 @@ const ProductDetails = () => {
             
             {/* LEFT */}
             <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
+              <div className="bg-(--bg-surface) p-6 rounded-xl md:mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
@@ -512,8 +512,8 @@ const ProductDetails = () => {
 
             {/* RIGHT */}
             <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20 border border-(--border-default)">
-            <div>
-                  <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
+              <div>
+                  <h1 className="text-lg md:text-2xl font-bold">{baleData.product.name}</h1>
                   <div className="my-4">
                     <div className="flex flex-wrap items-end gap-2">
                       <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
@@ -557,18 +557,20 @@ const ProductDetails = () => {
                     )}
 
                     <div className="flex flex-col h-full gap-3 overflow-y-auto mb-3">
-                      <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                        Sizes
-                      </p>
                       {
                         hasSizes && (
-                          <div className="flex flex-wrap gap-2">
-                            {
-                              sizesList.map(size => (
-                                <span key={size.id} className="px-2 py-1 rounded bg-(--primary-soft) cursor-pointer">{size.label}</span>
-                              ))
-                            }
-                          </div>
+                          <>
+                            <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                              Sizes
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {
+                                sizesList.map(size => (
+                                  <span key={size.id} className="px-2 py-1 rounded bg-(--primary-soft) cursor-pointer">{size.label}</span>
+                                ))
+                              }
+                            </div>
+                          </>
                         )
                       }
                     </div>
