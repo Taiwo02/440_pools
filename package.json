@@ -2,9 +2,12 @@
   "name": "440_client",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node -e \"try{require('fs').unlinkSync('.next/dev/lock')}catch(e){}\" && next dev",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },

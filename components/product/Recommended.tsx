@@ -1,6 +1,7 @@
 "use client"
 
 import { Button, Card, Progress } from '../ui'
+import ProductThumbPlaceholder from './ProductThumbPlaceholder'
 import Link from 'next/link'
 import { Bale } from '@/types/types'
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri'
@@ -37,14 +38,15 @@ const Recommended = ({ products }: Props) => {
             <SwiperSlide key={item.id}>
               <Link href={`/products/${item.id}`}>
                 <Card
-                  className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
+                  className="border rounded-t-2xl rounded-b-lg shadow-none! hover:shadow-sm transition p-0!"
                 >
-                  <img
-                    src={item.product.images[0]}
-                    alt={item.product.name}
-                    className="w-full h-34 mb-2 rounded-t-lg object-cover"
+                  <ProductThumbPlaceholder
+                    images={item.product.images}
+                    productName={item.product.name}
+                    className="w-full h-28 md:h-44 rounded-t-2xl"
+                    previewMaxChars={40}
                   />
-                  <div className="px-2 pb-2">
+                  <div className="p-2">
                     <p className="text-sm font-medium truncate">{item.product.name}</p>
                     <p className="text-orange-600 font-semibold text-sm">
                       &#8358;{item.price.toFixed(2)}
