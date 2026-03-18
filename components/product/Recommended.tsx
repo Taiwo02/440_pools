@@ -1,6 +1,7 @@
 "use client"
 
 import { Button, Card, Progress } from '../ui'
+import ProductThumbPlaceholder from './ProductThumbPlaceholder'
 import Link from 'next/link'
 import { Bale } from '@/types/types'
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri'
@@ -38,11 +39,14 @@ const Recommended = ({ products }: Props) => {
               <Card
                 className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
               >
-                <img
-                  src={item.product.images[0]}
-                  alt={item.product.name}
-                  className="w-full h-34 mb-2 rounded-t-lg object-cover"
-                />
+                <div className="mb-2 h-34">
+                  <ProductThumbPlaceholder
+                    images={item.product.images}
+                    productName={item.product.name}
+                    className="h-full w-full rounded-t-lg"
+                    previewMaxChars={36}
+                  />
+                </div>
                 <div className="px-2 pb-2">
                   <p className="text-sm font-medium truncate">{item.product.name}</p>
                   <p className="text-orange-600 font-semibold text-sm">

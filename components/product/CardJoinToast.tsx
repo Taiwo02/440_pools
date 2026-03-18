@@ -1,43 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RiUserFill } from "react-icons/ri";
+import { RiUserFill, RiHeartFill } from "react-icons/ri";
 
-const MOCK_JOINS = [
-  { name: "Ada", slots: 2 },
-  { name: "Tunde", slots: 1 },
-  { name: "Amaka", slots: 3 },
-  { name: "Chidi", slots: 2 },
-  { name: "Zainab", slots: 1 },
-  { name: "Emeka", slots: 4 },
-  { name: "Ngozi", slots: 2 },
-  { name: "Ibrahim", slots: 1 },
+const MOCK_LIKES = [
+  { name: "Ada" },
+  { name: "Tunde" },
+  { name: "Amaka" },
+  { name: "Chidi" },
+  { name: "Zainab" },
+  { name: "Emeka" },
+  { name: "Ngozi" },
+  { name: "Ibrahim" },
 ];
 
 const SHOW_MS = 3500;
-const ANIM_MS = 750;       // slower fade out / fade in
-const EXIT_UP_PX = 20;     // exiting: scroll up (negative Y) toward top
-const ENTER_FROM_BELOW_PX = 24;  // entering: start below final position, then scroll up into place
+const ANIM_MS = 750;
+const EXIT_UP_PX = 20;
+const ENTER_FROM_BELOW_PX = 24;
+const CYCLE_MS = SHOW_MS + ANIM_MS * 2;
 
 type Phase = "visible" | "exiting" | "entering";
 
-export default function CardJoinToast() {
+type Props = {
+  /** Stable id (e.g. bale.id) so only some cards show toast and timing is staggered */
+  cardId: number;
+};
+
+export default function CardJoinToast({ cardId }: Props) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("visible");
   const [enterShown, setEnterShown] = useState(false);
+  const [started, setStarted] = useState(false);
+
+  // Only show on ~1/3 of cards (deterministic by cardId)
+  const showToast = cardId % 3 === 0;
+  const startDelay = (cardId * 600) % CYCLE_MS;
+
+  // Stagger: start the cycle after a delay so not all cards animate at once
+  useEffect(() => {
+    if (!showToast) return;
+    const t = setTimeout(() => {
+      setStarted(true);
+    }, startDelay);
+    return () => clearTimeout(t);
+  }, [showToast, startDelay]);
 
   // Cycle: visible → exiting → (swap message) → entering → visible
   useEffect(() => {
+    if (!showToast || !started) return;
     const interval = setInterval(() => {
       setPhase("exiting");
-    }, SHOW_MS + ANIM_MS * 2);
+    }, CYCLE_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [showToast, started]);
 
   useEffect(() => {
     if (phase !== "exiting") return;
     const t = setTimeout(() => {
-      setIndex((i) => (i + 1) % MOCK_JOINS.length);
+      setIndex((i) => (i + 1) % MOCK_LIKES.length);
       setEnterShown(false);
       setPhase("entering");
     }, ANIM_MS);
@@ -60,8 +81,7 @@ export default function CardJoinToast() {
     return () => clearTimeout(t);
   }, [phase, enterShown]);
 
-  const { name, slots } = MOCK_JOINS[index];
-  const slotText = slots === 1 ? "1 slot" : `${slots} slots`;
+  const { name } = MOCK_LIKES[index];
 
   const isExiting = phase === "exiting";
   const isEntering = phase === "entering";
@@ -71,6 +91,8 @@ export default function CardJoinToast() {
   // then transition runs when we animate up to final position (avoids animating from exit -20px)
   const isEnterInitial = isEnteringFromBottom;
   const useTransition = !isEnterInitial;
+
+  if (!showToast) return null;
 
   return (
     <div
@@ -91,10 +113,10 @@ export default function CardJoinToast() {
         <div className="w-5 h-5 shrink-0 rounded-full bg-(--primary-soft) flex items-center justify-center text-(--primary)">
           <RiUserFill size={10} />
         </div>
-        <p className="text-[10px] leading-tight text-white/95 truncate">
+        <p className="text-[10px] leading-tight text-white/95 truncate flex items-center gap-1">
           <span className="text-amber-400 font-medium">{name}</span>
-          <span className="text-white/80"> · </span>
-          <span className="text-(--primary) font-semibold">{slotText}</span>
+          <span className="text-white/80"> liked</span>
+          <RiHeartFill className="shrink-0 text-red-400/90" size={10} />
         </p>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useGetBales } from "@/api/bale";
 import Link from "next/link";
 import { RiLoader5Line } from "react-icons/ri";
 import UserBubbles from "./UserBubble";
+import ProductThumbPlaceholder from "./ProductThumbPlaceholder";
 
 type Props = {
   dailyDeals: {
@@ -44,15 +45,24 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
                 className="block cursor-pointer"
               >
                 <div className="flex gap-3 border border-(--border-default) rounded-lg p-2">
-                  <img
-                    src={item.product.images[0]}
-                    alt={item.product.name}
-                    className="w-20 shrink-0 aspect-square object-contain rounded"
-                  />
+                  <div className="w-20 shrink-0">
+                    <ProductThumbPlaceholder
+                      images={item.product.images}
+                      productName={item.product.name}
+                      className="w-20 aspect-square rounded object-cover bg-gray-100"
+                      previewMaxChars={24}
+                    />
+                  </div>
                   <div className="flex-1 min-w-0 overflow-hidden">
-                    <p className="text-sm font-medium truncate">{item.product.name}</p>
-                    <StarRating rating={(item.product as { rating?: number }).rating ?? 4} size={12} className="mt-0.5" />
-                    <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium truncate">
+                      {item.product.name}
+                    </p>
+                    <StarRating
+                      rating={(item.product as { rating?: number }).rating ?? 4}
+                      size={12}
+                      className="mt-0.5"
+                    />
+                    <div className="flex items-center gap-2 mt-1">
                       <span className="text-orange-600 font-semibold">
                         &#8358;{item.price.toFixed(2)}
                       </span>
@@ -100,13 +110,14 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
                   <Card
                     className="border rounded-lg shadow-none! hover:shadow-sm transition p-0!"
                   >
-                    <div className="relative">
-                      <img
-                        src={item.product.images[0]}
-                        alt={item.product.name}
-                        className="w-full h-34 mb-2 rounded-t-lg object-cover"
+                    <div className="relative mb-2 h-34">
+                      <ProductThumbPlaceholder
+                        images={item.product.images}
+                        productName={item.product.name}
+                        className="h-full w-full rounded-t-lg"
+                        previewMaxChars={36}
                       />
-                      <span className="absolute top-2 left-2 bg-(--primary) text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                      <span className="pointer-events-none absolute top-2 left-2 z-10 bg-(--primary) text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                         TRENDING
                       </span>
                     </div>

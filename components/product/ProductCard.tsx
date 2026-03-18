@@ -2,7 +2,7 @@ import { Bale } from '@/types/types'
 import React from 'react'
 import { Card, StarRating } from '../ui'
 import Link from 'next/link'
-import Image from 'next/image'
+import ProductThumbPlaceholder from './ProductThumbPlaceholder'
 import { RiBuilding2Line } from 'react-icons/ri'
 import UserBubbles from './UserBubble'
 import Countdown from '../shared/Countdown'
@@ -23,13 +23,11 @@ const ProductCard = ({ bale }: Props) => {
       <Card className="p-0!">
         {/* 1. Image first - Save % top-left, Countdown top-right */}
         <div className="relative">
-          <Image
-            src={bale.product.images[0]}
-            alt=""
-            width={0}
-            height={0}
-            className="w-full h-28 md:h-44 rounded-t-2xl object-cover"
-            unoptimized
+          <ProductThumbPlaceholder
+            images={bale.product.images}
+            productName={bale.product.name}
+            className="w-full h-28 md:h-44 rounded-t-2xl"
+            previewMaxChars={40}
           />
           {hasDiscount && (
             <span className="absolute top-2 left-2 z-10 inline-flex items-center rounded px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-medium">
@@ -37,7 +35,7 @@ const ProductCard = ({ bale }: Props) => {
             </span>
           )}
           <Countdown endDate={bale.endIn} className="!left-auto right-2 top-2" />
-          <CardJoinToast />
+          <CardJoinToast cardId={bale.id} />
         </div>
 
         <div className="p-2 md:p-3">
