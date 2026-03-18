@@ -49,7 +49,7 @@ export default function ProductThumbPlaceholder({
         )}
       >
         <p
-          className="text-[11px] leading-snug text-gray-600 line-clamp-3 px-2 font-medium break-words hyphens-auto"
+          className="text-[11px] leading-snug text-gray-600 line-clamp-3 px-2 font-medium wrap-break-word hyphens-auto"
           title={productName}
         >
           {preview}
