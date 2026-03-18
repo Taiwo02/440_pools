@@ -53,7 +53,7 @@ export default function Toast({ show, type = "success", message, onClose }: Toas
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -30 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className="fixed top-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 z-[9999]"
+          className="fixed top-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 z-9999"
         >
           <div
             className="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg border-l-4 bg-white text-gray-800 min-w-0 max-w-md mx-auto"

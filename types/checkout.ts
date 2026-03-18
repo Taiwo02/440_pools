@@ -139,12 +139,14 @@ export type OrderStatus = "CREATED" | "LOCKED" | "AWAITING_BALANCE" | "PARTIALLY
 export type OrderList = {
   id: number,
   checkoutId: number,
-  baleId: number,
+  baleId: number | null,
   shipmentId: string | null,
   status: OrderStatus,
   lockPaymentId: number | null,
   totalAmount: number | null,
   amountPaid: number | null,
+  paymentOption: "split" | "full",
+  upfrontPercent: number,
   createdAt: string,
   updatedAt: string,
   deletedAt: string | null,
@@ -160,9 +162,50 @@ export type OrderList = {
       name: string,
       images: string[]
     }
-  },
+  } | null,
+  products?: {
+    id: number,
+    name: string,
+    images: string[],
+    price: number,
+    oldPrice: number,
+    quantity: number,
+    unitPrice: number,
+    totalPrice: number,
+    color: {
+      id: number,
+      color: string,
+      otherColor: string | null,
+      hex_code: string | null,
+      images: string[]
+    } | null,
+    size: {
+      id: number,
+      label: string,
+      formart: string,
+      type: string | null
+    } | null
+  }[],
+  checkoutType: "DIRECT" | "BALE",
   slotCount: number | null,
   itemsPerSlot: number,
   totalItemsInOrder: number | null,
   remaining: number | null
+}
+
+export type DirectOrderPayload = {
+  items: {
+    productId: number,
+    colorId: number | null,
+    sizeId: number | null,
+    quantity: number
+  },
+  paymentOption: "split" | "full",
+  upfrontPercent: number,
+  deliveryAddressId: number
+}
+
+export type DirectInitiate = {
+  type: "full-remaining",
+  id?: number
 }

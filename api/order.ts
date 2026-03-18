@@ -1,5 +1,5 @@
 import http from "@/lib/http";
-import { CheckoutPayload } from "@/types/checkout";
+import { CheckoutPayload, DirectInitiate, DirectOrderPayload } from "@/types/checkout";
 import { BaleSlot, DeliveryPayload, Initiate } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -30,6 +30,7 @@ export const useOrderMutation = () => {
   });
 };
 
+// Slot payment endpoints
 // Create Bale slot
 export const useCreateBaleSlot = () => {
   return useMutation({
@@ -58,6 +59,7 @@ export const useConfirmPayment = () => {
     }
   });
 };
+// End of slot payment endpoints
 
 // Orders
 export const useGetAllOrders = () => {
@@ -78,5 +80,23 @@ export const useGetSingleOrder = (id: number) => {
       return res?.data?.data;
     },
     enabled: !!id
+  });
+};
+// End of orders
+
+// Direct Order Endpoints
+export const useDirectOrder = () => {
+  return useMutation({
+    mutationFn: (body: DirectOrderPayload) => {
+      return http.post('/buyer/direct-order', body);
+    }
+  });
+}
+
+export const useInitiateDirectPayment = () => {
+  return useMutation({
+    mutationFn: ({ type, id }: DirectInitiate) => {
+      return http.post(`/buyer/direct-order/${id}/initiate-payment`, {type});
+    },
   });
 };

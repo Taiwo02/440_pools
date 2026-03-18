@@ -485,3 +485,15 @@ type ColorAllocation = {
 
 
 export type AllocationState = Record<number, ColorAllocation>
+
+// Categories
+export type CategoryDetails = {
+  id: number,
+  name: string,
+  categorySlug: string | null,
+  priority: number | string,
+  image: string,
+  description: string,
+  createdAt: string,
+  updatedAt: string
+}

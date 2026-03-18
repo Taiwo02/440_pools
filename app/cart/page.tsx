@@ -171,7 +171,7 @@ const Cart = () => {
       setIsCheckoutLoading(true);
 
       setTimeout(() => {
-        router.push('/checkout');
+        router.push('/checkout?direct_order=true');
       }, 1000)
     }
   };

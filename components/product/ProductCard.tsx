@@ -20,7 +20,7 @@ const ProductCard = ({ bale }: Props) => {
 
   return (
     <Link href={`/products/${bale.id}`} className="block cursor-pointer">
-      <Card className="p-0!">
+      <Card className="p-0! rounded-lg">
         {/* 1. Image first - Save % top-left, Countdown top-right */}
         <div className="relative">
           <ProductThumbPlaceholder
@@ -44,14 +44,14 @@ const ProductCard = ({ bale }: Props) => {
           <StarRating rating={(bale.product as { rating?: number }).rating ?? 4} size={12} className="mt-0.5" />
 
           {/* 3. Market name */}
-          <p className="flex items-center gap-1 text-xs text-(--text-muted) mt-0.5">
+          <p className="flex items-center gap-1 text-xs text-(--text-muted) mt-2">
             <RiBuilding2Line className="shrink-0" size={14} />
             <span>{marketName}</span>
           </p>
 
           {/* 4. Progress - left: filledSlot/slot Units, right: avatar icons (3 + +N) */}
-          <div className="mt-2">
-            <div className="flex justify-between items-center mb-1">
+          <div className="mt-1">
+            <div className="flex justify-between items-center">
               <p className="font-bold text-(--primary) text-xs md:text-sm">
                 {bale.filledSlot}/{bale.slot} Units
               </p>
@@ -75,7 +75,7 @@ const ProductCard = ({ bale }: Props) => {
                 </span>
               )}
             </div>
-            <div className="flex items-end justify-between gap-2 mt-0.5">
+            <div className="flex items-end justify-between gap-2 mt-2">
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <p className="text-(--text) font-bold text-sm md:text-base">
                   &#8358;{bale.price}

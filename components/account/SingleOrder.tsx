@@ -11,7 +11,7 @@ type Props = {
 }
 
 const SingleOrder = ({ orderId }: Props) => {
-  const { data: order, isLoading } = useGetSingleOrder(orderId)
+  const { data: order, isLoading } = useGetSingleOrder(orderId);
 
   const groupOrderItems = (items: any[]) => {
     const grouped: Record<string, any> = {}
@@ -187,6 +187,11 @@ const SingleOrder = ({ orderId }: Props) => {
           </span>
         </div>
       </div>
+
+      {/* Pay Remainder */}
+      {
+        
+      }
     </div>
   )
 }

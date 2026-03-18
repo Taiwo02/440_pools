@@ -68,7 +68,7 @@ export default function SummaryStep({
                 </button>
               </div>
 
-              <div className="flex-shrink-0 flex gap-2">
+              <div className="shrink-0 flex gap-2">
                 {p.previeImages[0] ? (
                   <img
                     src={p.previeImages[0]}
