@@ -9,6 +9,7 @@ import { CategoryDetails } from "@/types/types";
 import * as Slider from '@radix-ui/react-slider';
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
 
@@ -33,10 +34,10 @@ const Products = () => {
 
   const { data: allBales = [], isPending, error } = useGetBales();
   const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    if(categories) console.log(categories)
-  }, [categories]);
+  // Product parameters
+  const endsToday = searchParams.get('daily_deals');
 
   if (!allBales || allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;

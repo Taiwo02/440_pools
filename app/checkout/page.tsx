@@ -31,12 +31,11 @@ import {
   RiCloseLine
 } from 'react-icons/ri'
 import { toast } from 'react-toastify'
-import { DirectInitiate, DirectOrderPayload } from '@/types/checkout';
+import { DirectInitiate, DirectOrderPayload, InitiatePayment } from '@/types/checkout';
 
 const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [paymentMode, setPaymentMode] = useState("split");
   const [upfrontPercent, setUpfrontPercent] = useState(50);
 
   const { data: user, isPending: isUserPending, error } = useGetUserProfile();
@@ -47,7 +46,6 @@ const Checkout = () => {
   const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
 
   const { mutateAsync: orderDirect, isPending: isDirectPending } = useDirectOrder();
-  const { mutateAsync: orderInitiate, isPending: isDirectInitiatePending } = useInitiateDirectPayment();
 
   const confirmPayment = useConfirmPayment();
 
@@ -116,8 +114,7 @@ const Checkout = () => {
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
-      const quantity = item.slots;
-      return sum + (item.price * quantity * item.quantity);
+      return sum + (item.price * item.quantity);
     }, 0);
   };
 
@@ -130,6 +127,7 @@ const Checkout = () => {
   };
 
   const subtotal = calculateTotal();
+  const upfrontAmount = Math.round((upfrontPercent / 100) * subtotal);
 
   const shipping = () =>
     cartItems.reduce((sum, item) => sum + item.totalShippingFee, 0);
@@ -257,9 +255,10 @@ const Checkout = () => {
         console.log(createRes.data)
         const checkoutId = createRes?.data?.data?.id;
 
-        const initiateData: Initiate = {
+        const initiateData: InitiatePayment = {
           checkoutId,
-          type: "lock"
+          flowType: "BALE",
+          action: "LOCK"
         }
 
         const initiateRes = await initiatePayment(initiateData);
@@ -393,18 +392,19 @@ const Checkout = () => {
 
       if (directRes.status === 200 || directRes.status === 201) {
         console.log(directRes.data);
-        const orderId = directRes.data.data.order.id;
+        const orderId = directRes.data.data.orders[0].id;
 
-        const initiatePayload: DirectInitiate = {
-          type: "full-remaining",
-          id: orderId
+        const initiatePayload: InitiatePayment = {
+          flowType: "DIRECT",
+          action: "UPFRONT",
+          orderId
         }
 
-        const initiateDirect = await orderInitiate(initiatePayload);
+        const initiateRes = await initiatePayment(initiatePayload);
 
-        if (initiateDirect.status === 200 || initiateDirect.status === 201) {
-          console.log(initiateDirect.data)
-          const accessCode = initiateDirect?.data?.data?.accessCode;
+        if (initiateRes.status === 200 || initiateRes.status === 201) {
+          console.log(initiateRes.data)
+          const accessCode = initiateRes?.data?.data?.accessCode;
 
           await openPaystackPopup(
             accessCode,
@@ -462,8 +462,9 @@ const Checkout = () => {
     confirmPayment.isPending;
 
   const isPlacingDirectOrder = 
+    isDeliveryLoading ||
     isDirectPending ||
-    isDirectInitiatePending ||
+    isInitiatePending ||
     confirmPayment.isPending;
 
   return (
@@ -891,7 +892,7 @@ const Checkout = () => {
               </button>
             </div>
             <p className="mt-2 text-sm">
-              If you want, you can choose to pay part of the money instead of the full payment
+                You can pay <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> and pay the remaining within the next 2 months
             </p>
 
             <div className="w-full max-w-md mt-4 mb-8">
