@@ -1,5 +1,5 @@
 import http from "@/lib/http";
-import { CheckoutPayload, DirectInitiate, DirectOrderPayload } from "@/types/checkout";
+import { CheckoutPayload, DirectInitiate, DirectOrderPayload, InitiatePayment } from "@/types/checkout";
 import { BaleSlot, DeliveryPayload, Initiate } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -42,7 +42,7 @@ export const useCreateBaleSlot = () => {
 
 export const useInitiateSlotPayment = () => {
   return useMutation({
-    mutationFn: (body: Initiate) => {
+    mutationFn: (body: InitiatePayment) => {
       return http.post(`/buyer/initiate-payment`, body);
     },
   });

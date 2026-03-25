@@ -9,7 +9,8 @@ import { CategoryDetails } from "@/types/types";
 import * as Slider from '@radix-ui/react-slider';
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
 
 type Filters = {
@@ -19,7 +20,7 @@ type Filters = {
   markets: string[]
 }
 
-const Products = () => {
+const ProductsContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,10 +34,10 @@ const Products = () => {
 
   const { data: allBales = [], isPending, error } = useGetBales();
   const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    if(categories) console.log(categories)
-  }, [categories]);
+  // Product parameters
+  const endsToday = searchParams.get('daily_deals');
 
   if (!allBales || allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;
@@ -295,4 +296,16 @@ const Products = () => {
   )
 }
 
-export default Products
+const ProductsPageFallback = () => (
+  <div className="flex justify-center items-center w-full min-h-[50vh] pt-24">
+    <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+  </div>
+);
+
+export default function Products() {
+  return (
+    <Suspense fallback={<ProductsPageFallback />}>
+      <ProductsContent />
+    </Suspense>
+  );
+}

@@ -34,7 +34,7 @@ const ProductCard = ({ bale }: Props) => {
               Save {savePercent}%
             </span>
           )}
-          <Countdown endDate={bale.endIn} className="!left-auto right-2 top-2" />
+          <Countdown endDate={bale.endIn} className="left-auto! right-2 top-2" />
           <CardJoinToast cardId={bale.id} />
         </div>
 
