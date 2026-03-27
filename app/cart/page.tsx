@@ -208,7 +208,7 @@ const Cart = () => {
           </div>  
           <div className="flex flex-col lg:flex-row gap-4 my-4">
             <div className="w-full lg:flex-1 flex flex-col gap-4">
-              <div className="rounded-xl bg-(--bg-surface) mb-4 p-4">
+              <div className="mb-4">
                 {
                   cartItems.length < 1 ?
                   <div className="flex flex-col gap-2 justify-center items-center py-20">
@@ -232,13 +232,13 @@ const Cart = () => {
                       }
 
                       return (
-                        <Card key={item.cartItemId} className='py-2! px-3! mb-3 shadow-none! rounded-none! border-b border-x-0 border-t-0'>
-                          <div className="flex flex-col md:flex-row justify-between gap-4">
-                            <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-lg overflow-hidden bg-gray-100">
+                        <Card key={item.cartItemId} className='p-4! shadow-none! mb-3 border-b border-x-0 border-t-0'>
+                          <div className="flex justify-between gap-4">
+                            <div className="relative w-24 sm:w-24 sm:h-24 rounded-lg overflow-hidden">
                               <img
                                 src={item.image}
                                 alt={item.name}
-                                className='object-cover'
+                                className='object-cover w-full aspect-square rounded-lg'
                               />
                               {!item.inStock && (
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -248,37 +248,20 @@ const Cart = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="flex flex-1 justify-between gap-1">
+                            <div className="flex flex-col md:flex-row flex-1 justify-between gap-1">
                               <div>
                                 <p className='text-sm md:text-lg line-clamp-2'>
                                   {item.name}
                                 </p>
-                                {/* <div className="grid grid-cols-1 gap-2 mt-2 mb-1">
-                                  <div className="flex flex-wrap gap-2">
-                                    {Object.entries(item.variants).map(([key, value]) => (
-                                      <span 
-                                        key={key} 
-                                        className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                                      >
-                                        {key}: {Array.isArray(value) ? value.join(", ") : value}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  { minOrder > 1 && (
-                                    <p className="text-xs text-left text-gray-500 mt-1">
-                                      Min. order: {minOrder} {item.unit}s
-                                    </p>
-                                  )}
-                                </div> */}
                                 <span
                                   className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
                                 >
                                   Quantity: { item.slots * item.quantity }
                                 </span>
                               </div>
-                              <div className='text-end'>
+                              <div className='md:text-end'>
                                 <p className="text-xl font-bold">₦ {item.price.toLocaleString()}</p>
-                                <div className="flex shrink-0 items-center gap-2 justify-end mb-1">
+                                <div className="flex shrink-0 items-center gap-2 md:justify-end mb-1">
                                   <p className="text-sm text-gray-400 line-through">
                                     ₦{item.originalPrice.toLocaleString()}
                                   </p>
@@ -296,7 +279,7 @@ const Cart = () => {
                                 Remove
                               </button>
                             </div>
-                            <div className="flex items-stretch">
+                            {/* <div className="flex items-stretch">
                               <Button
                                 className="rounded-r-none rounded-l-xl! py-2! px-4!"
                                 disabled={slots <= 0 || loadingItems[item.cartItemId]}
@@ -337,7 +320,7 @@ const Cart = () => {
                               >
                                 +
                               </Button>
-                            </div>
+                            </div> */}
                           </div>
                         </Card>
                       )

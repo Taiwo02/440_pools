@@ -57,6 +57,9 @@ const OrderHistory = () => {
   const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
+  const pooledOrders = ordersList.filter((order: OrderList) => order.checkoutType == "BALE");
+  const directOrders = ordersList.filter((order: OrderList) => order.checkoutType == "DIRECT");
+
   return (
     <div className="space-y-6">
 
@@ -64,7 +67,7 @@ const OrderHistory = () => {
       <div className="bg-(--bg-page) p-4 rounded-2xl">
         <h3 className="text-xl font-semibold mb-4">Order History</h3>
 
-        <div className="flex flex-col md:flex-row gap-4 items-end">
+        <div className="flex flex-col md:flex-row gap-4 md:items-end">
           <div>
             <p className="text-sm font-medium mb-1">Status</p>
             <Dropdown
@@ -76,34 +79,36 @@ const OrderHistory = () => {
               }}
             />
           </div>
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-fit">
+            <div className="w-full md:w-auto">
+              <p className="text-sm font-medium">Start Date</p>
+              <input
+                type="date"
+                className="border border-(--border-default) rounded-md px-3 py-2 bg-(--bg-surface) w-full"
+                onChange={(e) =>
+                  setDateRange((prev) => ({
+                    ...prev,
+                    start: e.target.value,
+                  }))
+                }
+              />
+            </div>
 
-          <div>
-            <p className="text-sm font-medium mb-1">Start Date</p>
-            <input
-              type="date"
-              className="border border-(--border-default) rounded px-3 py-2 bg-(--bg-surface)"
-              onChange={(e) =>
-                setDateRange((prev) => ({
-                  ...prev,
-                  start: e.target.value,
-                }))
-              }
-            />
+            <div className="w-full md:w-auto">
+              <p className="text-sm font-medium">End Date</p>
+              <input
+                type="date"
+                className="border border-(--border-default) rounded-md px-3 py-2 bg-(--bg-surface) w-full"
+                onChange={(e) =>
+                  setDateRange((prev) => ({
+                    ...prev,
+                    end: e.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
-
-          <div>
-            <p className="text-sm font-medium mb-1">End Date</p>
-            <input
-              type="date"
-              className="border border-(--border-default) rounded px-3 py-2 bg-(--bg-surface)"
-              onChange={(e) =>
-                setDateRange((prev) => ({
-                  ...prev,
-                  end: e.target.value,
-                }))
-              }
-            />
-          </div>
+          
 
           <Button
             onClick={() => {
@@ -127,26 +132,57 @@ const OrderHistory = () => {
           No orders found.
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedOrders.map((order) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-              />
-            ))}
-          </div>
+        <div className="flex flex-col lg:flex-row gap-4 my-4 items-start">
+          <div className="w-full lg:flex-1 flex flex-col gap-4">
+            <div className="flex flex-col">
+              {paginatedOrders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                />
+              ))}
+            </div>
 
-          <TablePagination
-            page={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex + 1}
-            endIndex={endIndex}
-            totalItems={filteredOrders.length}
-            itemLabel="order(s)"
-          />
-        </>
+            <TablePagination
+              page={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              startIndex={startIndex + 1}
+              endIndex={endIndex}
+              totalItems={filteredOrders.length}
+              itemLabel="order(s)"
+            />
+          </div>
+          <div className="w-full hidden lg:w-96 lg:shrink-0 lg:flex flex-col border border-(--border-muted)/30 rounded-xl shadow p-6">
+            <h1 className="text-2xl mb-4">Order Summary</h1>
+            <div className="flex items-center justify-between my-2">
+              <p className="text-sm font-normal text-gray-600">
+                Direct Orders
+              </p>
+              <p className="text-base font-medium text-gray-900">
+                { directOrders.length }
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between my-2">
+              <p className="text-sm font-normal text-gray-600">
+                Pooled Orders
+              </p>
+              <p className="text-base font-medium text-gray-900">
+                { pooledOrders.length }
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between my-2">
+              <p className="text-sm font-normal text-gray-600">
+                Total Orders
+              </p>
+              <p className="text-base font-medium text-gray-900">
+                { ordersList.length }
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ---------------- Order Details Modal ---------------- */}

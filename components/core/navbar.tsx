@@ -221,7 +221,7 @@ const Navbar = () => {
             </motion.li>
             <motion.li
               variants={item}
-              className="p-3 bg-(--bg-surface) absolute border-t border-(--border-default) w-full left-0 bottom-0"
+              className="p-3"
               onClick={() => setIsVisible(false)}
             >
               <Link

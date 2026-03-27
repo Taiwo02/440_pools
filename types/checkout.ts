@@ -136,6 +136,44 @@ export type OrderStatuses = typeof ORDER_STATUSES[number];
 
 export type OrderStatus = "CREATED" | "LOCKED" | "AWAITING_BALANCE" | "PARTIALLY_PAID" | "PAID_IN_FULL" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "COMPLETED" | "CANCELLED" | "REFUNDED" | "DEFAULTED" | "DISPUTE_RAISED" | "all";
 
+export type Order = {
+  id: number,
+  checkoutId: number,
+  baleId: number | null,
+  shipmentId: string | null,
+  status: OrderStatus,
+  lockPaymentId: number | null,
+  totalAmount: number,
+  amountPaid: number,
+  paymentOption: "split" | "full",
+  upfrontPercent: number,
+  createdAt: string,
+  updatedAt: string,
+  deletedAt: string | null
+}
+
+export type Installments = {
+  id?: number,
+  sequence?: number,
+  dueDate?: string,
+  amount?: number,
+  interest?: number,
+  penalty?: number,
+  status?: OrderStatus,
+  paidAt?: string | null
+}
+
+export type History = {
+  id: number,
+  orderId: number,
+  fromStatus: OrderStatus,
+  toStatus: OrderStatus,
+  actor: "SYSTEM",
+  createdBy: number,
+  createdAt: string,
+  updatedAt: string
+}
+
 export type OrderList = {
   id: number,
   checkoutId: number,
@@ -218,4 +256,39 @@ export type InitiatePayment = {
   checkoutId?: number, //required when "BALE" && ["LOCK", "HALF", "FULL"]
   returnUrl?: "https://shop.4401.live/verify",
   orderId?: number //required when action is ["UPFRONT", "REMAINDER", "INSTALLMENT_ENTRY"]
+}
+
+export type OrderDetails = {
+  order: Order,
+  items: {
+    id: number,
+    quantity: number,
+    unitPrice: number,
+    totalPrice: number,
+    deletedAt: string | null,
+    createdAt: string,
+    updatedAt: string,
+    product: {
+      id: number,
+      name: number,
+      images: string[],
+      price: number,
+      oldPrice: number
+    },
+    color: {
+      id: number,
+      color: string,
+      otherColor: string | null,
+      hex_code: string | null,
+      images: string[]
+    },
+    size: {
+      id: number,
+      label: string,
+      formart: string,
+      type: string | null
+    }
+  }[],
+  history: History[],
+  installments: Installments[]
 }
