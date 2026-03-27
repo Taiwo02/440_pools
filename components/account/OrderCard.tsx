@@ -1,11 +1,12 @@
 "use client"
 
 import { OrderList } from '@/types/checkout'
-import { Button, Card, Progress } from '../ui'
+import { Badge, Button, Card, Progress } from '../ui'
 import Countdown from '../shared/Countdown'
 import { useState } from 'react'
 import MyModal from '../core/modal'
 import SingleOrder from './SingleOrder'
+import { getOrderStatusVariant } from './orderStatusBadge'
 
 type Props = {
   order: OrderList
@@ -27,48 +28,54 @@ const OrderCard = ({ order }: Props) => {
 
   return (
     <Card className='py-3! px-3! mb-3 shadow-none! border'>
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-lg overflow-hidden bg-gray-100">
+      <div className="flex flex-row justify-between gap-4">
+        <div className="relative w-24 md:w-32 rounded-lg overflow-hidden">
           <img
             src={order.checkoutType == "BALE" ? order.bale?.product?.images?.[0] : order.products?.[0]?.images?.[0]}
             alt={order.checkoutType == "BALE" ? order.bale?.product?.name : order.products?.[0]?.name}
-            className='object-cover w-full h-full'
+            className='object-cover w-full aspect-square rounded-lg'
           />
         </div>
-        <div className="flex flex-1 justify-between gap-2">
-          <div>
-            <p className='text-sm md:text-lg line-clamp-2 md:line-clamp-1'>
+        <div className="flex flex-col md:flex-row flex-1 justify-between gap-2">
+          <div className='basis-full md:basis-3/4'>
+            <p className='text-sm md:text-lg line-clamp-2'>
               { order.checkoutType == "BALE" ? order.bale?.product?.name : order.products?.[0]?.name }
             </p>
-            <span
-              className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-            >
-              Quantity: { order.checkoutType == "BALE" ? order.totalItemsInOrder : totalQuantity}
-            </span>
+            <div className="flex md:flex-col gap-3">
+              <p className='text-sm font-semibold text-(--primary) mt-1'>
+                Order #{order.id}
+              </p>
+              <Badge
+                variant={getOrderStatusVariant(order.status)}
+                className="font-semibold w-fit"
+              >
+                {order.status.replaceAll("_", " ")}
+              </Badge>
+            </div>
             {
-              order.checkoutType == "BALE" ?
+              order.checkoutType == "BALE" &&
                 <div className="relative mb-8 md:mb-0">
                   <Countdown endDate={order?.bale?.endDate!} />
-                </div> : 
-                <div className='my-2 flex flex-wrap gap-2'>
-                  <span
-                    className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                  >
-                    Payment Option: {order.paymentOption}
-                  </span>
-                  {
-                    order.upfrontPercent != null &&
-                    <span
-                      className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                    >
-                      Upfront Percentage: {order.upfrontPercent}%
-                    </span>
-                  }
                 </div>
+                // <div className='my-2 flex flex-wrap gap-2'>
+                //   <span
+                //     className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
+                //   >
+                //     Payment Option: {order.paymentOption}
+                //   </span>
+                //   {
+                //     order.upfrontPercent != null &&
+                //     <span
+                //       className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
+                //     >
+                //       Upfront Percentage: {order.upfrontPercent}%
+                //     </span>
+                //   }
+                // </div>
             }
           </div>
-          <div className='text-end shrink-0'>
-            <p className="text-xl font-bold">₦{ order.checkoutType == "BALE" ? order.bale?.price?.toLocaleString(): order?.products?.[0]?.totalPrice  }</p>
+          <div className='md:text-end shrink-0'>
+            <p className="text-xl font-bold">₦{ order.checkoutType == "BALE" ? order.bale?.price?.toLocaleString(): order?.amountPaid  }</p>
           </div>
         </div>
       </div>

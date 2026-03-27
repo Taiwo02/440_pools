@@ -1,10 +1,12 @@
 "use client"
 
 import { useGetSingleOrder } from "@/api/order"
-import { Badge } from "../ui"
+import { Badge, Button } from "../ui"
 import { getOrderStatusVariant } from "./orderStatusBadge"
 import { RiLoader4Fill } from "react-icons/ri"
 import { formatDistanceToNow } from "date-fns"
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "../ui/table/TableWrapper"
+import { Installments, OrderDetails } from "@/types/checkout"
 
 type Props = {
   orderId: number
@@ -190,8 +192,41 @@ const SingleOrder = ({ orderId }: Props) => {
 
       {/* Pay Remainder */}
       {
-        
+        order.installments.length > 0 &&
+          <div className="border-t border-(--border-default) pt-4 mt-4 space-y-2">
+            <h3 className="font-semibold text-lg">Remaining Payments</h3>
+            <div className="overflow-auto">
+              <Table aria-label="Installment Table">
+                <TableHeader>
+                  <TableRow>
+                    <TableColumn>Due Date</TableColumn>
+                    <TableColumn>Amount</TableColumn>
+                    <TableColumn>Interest Rate</TableColumn>
+                    <TableColumn>Action</TableColumn>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {
+                    order.installments.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell className="bg-(--bg-muted)">{payment.dueDate}</TableCell>
+                        <TableCell>{payment.amount}</TableCell>
+                        <TableCell>{payment.interest}</TableCell>
+                        <TableCell>
+                          <Button className="py-2! px-3! rounded-xl">
+                            Pay Now
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  }
+                </TableBody>
+              </Table>
+            </div>
+            
+          </div>
       }
+      
     </div>
   )
 }
