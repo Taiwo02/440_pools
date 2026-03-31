@@ -10,6 +10,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
+import { TbBoxOff } from "react-icons/tb";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,12 +33,13 @@ const Products = () => {
     if (initialCategory) {
       setFilters(prev => {
         const categories = prev.categories ?? [];
+        const categoryId = Number(initialCategory);
 
         return {
           ...prev,
-          categories: categories.includes(initialCategory)
+          categories: categories.includes(categoryId)
             ? categories
-            : [...categories, initialCategory],
+            : [...categories, categoryId],
         };
       });
     }
@@ -45,10 +47,15 @@ const Products = () => {
 
   const { data: allBales = [], isPending, error } = useGetBales(filters);
   const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
-  
 
-  if (!isPending && allBales.length === 0) {
-    return <p className="text-center font-bold text-xl">No data available</p>;
+  const hasActiveFilters =
+    (filters.categories?.length ?? 0) > 0 ||
+    (filters.marketLocation?.length ?? 0) > 0 ||
+    filters.supplierRating ||
+    (filters.priceRange?.min !== 0 || filters.priceRange?.max !== 1000000);
+
+  if (!isPending && allBales.length === 0 && !hasActiveFilters) {
+    return <p className="text-center font-bold text-xl">No products available</p>;
   }
 
   // Handler for categories, markets and supplier rating
@@ -127,15 +134,15 @@ const Products = () => {
                             <div className="my-2 flex items-center gap-2" key={index}>
                               <input
                                 type="checkbox"
-                                value={category.categorySlug!}
+                                value={category.id}
                                 onChange={(e) =>
                                   toggleFilter(
                                     "categories",
-                                    category.categorySlug!,
+                                    category.id,
                                     e.target.checked
                                   )
                                 }
-                                checked={filters.categories?.includes(category.categorySlug!)}
+                                checked={filters.categories?.includes(category.id)}
                               />
                               <span className="truncate">{category.name}</span>
                             </div>
@@ -276,14 +283,25 @@ const Products = () => {
                   <div className="flex flex-col gap-4 justify-center items-center w-full h-screen">
                     <RiSignalWifiErrorLine />
                     <p className="text-xl">Products not found</p>
-                  </div>:
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-                    {
-                      visibleData.map(bale => (
-                        <ProductCard bale={bale} key={bale.id} />
-                      ))
-                    }
-                  </div>
+                  </div>: 
+                  visibleData.length == 0 ? 
+                    <div className="min-h-75 flex justify-center items-center flex-col gap-4 text-center">
+                      <TbBoxOff size={48} className="text-(--primary)" />
+                      <div className="w-3/4">
+                        <h2 className="text-xl">Products Not Found</h2>
+                        <p>
+                          There are no results for the filter you just put in. Please adjust the filters to see more products
+                        </p>
+                      </div>
+                      
+                    </div> :
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+                      {
+                        visibleData.map(bale => (
+                          <ProductCard bale={bale} key={bale.id} />
+                        ))
+                      }
+                    </div>
               }
             </div>
             <Pagination

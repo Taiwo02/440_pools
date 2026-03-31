@@ -46,7 +46,7 @@ const Header = () => {
               {categories?.map((category: CategoryDetails, index: number) => (
                 <Link
                   key={index}
-                  href={`/products?category=${category.categorySlug}`}
+                  href={`/products?category=${category.id}`}
                   className="py-2 px-6 border-b border-(--border-default) flex items-center gap-2"
                 >
                   {category.name}

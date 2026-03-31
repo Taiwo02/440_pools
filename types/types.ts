@@ -508,7 +508,7 @@ export interface BaleFilters {
   // sortOrder?: 
   start_date?: string;
   end_date?: string;
-  categories?: string[];
+  categories?: number[];
   supplierRating?: string;
   marketLocation?: string[];
   priceRange?: {
