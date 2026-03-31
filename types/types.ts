@@ -497,3 +497,22 @@ export type CategoryDetails = {
   createdAt: string,
   updatedAt: string
 }
+
+export interface BaleFilters {
+  page?: number;
+  limit?: 12;
+  productId?: number
+  status?: "OPEN" | "CLOSED";
+  shipmentId?: number;
+  sortBy?: string;
+  // sortOrder?: 
+  start_date?: string;
+  end_date?: string;
+  categories?: string[];
+  supplierRating?: string;
+  marketLocation?: string[];
+  priceRange?: {
+    min: number,
+    max: number,
+  }
+}

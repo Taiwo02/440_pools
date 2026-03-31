@@ -6,6 +6,8 @@ import Link from "next/link";
 import { RiLoader5Line } from "react-icons/ri";
 import UserBubbles from "./UserBubble";
 import ProductThumbPlaceholder from "./ProductThumbPlaceholder";
+import { useState } from "react";
+import { BaleFilters } from "@/types/types";
 
 type Props = {
   dailyDeals: {
@@ -14,7 +16,13 @@ type Props = {
 };
 
 export const DealsAndTrending = ({ dailyDeals }: Props) => {
-  const { data: allBales = [], isPending } = useGetBales();
+  const [filters, setFilters] = useState<BaleFilters>({
+    categories: [],
+    priceRange: { min: 0, max: 1000000 },
+    marketLocation: []
+  });
+
+  const { data: allBales = [], isPending } = useGetBales(filters);
   const dailyDealsBales = allBales?.slice(0, 4);
   const slicedBales = allBales?.slice(1, 5);
 

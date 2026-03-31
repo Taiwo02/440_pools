@@ -4,18 +4,48 @@ import Link from 'next/link';
 import { RiArrowRightSLine, RiLoader5Line, RiSignalWifiErrorLine } from 'react-icons/ri';
 import { Button, Card, Progress } from '../ui';
 import Image from 'next/image';
-import { useGetBales } from '@/api/bale';
-import { useEffect, useState } from 'react';
+import { useGetInfiniteBales } from '@/api/bale';
+import { useEffect, useRef, useState } from 'react';
 import ProductCard from '../product/ProductCard';
+import { BaleFilters } from '@/types/types';
 
 const ProductsSection = () => {
-  const { data: allBales = [], isPending, error } = useGetBales();
+  const [filters, setFilters] = useState<BaleFilters>({
+    page: 1,
+    limit: 12
+  });
+  const { 
+    data,
+    isPending,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+   } = useGetInfiniteBales(filters);
+
+  const allBales =
+    data?.pages.flatMap((page) => page.data) ?? [];
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (allBales) {
-      console.log(allBales);
-    }
-  }, [allBales]);
+    if (!loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+
+        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if(error) {
     return (
@@ -48,13 +78,20 @@ const ProductsSection = () => {
                 <RiSignalWifiErrorLine />
                 <p className="text-xl">Products not found</p>
               </div> :
-              <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 md:gap-4 my-4">
-                {
-                  allBales.map(bale => (
-                    <ProductCard bale={bale} key={bale.id} />
-                  ))
-                }
-              </div>
+              <>
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 md:gap-4 my-4">
+                  {
+                    allBales.map(bale => (
+                      <ProductCard bale={bale} key={bale.id} />
+                    ))
+                  }
+                </div>
+                <div ref={loadMoreRef} className="flex justify-center py-6">
+                  {isFetchingNextPage && (
+                    <RiLoader5Line size={32} className="animate-spin text-(--primary)" />
+                  )}
+                </div>
+              </>  
         }
       </div>
     </section>

@@ -5,62 +5,70 @@ import { useGetCategories, useGetMarkets } from "@/api/product";
 import ProductCard from "@/components/product/ProductCard";
 import { Button, Card, Pagination, Progress } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
-import { CategoryDetails } from "@/types/types";
+import { BaleFilters, CategoryDetails } from "@/types/types";
 import * as Slider from '@radix-ui/react-slider';
-import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckboxCircleFill, RiGlobeFill, RiGlobeLine, RiGridFill, RiHashtag, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
-
-type Filters = {
-  categories: string[]
-  priceRange: { min: number; max: number }
-  supplierRating: number[]
-  markets: string[]
-}
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(12);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [filters, setFilters] = useState<Filters>({
+  const [filters, setFilters] = useState<BaleFilters>({
     categories: [],
-    priceRange: { min: 0, max: 10000 },
-    supplierRating: [],
-    markets: []
+    priceRange: { min: 0, max: 1000000 },
+    marketLocation: []
   });
 
-  const { data: allBales = [], isPending, error } = useGetBales();
-  const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
   const searchParams = useSearchParams();
 
   // Product parameters
   const endsToday = searchParams.get('daily_deals');
+  const initialCategory = searchParams.get('category') ?? undefined;
 
-  if (!allBales || allBales.length === 0) {
+  useEffect(() => {
+    if (initialCategory) {
+      setFilters(prev => {
+        const categories = prev.categories ?? [];
+
+        return {
+          ...prev,
+          categories: categories.includes(initialCategory)
+            ? categories
+            : [...categories, initialCategory],
+        };
+      });
+    }
+  }, [initialCategory]);
+
+  const { data: allBales = [], isPending, error } = useGetBales(filters);
+  const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+  
+
+  if (!isPending && allBales.length === 0) {
     return <p className="text-center font-bold text-xl">No data available</p>;
   }
 
   // Handler for categories, markets and supplier rating
   const toggleFilter = (
-    key: "categories" | "supplierRating" | "markets",
+    key: "categories" | "marketLocation",
     value: string | number,
     checked: boolean
   ) => {
     setFilters(prev => ({
       ...prev,
       [key]: checked
-        ? [...prev[key], value]
-        : prev[key].filter((item: any) => item !== value)
+        ? [...prev[key]!, value]
+        : prev[key]!.filter((item: any) => item !== value)
     }))
   }
 
-  const supplierRatings = [1, 2, 3, 4, 5];
+  const supplierRatings = ["1", "2", "3", "4", "5"];
 
   // FILTER before pagination
-  const filteredData = allBales.filter((row) => {
+  const filteredData = allBales?.filter((row) => {
     // check first 2 available columns
     const col1 = row.product.name.toLowerCase() || "";
     const col2 = row.product.description.toLowerCase() || "";
@@ -115,7 +123,7 @@ const Products = () => {
                           <div className="">
                             No categories found
                           </div> : 
-                          categories.map((category: CategoryDetails, index: any) => (
+                          categories.map((category: CategoryDetails, index: number) => (
                             <div className="my-2 flex items-center gap-2" key={index}>
                               <input
                                 type="checkbox"
@@ -127,7 +135,7 @@ const Products = () => {
                                     e.target.checked
                                   )
                                 }
-                                checked={filters.categories.includes(category.categorySlug!)}
+                                checked={filters.categories?.includes(category.categorySlug!)}
                               />
                               <span className="truncate">{category.name}</span>
                             </div>
@@ -146,7 +154,7 @@ const Products = () => {
                 <Accordion.Content id="two">
                   <Slider.Root
                     className="relative flex items-center w-full h-5 my-2"
-                    value={[filters.priceRange.min, filters.priceRange.max]}
+                    value={[filters.priceRange!.min, filters.priceRange!.max]}
                     max={10000}
                     step={1}
                     onValueChange={([min, max]) => {
@@ -164,14 +172,14 @@ const Products = () => {
                     {/* Min Thumb */}
                     <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
                       <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {filters.priceRange.min}
+                        {filters.priceRange!.min}
                       </span>
                     </Slider.Thumb>
 
                     {/* Max Thumb */}
                     <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
                       <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {filters.priceRange.max}
+                        {filters.priceRange!.max}
                       </span>
                     </Slider.Thumb>
                   </Slider.Root>
@@ -193,9 +201,9 @@ const Products = () => {
                         <input
                           type="checkbox"
                           onChange={(e) =>
-                            toggleFilter("supplierRating", rating, e.target.checked)
+                            setFilters(prev => ({ ...prev, supplierRating: e.target.value }))
                           }
-                          checked={filters.supplierRating.includes(rating)}
+                          checked={filters.supplierRating?.includes(rating)}
                         />
                         {rating} <RiStarFill />
                       </div>
@@ -261,11 +269,11 @@ const Products = () => {
             <div className="p-4 rounded-xl bg-(--bg-surface)">
               {
                 isPending ?
-                <div className="flex justify-center items-center w-full my-16">
-                  <RiLoader5Line size={48} className='animate-spin text-(--primary)' />
-                </div> :
+                  <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
+                    <RiLoader5Line className="animate-spin text-(--primary)" size={60} />
+                  </div> :
                 error ? 
-                  <div className="flex flex-col gap-4 justify-center items-center w-full my-16">
+                  <div className="flex flex-col gap-4 justify-center items-center w-full h-screen">
                     <RiSignalWifiErrorLine />
                     <p className="text-xl">Products not found</p>
                   </div>:
