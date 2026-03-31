@@ -75,7 +75,7 @@ const ProductCard = ({ bale }: Props) => {
                 </span>
               )}
             </div>
-            <div className="flex items-end justify-between gap-2 mt-2">
+            <div className="flex flex-wrap items-end justify-between mt-2">
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <p className="text-(--text) font-bold text-sm md:text-base">
                   &#8358;{bale.price}

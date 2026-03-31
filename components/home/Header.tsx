@@ -7,9 +7,13 @@ import { industries } from "./data";
 import Link from "next/link";
 import { RequestQuoteForm } from "@/components/requestForQuot";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGetCategories } from "@/api/product";
+import { CategoryDetails } from "@/types/types";
+import { RiLoader5Line } from "react-icons/ri";
 
 const Header = () => {
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
+  const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
 
   useEffect(() => {
     if (isRfqModalOpen) {
@@ -31,14 +35,21 @@ const Header = () => {
               <h4 className="text-xl">Categories</h4>
             </div>
             <div className="overflow-y-auto h-full pb-4">
-              {industries.map((industry, index) => (
+              {
+                isCategoriesPending && (
+                  <div className="flex items-center justify-center z-10 h-full">
+                    <RiLoader5Line className="animate-spin text-(--primary)" size={32} />
+                  </div>
+                )
+              }
+
+              {categories?.map((category: CategoryDetails, index: number) => (
                 <Link
                   key={index}
-                  href=""
+                  href={`/products?category=${category.id}`}
                   className="py-2 px-6 border-b border-(--border-default) flex items-center gap-2"
                 >
-                  {industry.icon}
-                  {industry.name}
+                  {category.name}
                 </Link>
               ))}
             </div>
