@@ -117,17 +117,21 @@ const AllocationModal = (
       <div className="overflow-auto h-[calc(100vh-150px)] no-scrollbar">
         <div className="my-4">
           <h2 className="text-lg">
-            Prices
+            Price
           </h2>
           <div className="flex flex-wrap items-end gap-4">
-            <div>
-              <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price + 10)}</p>
-              <span className='relative -top-2 text-xs text-(--text-muted)'>Pooled Price per Unit</span>
-            </div>
-            <div>
-              <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.oldPrice)}</p>
-              <span className='relative -top-2 text-xs text-(--text-muted)'>Direct Buy Price per Unit</span>
-            </div>
+            {
+              buyDirectly ? 
+                <div>
+                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.oldPrice)}</p>
+                  <span className='relative -top-2 text-xs text-(--text-muted)'>Direct Buy Price per Unit</span>
+                </div> : 
+                <div>
+                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
+                  <span className='relative -top-2 text-xs text-(--text-muted)'>Pooled Price per Unit</span>
+                </div>
+            }
+            
           </div>
         </div>
 
@@ -420,6 +424,11 @@ const AllocationModal = (
         </div>
       </div>
       <div className="w-full p-4 border-t border-(--border-default) absolute left-0 bottom-0 bg-(--bg-page)">
+        {buyDirectly && totalAllocatedQuantity < maxDirectAllowedQuantity && (
+          <p className="text-red-500 text-xs my-1 text-center">
+            You must allocate at least {maxDirectAllowedQuantity} items to buy or add to cart.
+          </p>
+        )}
         {
           buyDirectly ?
             <div className="flex gap-2">
@@ -427,7 +436,7 @@ const AllocationModal = (
                 primary
                 isFullWidth
                 className={`uppercase  gap-2 items-center`}
-                disabled={false}
+                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
                 onClick={handleBuyNow}
               >
                 <RiBankCardFill className="hidden md:block" />
@@ -437,7 +446,7 @@ const AllocationModal = (
                 primary
                 isFullWidth
                 className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                disabled={false}
+                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
                 onClick={handleAddToCart}
               >
                 <RiShoppingCart2Line className="hidden md:block" />

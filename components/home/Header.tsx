@@ -28,7 +28,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="h-110 md:h-120 flex items-stretch gap-4 md:px-20 pt-36 md:pt-24">
+      <header className="h-110 md:h-120 flex items-stretch gap-4 md:px-20 pt-[86px] md:pt-24">
         <div className="hidden md:block md:w-80">
           <Card className="h-full p-0! overflow-hidden">
             <div className="py-3 px-6 bg-(--bg-muted)">
@@ -87,7 +87,7 @@ const Header = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-9998 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-9998 flex items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsRfqModalOpen(false)}
           >
             <motion.div
@@ -95,7 +95,7 @@ const Header = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-4xl max-h-[100dvh] md:max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <RequestQuoteForm handleRfqPopup={() => setIsRfqModalOpen(false)} />

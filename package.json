@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "node -e \"try{require('fs').unlinkSync('.next/dev/lock')}catch(e){}\" && next dev",
     "build": "next build --webpack",
+    "serve:out": "npx --yes serve out",
     "start": "next start",
     "lint": "eslint"
   },

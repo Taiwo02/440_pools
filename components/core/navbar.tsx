@@ -12,6 +12,7 @@ const Navbar = () => {
   const [category, setCategory] = useState('Electronics')
   const pathname = usePathname() ?? "/";
   const [isVisible, setIsVisible] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const productCategories = [
     "Electronics",
@@ -43,11 +44,6 @@ const Navbar = () => {
       label: 'Products',
       href: '/products',
       icon: <RiArchive2Line />
-    },
-    {
-      label: 'Messages',
-      href: '/messages',
-      icon: <RiMessageLine />
     },
     {
       label: 'Cart',
@@ -132,6 +128,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav className='fixed w-full z-50 shadow-sm'>
       <div className='bg-(--bg-surface) py-2 px-4 md:px-20 flex gap-12 items-center justify-between'>
         <Link href={'/'} className="text-2xl font-bold shrink-0 ">
@@ -160,9 +157,13 @@ const Navbar = () => {
           }
         </ul>
         <div className="md:hidden flex items-center gap-3">
-          <Link href={''} className="p-2 relative">
-            <RiMessageLine />
-          </Link>
+          <button
+            aria-label="Search"
+            className="p-2 relative text-(--text-primary)"
+            onClick={() => setIsSearchOpen(prev => !prev)}
+          >
+            {isSearchOpen ? <RiCloseLine /> : <RiSearchLine />}
+          </button>
           <Link href={'/cart'} className="p-2 relative">
             <RiShoppingCartLine />
             <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold top-0 right-0">
@@ -256,20 +257,83 @@ const Navbar = () => {
           </motion.ul>
         )}
       </AnimatePresence>
-      <div className="flex md:hidden gap-2 items-center bg-(--bg-page) overflow-auto py-1 px-4 -mt-0.5">
-        {/* {
-          industries.map(industry => (
-            <div key={industry.id} className='py-0.5 px-2 bg-(--primary) text-white rounded-full'>
-              <span className='text-xs text-nowrap'>{industry.name}</span>
-            </div>
-          ))
-        } */}
-      </div>
-      <div className="lg:hidden px-4 pb-2 bg-(--bg-surface)">
-      <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+      {/* Tablet-only search bar (md → lg) */}
+      <div className="hidden md:block lg:hidden px-4 pb-2 bg-(--bg-surface)">
+        <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
       </div>
     </nav>
-    
+
+    {/* Mobile search overlay — fixed, does not push page content */}
+    <AnimatePresence>
+      {isSearchOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="md:hidden fixed inset-0 z-[45] bg-black/40"
+            onClick={() => setIsSearchOpen(false)}
+          />
+          {/* Dropdown panel */}
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="md:hidden fixed top-[86px] left-0 right-0 z-[46] bg-(--bg-surface) shadow-2xl border-t border-(--border)"
+          >
+            {/* Search input */}
+            <div className="px-4 pt-3 pb-3">
+              <SearchForm
+                category={category}
+                setCategory={setCategory}
+                productCategories={productCategories}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+            </div>
+            {/* Suggestions card */}
+            <div className="px-4 pb-5">
+              <p className="text-xs font-medium text-(--text-muted) mb-3 px-1">
+                {searchTerm ? 'Suggestions' : 'Popular Categories'}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {productCategories
+                  .filter(cat =>
+                    !searchTerm || cat.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .slice(0, 8)
+                  .map(cat => (
+                    <Link
+                      key={cat}
+                      href={`/products?search=${encodeURIComponent(cat)}`}
+                      onClick={() => setIsSearchOpen(false)}
+                      className="flex items-center text-sm py-2.5 px-3 rounded-xl bg-(--bg-page) border border-(--border) hover:bg-(--primary-soft) hover:text-(--primary) hover:border-(--primary) transition-colors truncate"
+                    >
+                      {cat}
+                    </Link>
+                  ))}
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+
+    {/* Floating support message button */}
+    <Link
+      href="/messages"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group"
+      aria-label="Message support"
+    >
+      <RiMessageLine className="text-xl shrink-0" />
+      <span className="text-sm font-medium overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
+        Support
+      </span>
+    </Link>
+    </>
   )
 }
 

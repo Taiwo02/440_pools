@@ -6,7 +6,7 @@ import Link from "next/link";
 import { RiLoader5Line } from "react-icons/ri";
 import UserBubbles from "./UserBubble";
 import ProductThumbPlaceholder from "./ProductThumbPlaceholder";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BaleFilters } from "@/types/types";
 
 type Props = {
@@ -15,7 +15,26 @@ type Props = {
   };
 };
 
+const getTimeLeft = (endsAt: string) => {
+  const diff = new Date(endsAt).getTime() - Date.now();
+  if (diff <= 0) return "00:00:00";
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  return [h, m, s].map(v => String(v).padStart(2, "0")).join(":");
+};
+
 export const DealsAndTrending = ({ dailyDeals }: Props) => {
+  const [timeLeft, setTimeLeft] = useState("00:00:00");
+
+  useEffect(() => {
+    setTimeLeft(getTimeLeft(dailyDeals.endsAt));
+    const interval = setInterval(() => {
+      setTimeLeft(getTimeLeft(dailyDeals.endsAt));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [dailyDeals.endsAt]);
+
   const [filters, setFilters] = useState<BaleFilters>({
     categories: [],
     priceRange: { min: 0, max: 1000000 },
@@ -33,10 +52,10 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
       <Card className="rounded-xl p-3! md:p-4!">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl flex items-center gap-2">
-            Daily Deals
+            Special Deals
           </h3>
-          <span className="text-xs text-(--text-muted)">
-            Ends in {dailyDeals.endsAt}
+          <span className="text-xs text-(--text-muted) font-mono">
+            Ends in {timeLeft}
           </span>
         </div>
 

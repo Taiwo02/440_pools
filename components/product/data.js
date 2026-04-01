@@ -2,7 +2,7 @@ import Welder from "@/public/images/welder.jpg";
 import Battery from "@/public/images/battery.avif"
 
 export const dailyDeals = {
-  endsAt: "22:50:49", // countdown display
+  endsAt: "2026-04-30T23:59:59",
   items: [
     {
       id: "dd-1",

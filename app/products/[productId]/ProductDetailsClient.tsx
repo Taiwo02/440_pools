@@ -190,10 +190,8 @@ const ProductDetails = () => {
     ) : null,
   }));
 
-  const isAllocationExceeded =
-    buyDirectly ?
-      totalAllocatedQuantity > maxDirectAllowedQuantity :
-      totalAllocatedQuantity > maxAllowedQuantity
+  const isAllocationExceeded = totalAllocatedQuantity > maxAllowedQuantity
+      
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -253,15 +251,15 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = () => {
-    if (isAllocationExceeded) {
-      toast.error(
-        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-      )
-      return
-    }
+    // if (isAllocationExceeded) {
+    //   toast.error(
+    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+    //   )
+    //   return
+    // }
 
-    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
-      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+    if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
+      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
       return
     }
 
@@ -306,15 +304,15 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = () => {
-    if (isAllocationExceeded) {
-      toast.error(
-        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-      )
-      return
-    }
+    // if (isAllocationExceeded) {
+    //   toast.error(
+    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+    //   )
+    //   return
+    // }
 
-    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
-      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+    if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
+      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
       return
     }
 
@@ -450,7 +448,7 @@ const ProductDetails = () => {
 
   if (baleError) {
     return (
-      <div className="flex justify-center items-center w-full h-screen">
+      <div className="flex justify-center items-center w-full my-24">
         <p className="text-xl">Product not found</p>
       </div>
     )
@@ -458,13 +456,13 @@ const ProductDetails = () => {
 
   return (
     <>
-      <section className="pt-36 md:pt-24 mb-16">
+      <section className="pt-21.5 md:pt-24 mb-16">
         <div className="px-2 md:px-10 lg:px-32 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row items-start gap-4">
+          <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4">
 
             {/* LEFT */}
             <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl md:mb-8">
+              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
@@ -642,24 +640,34 @@ const ProductDetails = () => {
 
               {/* Buttons for pool and cart */}
               <div className="mt-8 mb-4 flex gap-4 items-center">
-                <Button
-                  primary
-                  className={`uppercase gap-2 items-center`}
-                  disabled={Boolean(formValues.slots == 0)}
-                  onClick={openBuy}
-                >
-                  <RiBankCardFill className="block" />
-                  Buy
-                </Button>
-                <Button
-                  primary
-                  className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                  disabled={Boolean(formValues.slots == 0)}
-                  onClick={openPool}
-                >
-                  <RiGroup2Fill className="block" />
-                  Join Pool
-                </Button>
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase gap-2 items-center`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openBuy}
+                  >
+                    <RiBankCardFill className="block" />
+                    Buy
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    { baleData.oldPrice.toLocaleString() }
+                  </div>
+                </div>
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openPool}
+                  >
+                    <RiGroup2Fill className="block" />
+                    Join Pool
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    { baleData.price.toLocaleString() }
+                  </div>
+                </div>
               </div>
             </div>
           </div>
