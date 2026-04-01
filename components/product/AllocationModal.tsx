@@ -26,6 +26,7 @@ type Props = {
     handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement, Element>) => void
     activeColorId: number | null,
     hasSizes: boolean,
+    hasColors: boolean,
     sizesList: {
       id: number,
       value: string,
@@ -34,6 +35,8 @@ type Props = {
     isAllocationExceeded: boolean,
     allocations: AllocationState,
     setAllocations: React.Dispatch<React.SetStateAction<AllocationState>>,
+    updateSizeQuantity: (colorId: number, sizeId: number, sizeLabel: string, quantity: number) => void,
+    updateColorQuantity: (colorId: number, quantity: number) => void,
     decreaseSizeQty: (colorId: number, sizeId: number, sizeLabel: string) => void,
     increaseSizeQty: (colorId: number, sizeId: number, sizeLabel: string) => void,
     decreaseColorQty: (colorId: number) => void,
@@ -42,7 +45,10 @@ type Props = {
     buyDirectly: boolean,
     joinPool: () => void,
     handleBuyNow: () => void
-    handleAddToCart: () => void
+    handleAddToCart: () => void,
+    totalAllocatedQuantity: number,
+    maxDirectAllowedQuantity: number,
+    maxAllowedQuantity: number,
 }
 
 const AllocationModal = (
@@ -52,17 +58,22 @@ const AllocationModal = (
     baleData,
     formatPrice,
     productsPerSlot = 0,
+    totalAllocatedQuantity,
     colorsList,
     formValues,
+    maxAllowedQuantity,
+    maxDirectAllowedQuantity,
     setFormValues,
     getColorQuantity,
     handleCheckboxChange,
     activeColorId,
     hasSizes,
+    hasColors,
     sizesList,
     isAllocationExceeded,
     allocations,
-    setAllocations,
+    updateSizeQuantity,
+    updateColorQuantity,
     decreaseSizeQty,
     increaseSizeQty,
     decreaseColorQty,
@@ -73,6 +84,8 @@ const AllocationModal = (
     handleAddToCart,
     handleBuyNow
   }: Props) => {
+  const DEFAULT_COLOR_ID = 0
+
   return (
     <Modal
       isOpen={isModalOpen}
@@ -142,7 +155,7 @@ const AllocationModal = (
                   value={formValues.directQty}
                   handler={handleChange}
                   genStyle="my-0!"
-                  styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                  styling="rounded-none p-2! focus:outline-none! w-30! text-center"
                 />
                 <Button
                   className="rounded-l-none rounded-r-xl! py-2!"
@@ -203,7 +216,7 @@ const AllocationModal = (
                     value={formValues.slots}
                     handler={handleChange}
                     genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                    styling="rounded-none p-2! focus:outline-none! w-30! text-center"
                   />
                   <Button
                     className="rounded-l-none rounded-r-xl! py-2!"
@@ -312,8 +325,22 @@ const AllocationModal = (
                                 input_type="text"
                                 value={qty}
                                 name="qty"
-                                handler={() => { }}
-                                disabled
+                                handler={(e) => {
+                                  const value = Number(e.target.value);
+                                  if (isNaN(value) || value < 0) return;
+
+                                  const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+
+                                  const otherSizesTotal =
+                                    totalAllocatedQuantity -
+                                    (allocations[resolvedColorId]?.sizes?.[size.id]?.quantity ?? 0);
+
+                                  const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+
+                                  if (otherSizesTotal + value > max) return;
+
+                                  updateSizeQuantity(resolvedColorId, size.id, size.label, value);
+                                }}
                                 genStyle="my-0!"
                                 styling="rounded-none p-2! w-10! text-center!"
                               />
@@ -356,8 +383,22 @@ const AllocationModal = (
                           input_type="text"
                           value={allocations[activeColorId].quantity ?? 0}
                           name="qty"
-                          disabled
-                          handler={() => { }}
+                          handler={(e) => {
+                            const value = Number(e.target.value);
+                            if (isNaN(value) || value < 0) return;
+
+                            const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+
+                            const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+
+                            // Ensure total allocation does not exceed max
+                            const otherColorsTotal =
+                              totalAllocatedQuantity - (allocations[resolvedColorId]?.quantity ?? 0);
+
+                            if (otherColorsTotal + value > max) return;
+
+                            updateColorQuantity(resolvedColorId, value);
+                          }}
                           genStyle="my-0!"
                           styling="rounded-none p-2! w-10! text-center!"
                         />

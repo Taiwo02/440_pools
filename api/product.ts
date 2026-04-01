@@ -7,9 +7,9 @@ export const useGetAllProducts = () => {
     queryFn: async () => {
       const res = await noToken.get("/products?start_date=null&end_date=null&category=null");
       return res?.data;
-    }
-  })
-}
+    },
+  });
+};
 
 export const useGetCategories = () => {
   return useQuery({
@@ -17,9 +17,9 @@ export const useGetCategories = () => {
     queryFn: async () => {
       const res = await http.get("/admin/categories");
       return res?.data?.data;
-    }
+    },
   });
-}
+};
 
 export const useGetMarkets = () => {
   return useQuery({
@@ -27,6 +27,18 @@ export const useGetMarkets = () => {
     queryFn: async () => {
       const res = await http.get("/admin/markets");
       return res?.data?.data?.markets;
-    }
-  })
-}
+    },
+  });
+};
+
+export const useGetSupplier = (id: number, options?: any) => {
+  return useQuery({
+    queryKey: ["supplier", id],
+    queryFn: async () => {
+      const res = await http.get(`/admin/supplier/${id}`);
+      return res?.data?.data;
+    },
+    enabled: !!id,
+    ...options,
+  });
+};

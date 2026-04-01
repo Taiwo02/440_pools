@@ -217,6 +217,8 @@ export const useProductAllocation = ({
     decreaseSizeQty,
     getColorQuantity,
     handleCheckboxChange,
+    updateSizeQuantity,
+    updateColorQuantity,
     hasColors,
     hasSizes,
     DEFAULT_COLOR_ID

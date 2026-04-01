@@ -22,6 +22,8 @@ import ProductLogin from "@/components/product/ProductLogin";
 import { useBuy } from "@/hooks/use-buy";
 import { useProductAllocation } from "@/hooks/useProductAllocation";
 import AllocationModal from "@/components/product/AllocationModal";
+import { useGetSupplier } from "@/api/product";
+import { PackagingInfo, ProductAttributes } from "@/components/product/ProductAttributes";
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
@@ -46,7 +48,18 @@ const ProductDetails = () => {
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales();
+  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales({});
+
+  const supplierId = baleData?.product?.supplierId;
+
+  // const {
+  //   data: supplier,
+  //   isPending: isSupplierPending,
+  //   error: supplierError
+  // } = useGetSupplier(supplierId!, {
+  //   enabled: !!supplierId,
+  // });
+
   const router = useRouter();
   const { addToCart } = useCart();
   const { addToBuyCart } = useBuy();
@@ -74,6 +87,8 @@ const ProductDetails = () => {
     decreaseSizeQty,
     getColorQuantity,
     handleCheckboxChange,
+    updateSizeQuantity,
+    updateColorQuantity,
     hasColors,
     hasSizes,
     DEFAULT_COLOR_ID
@@ -115,7 +130,8 @@ const ProductDetails = () => {
         sizes: {},
         quantity: 0,
       },
-    }))
+    }));
+    
   }, [baleData]);
 
   useEffect(() => {
@@ -434,7 +450,7 @@ const ProductDetails = () => {
 
   if (baleError) {
     return (
-      <div className="flex justify-center items-center w-full my-24">
+      <div className="flex justify-center items-center w-full h-screen">
         <p className="text-xl">Product not found</p>
       </div>
     )
@@ -448,7 +464,7 @@ const ProductDetails = () => {
 
             {/* LEFT */}
             <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
+              <div className="bg-(--bg-surface) p-6 rounded-xl md:mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
@@ -472,8 +488,8 @@ const ProductDetails = () => {
                       value="shipping"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
-                      <span className="block md:hidden">Shipping</span>
-                      <span className="md:block hidden">Shipping Information</span>
+                      <span className="block md:hidden">Packaging</span>
+                      <span className="md:block hidden">Packaging Information</span>
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -481,14 +497,18 @@ const ProductDetails = () => {
                     Reviews content goes here
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
-                    Product details go here
+                    <ProductAttributes
+                      productAttributes={baleData.product.productAttributes}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
-                    Shipping details go here
+                    <PackagingInfo 
+                      packageInfo={baleData.product.packageInfo}
+                    />
                   </Tabs.Content>
                 </Tabs>
               </div>
-              {
+              {/* {
                 baleData?.product?.supplier &&
                 <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
                   <div className="flex items-center gap-4">
@@ -507,11 +527,11 @@ const ProductDetails = () => {
                     </Button>
                   </div>
                 </div>
-              }
+              } */}
             </div>
 
             {/* RIGHT */}
-            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20 border border-(--border-default)">
+            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky md:top-20 border border-(--border-default)">
               <div>
                 <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
                 <div className="my-4">
@@ -599,8 +619,8 @@ const ProductDetails = () => {
                       value="shipping"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
-                      <span className="block md:hidden">Shipping</span>
-                      <span className="md:block hidden">Shipping Information</span>
+                      <span className="block md:hidden">Packaging</span>
+                      <span className="md:block hidden">Packaging Information</span>
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -608,10 +628,14 @@ const ProductDetails = () => {
                     Reviews content goes here
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
-                    Product details go here
+                    <ProductAttributes
+                      productAttributes={baleData.product.productAttributes}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
-                    Shipping details go here
+                    <PackagingInfo
+                      packageInfo={baleData.product.packageInfo}
+                    />
                   </Tabs.Content>
                 </Tabs>
               </div>
@@ -728,6 +752,12 @@ const ProductDetails = () => {
           joinPool={joinPool}
           handleBuyNow={handleBuyNow}
           handleAddToCart={handleAddToCart}
+          totalAllocatedQuantity={totalAllocatedQuantity}
+          hasColors={hasColors}
+          maxDirectAllowedQuantity={maxDirectAllowedQuantity}
+          maxAllowedQuantity={maxAllowedQuantity}
+          updateSizeQuantity={updateSizeQuantity}
+          updateColorQuantity={updateColorQuantity}
         />
       )}
     </>
