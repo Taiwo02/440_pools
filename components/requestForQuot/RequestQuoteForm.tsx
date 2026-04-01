@@ -150,9 +150,9 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
   const stepLabels = ["Products", "Summary", "Customer Info"];
 
   return (
-    <div className="text-black w-auto max-w-4xl px-1 z-50 relative rounded-2xl shadow-lg">
+    <div className="text-black w-full max-w-4xl px-0 z-50 relative rounded-none md:rounded-2xl shadow-lg">
       <div className="relative flex flex-col order-2 md:order-1">
-        <div className="max-w-full sm:max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-4 sm:p-8 justify-self-center">
+        <div className="w-full sm:max-w-4xl mx-auto bg-white shadow-lg rounded-none md:rounded-2xl p-4 sm:p-8 justify-self-center">
           <div className="flex items-center justify-between border-b border-gray-200 pb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
               Request for Quotation

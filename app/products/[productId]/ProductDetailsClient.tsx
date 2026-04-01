@@ -46,7 +46,7 @@ const ProductDetails = () => {
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales();
+  const { data: allBales = [], isPending: isBalesPending } = useGetBales({ categories: [], priceRange: { min: 0, max: 1000000 }, marketLocation: [] });
   const router = useRouter();
   const { addToCart } = useCart();
   const { addToBuyCart } = useBuy();
@@ -424,31 +424,15 @@ const ProductDetails = () => {
     setShowAllocationModal(true);
   }
 
-  if (isBalesPending) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
-      </div>
-    );
-  }
-
-  if (baleError) {
-    return (
-      <div className="flex justify-center items-center w-full my-24">
-        <p className="text-xl">Product not found</p>
-      </div>
-    )
-  }
-
   return (
     <>
-      <section className="pt-36 md:pt-24 mb-16">
+      <section className="pt-[86px] md:pt-24 mb-16">
         <div className="px-2 md:px-10 lg:px-32 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row items-start gap-4">
+          <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4">
 
             {/* LEFT */}
             <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
+              <div className="bg-(--bg-surface) p-6 rounded-xl mb-2 md:mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">

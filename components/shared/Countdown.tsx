@@ -13,19 +13,21 @@ type TimeLeft = {
   days: number;
   hours: number;
   minutes: number;
+  seconds: number;
 };
 
 const getTimeLeft = (endDate: string): TimeLeft => {
   const diff = new Date(endDate).getTime() - Date.now();
 
   if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0 };
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   }
 
   return {
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
     hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
     minutes: Math.floor((diff / (1000 * 60)) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
   };
 };
 
@@ -35,7 +37,7 @@ export default function Countdown({ endDate, className }: CountdownProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(getTimeLeft(endDate));
-    }, 60_000); // update every minute (lighter than every second)
+    }, 1_000);
 
     return () => clearInterval(interval);
   }, [endDate]);
@@ -43,20 +45,15 @@ export default function Countdown({ endDate, className }: CountdownProps) {
   const isEnded =
     timeLeft.days === 0 &&
     timeLeft.hours === 0 &&
-    timeLeft.minutes === 0;
+    timeLeft.minutes === 0 &&
+    timeLeft.seconds === 0;
 
   const renderTime = () => {
     if (isEnded) return "Ended";
-
-    if (timeLeft.days > 0) {
-      return `${timeLeft.days}d ${timeLeft.hours}h`;
-    }
-
-    if (timeLeft.hours > 0) {
-      return `${timeLeft.hours}h ${timeLeft.minutes}m`;
-    }
-
-    return `${timeLeft.minutes}m`;
+    if (timeLeft.days > 0) return `${timeLeft.days}d ${timeLeft.hours}h`;
+    if (timeLeft.hours > 0) return `${timeLeft.hours}h ${timeLeft.minutes}m`;
+    if (timeLeft.minutes > 0) return `${timeLeft.minutes}m ${timeLeft.seconds}s`;
+    return `${timeLeft.seconds}s`;
   };
 
   return (

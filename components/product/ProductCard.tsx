@@ -30,7 +30,7 @@ const ProductCard = ({ bale }: Props) => {
             previewMaxChars={40}
           />
           {hasDiscount && (
-            <span className="absolute top-2 left-2 z-10 inline-flex items-center rounded px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-medium">
+            <span className="hidden md:inline-flex absolute top-2 left-2 z-10 items-center rounded px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-medium">
               Save {savePercent}%
             </span>
           )}

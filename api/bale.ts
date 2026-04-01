@@ -27,7 +27,7 @@ export const useGetBales = (params: BaleFilters) => {
 
 export const useGetInfiniteBales = (filters: BaleFilters) => {
   return useInfiniteQuery({
-    queryKey: ["bales", filters.limit],
+    queryKey: ["bales", filters],
     initialPageParam: 1,
 
     queryFn: async ({ pageParam = 1 }) => {
@@ -36,6 +36,8 @@ export const useGetInfiniteBales = (filters: BaleFilters) => {
           ...filters,
           page: pageParam,
         },
+        paramsSerializer: (p) =>
+          qs.stringify(p, { arrayFormat: "brackets" }),
       });
 
       return res.data;
@@ -44,12 +46,11 @@ export const useGetInfiniteBales = (filters: BaleFilters) => {
     getNextPageParam: (lastPage, allPages) => {
       const limit = filters.limit || 12;
 
-      // IMPORTANT: your data is inside lastPage.data
       if (lastPage.data.length < limit) {
-        return undefined; // no more pages
+        return undefined;
       }
 
-      return allPages.length + 1; // next page
+      return allPages.length + 1;
     },
   });
 };
