@@ -7,9 +7,10 @@ import { RiBuilding2Line } from 'react-icons/ri'
 import UserBubbles from './UserBubble'
 import Countdown from '../shared/Countdown'
 import CardJoinToast from './CardJoinToast'
+import { SingleBale } from '@/types/baletype'
 
 type Props = {
-  bale: Bale
+  bale: SingleBale
 }
 
 const ProductCard = ({ bale }: Props) => {
@@ -71,14 +72,14 @@ const ProductCard = ({ bale }: Props) => {
               <span className="text-[10px] text-(--text-muted) uppercase">POOL PRICE</span>
               {hasDiscount && (
                 <span className="text-[10px] text-(--text-muted) uppercase line-through">
-                  RETAIL: &#8358;{bale.oldPrice}
+                  RETAIL: {bale.product.currency}{bale.oldPrice}
                 </span>
               )}
             </div>
             <div className="flex flex-wrap items-end justify-between mt-2">
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <p className="text-(--text) font-bold text-sm md:text-base">
-                  &#8358;{bale.price}
+                  { bale.product.currency }{bale.price.toLocaleString()}
                   <span className="text-(--text-muted) font-normal text-xs">/unit</span>
                 </p>
               </div>

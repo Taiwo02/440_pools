@@ -106,11 +106,7 @@ export const useProductAllocation = ({
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (buyDirectly) {
-      if (currentTotal >= maxDirectAllowedQuantity) return;
-    } else {
-      if (currentTotal >= maxAllowedQuantity) return;
-    }
+    if (currentTotal >= maxAllowedQuantity) return;
 
     const currentQty =
       allocations[resolvedColorId]?.sizes?.[sizeId]?.quantity ?? 0;
@@ -137,11 +133,7 @@ export const useProductAllocation = ({
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (buyDirectly) {
-      if (currentTotal >= maxDirectAllowedQuantity) return;
-    } else {
-      if (currentTotal >= maxAllowedQuantity) return;
-    }
+    if (currentTotal >= maxAllowedQuantity) return;
 
     const currentQty = allocations[resolvedColorId]?.quantity ?? 0;
 
@@ -217,6 +209,8 @@ export const useProductAllocation = ({
     decreaseSizeQty,
     getColorQuantity,
     handleCheckboxChange,
+    updateSizeQuantity,
+    updateColorQuantity,
     hasColors,
     hasSizes,
     DEFAULT_COLOR_ID

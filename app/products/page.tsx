@@ -16,7 +16,14 @@ const ProductsContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<BaleFilters>({
     categories: [],
-    priceRange: { min: 0, max: 1000000 },
+    priceRange: { min: 0, max: 99999999 },
+    marketLocation: [],
+    limit: 12,
+  });
+
+  const [tempFilters, setTempFilters] = useState<BaleFilters>({
+    categories: [],
+    priceRange: { min: 0, max: 99999999 },
     marketLocation: [],
     limit: 12,
   });
@@ -73,14 +80,14 @@ const ProductsContent = () => {
     (filters.categories?.length ?? 0) > 0 ||
     (filters.marketLocation?.length ?? 0) > 0 ||
     filters.supplierRating ||
-    (filters.priceRange?.min !== 0 || filters.priceRange?.max !== 1000000);
+    (filters.priceRange?.min !== 0 || filters.priceRange?.max !== 99999999);
 
   const toggleFilter = (
     key: "categories" | "marketLocation",
     value: string | number,
     checked: boolean
   ) => {
-    setFilters(prev => ({
+    setTempFilters(prev => ({
       ...prev,
       [key]: checked
         ? [...prev[key]!, value]
@@ -104,15 +111,17 @@ const ProductsContent = () => {
   return (
     <>
       <section className='pt-24'>
-        <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)]">
+        <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)] mb-10">
           <div className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-6 rounded-xl bg-(--bg-surface) overflow-y-auto h-full">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl">Filters</h2>
               <span
                 className="text-(--primary) cursor-pointer"
-                onClick={() =>
-                  setFilters({ categories: [], priceRange: { min: 0, max: 1000000 }, marketLocation: [], limit: 12 })
-                }
+                onClick={() => {
+                  const cleared = { categories: [], priceRange: { min: 0, max: 99999999 }, marketLocation: [], limit: 12 };
+                  setTempFilters(cleared);
+                  setFilters(cleared);
+                }}
               >
                 Clear All
               </span>
@@ -142,7 +151,7 @@ const ProductsContent = () => {
                           type="checkbox"
                           value={category.id}
                           onChange={(e) => toggleFilter("categories", category.id, e.target.checked)}
-                          checked={filters.categories?.includes(category.id)}
+                          checked={tempFilters.categories?.includes(category.id)}
                         />
                         <span className="truncate">{category.name}</span>
                       </div>
@@ -161,26 +170,28 @@ const ProductsContent = () => {
                 <Accordion.Content id="two">
                   <Slider.Root
                     className="relative flex items-center w-full h-5 my-2"
-                    value={[filters.priceRange!.min, filters.priceRange!.max]}
-                    max={10000}
+                    value={[tempFilters.priceRange!.min, tempFilters.priceRange!.max]}
+                    max={99999999}
                     step={1}
                     onValueChange={([min, max]) =>
-                      setFilters(prev => ({ ...prev, priceRange: { min, max } }))
+                      setTempFilters(prev => ({ ...prev, priceRange: { min, max } }))
                     }
                   >
                     <Slider.Track className="relative h-1 w-full bg-gray-300 rounded">
                       <Slider.Range className="absolute h-full bg-(--primary)" />
                     </Slider.Track>
-                    <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
-                      <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {filters.priceRange!.min}
-                      </span>
-                    </Slider.Thumb>
-                    <Slider.Thumb className="block w-4 h-4 bg-(--primary) rounded-full relative">
-                      <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-700">
-                        {filters.priceRange!.max}
-                      </span>
-                    </Slider.Thumb>
+
+                    {/* Min Thumb */}
+                    <Slider.Thumb className="relative block w-4 h-4 bg-(--primary) rounded-full" />
+                    <span className="absolute top-5 left-0 -translate-x-1/4 text-[10px] text-gray-700 whitespace-nowrap">
+                      {tempFilters.priceRange!.min}
+                    </span>
+
+                    {/* Max Thumb */}
+                    <Slider.Thumb className="relative block w-4 h-4 bg-(--primary) rounded-full" />
+                    <span className="absolute top-5 right-0 translate-x-1/4 text-[10px] text-gray-700 whitespace-nowrap">
+                      {tempFilters.priceRange!.max}
+                    </span>
                   </Slider.Root>
                 </Accordion.Content>
               </Accordion.Item>
@@ -198,9 +209,9 @@ const ProductsContent = () => {
                       <input
                         type="checkbox"
                         onChange={(e) =>
-                          setFilters(prev => ({ ...prev, supplierRating: e.target.value }))
+                          setTempFilters(prev => ({ ...prev, supplierRating: e.target.value }))
                         }
-                        checked={filters.supplierRating?.includes(rating)}
+                        checked={tempFilters.supplierRating?.includes(rating)}
                       />
                       {rating} <RiStarFill />
                     </div>
@@ -225,7 +236,12 @@ const ProductsContent = () => {
                 </Accordion.Content>
               </Accordion.Item>
             </Accordion>
-            <Button primary className="mt-5" isFullWidth>
+            <Button 
+              primary 
+              className="mt-5" 
+              isFullWidth
+              onClick={() => setFilters(tempFilters)}
+            >
               Apply
             </Button>
           </div>

@@ -7,34 +7,58 @@ export type SingleBale = {
   filledSlot: number;
   price: number;
   oldPrice: number;
+  originalPrice?: number | null;
   totalDeliveryFee: number;
   deliveryFee: number;
   baleId: string;
+  startedAt?: string;
   endIn: string;
+  shipmentId?: string | null;
+  createdBy?: number | null;
   status: "OPEN" | "CLOSED";
+  isSpecial?: boolean;
   createdAt: string;
   updatedAt: string;
   product: Product;
 };
 
 export type Product = {
+  images: string[];
+  productAttributes: ProductSubItem;
+  packageInfo: ProductSubItem;
   id: number;
   supplierId: number;
   subCategoryId: number;
+  productTypeId?: number;
   price: number;
   oldPrice: number;
   name: string;
   description: string;
   status: boolean;
+  platform?: string,
+  link?: string,
+  currency?: string,
+  relistPriceCapPercent?: null,
+  relistMinQuantity?: null,
+  createdBy?: number,
+  rate?: number,
+  positiveFeedbackRate?: number,
+  reviewsNumber?: number,
   createdAt: string;
   updatedAt: string;
-  images: string[];
-  productSizes: ProductSize[];
+  deletedAt?: string | null;
   variants: any[];
+  productSizes: ProductSize[];
   colors: ProductColorVariant[];
-  supplier: Supplier;
-  subCategory: SubCategory;
 };
+
+export type ProductRow = Record<string, string>;
+
+export type ProductSubItem = {
+  title: string,
+  headers: string[],
+  rows: ProductRow[]
+}
 
 export type ProductSize = {
   id: number;

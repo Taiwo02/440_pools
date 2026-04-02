@@ -22,6 +22,8 @@ import ProductLogin from "@/components/product/ProductLogin";
 import { useBuy } from "@/hooks/use-buy";
 import { useProductAllocation } from "@/hooks/useProductAllocation";
 import AllocationModal from "@/components/product/AllocationModal";
+import { useGetSupplier } from "@/api/product";
+import { PackagingInfo, ProductAttributes } from "@/components/product/ProductAttributes";
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
@@ -46,7 +48,18 @@ const ProductDetails = () => {
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending } = useGetBales({ categories: [], priceRange: { min: 0, max: 1000000 }, marketLocation: [] });
+  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales({});
+
+  const supplierId = baleData?.product?.supplierId;
+
+  // const {
+  //   data: supplier,
+  //   isPending: isSupplierPending,
+  //   error: supplierError
+  // } = useGetSupplier(supplierId!, {
+  //   enabled: !!supplierId,
+  // });
+
   const router = useRouter();
   const { addToCart } = useCart();
   const { addToBuyCart } = useBuy();
@@ -74,6 +87,8 @@ const ProductDetails = () => {
     decreaseSizeQty,
     getColorQuantity,
     handleCheckboxChange,
+    updateSizeQuantity,
+    updateColorQuantity,
     hasColors,
     hasSizes,
     DEFAULT_COLOR_ID
@@ -115,7 +130,8 @@ const ProductDetails = () => {
         sizes: {},
         quantity: 0,
       },
-    }))
+    }));
+    
   }, [baleData]);
 
   useEffect(() => {
@@ -174,10 +190,8 @@ const ProductDetails = () => {
     ) : null,
   }));
 
-  const isAllocationExceeded =
-    buyDirectly ?
-      totalAllocatedQuantity > maxDirectAllowedQuantity :
-      totalAllocatedQuantity > maxAllowedQuantity
+  const isAllocationExceeded = totalAllocatedQuantity > maxAllowedQuantity
+      
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -237,15 +251,15 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = () => {
-    if (isAllocationExceeded) {
-      toast.error(
-        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-      )
-      return
-    }
+    // if (isAllocationExceeded) {
+    //   toast.error(
+    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+    //   )
+    //   return
+    // }
 
-    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
-      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+    if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
+      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
       return
     }
 
@@ -290,15 +304,15 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = () => {
-    if (isAllocationExceeded) {
-      toast.error(
-        `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-      )
-      return
-    }
+    // if (isAllocationExceeded) {
+    //   toast.error(
+    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
+    //   )
+    //   return
+    // }
 
-    if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
-      toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
+    if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
+      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
       return
     }
 
@@ -424,15 +438,31 @@ const ProductDetails = () => {
     setShowAllocationModal(true);
   }
 
+  if (isBalesPending) {
+    return (
+      <div className="flex justify-center items-center w-full h-screen">
+        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
+      </div>
+    );
+  }
+
+  if (baleError) {
+    return (
+      <div className="flex justify-center items-center w-full my-24">
+        <p className="text-xl">Product not found</p>
+      </div>
+    )
+  }
+
   return (
     <>
-      <section className="pt-[86px] md:pt-24 mb-16">
+      <section className="pt-21.5 md:pt-24 mb-16">
         <div className="px-2 md:px-10 lg:px-32 flex flex-col gap-8">
           <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4">
 
             {/* LEFT */}
             <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl mb-2 md:mb-8">
+              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
@@ -456,8 +486,8 @@ const ProductDetails = () => {
                       value="shipping"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
-                      <span className="block md:hidden">Shipping</span>
-                      <span className="md:block hidden">Shipping Information</span>
+                      <span className="block md:hidden">Packaging</span>
+                      <span className="md:block hidden">Packaging Information</span>
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -465,14 +495,18 @@ const ProductDetails = () => {
                     Reviews content goes here
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
-                    Product details go here
+                    <ProductAttributes
+                      productAttributes={baleData.product.productAttributes}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
-                    Shipping details go here
+                    <PackagingInfo 
+                      packageInfo={baleData.product.packageInfo}
+                    />
                   </Tabs.Content>
                 </Tabs>
               </div>
-              {
+              {/* {
                 baleData?.product?.supplier &&
                 <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
                   <div className="flex items-center gap-4">
@@ -491,11 +525,11 @@ const ProductDetails = () => {
                     </Button>
                   </div>
                 </div>
-              }
+              } */}
             </div>
 
             {/* RIGHT */}
-            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky top-20 border border-(--border-default)">
+            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky md:top-20 border border-(--border-default)">
               <div>
                 <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
                 <div className="my-4">
@@ -583,8 +617,8 @@ const ProductDetails = () => {
                       value="shipping"
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
-                      <span className="block md:hidden">Shipping</span>
-                      <span className="md:block hidden">Shipping Information</span>
+                      <span className="block md:hidden">Packaging</span>
+                      <span className="md:block hidden">Packaging Information</span>
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -592,34 +626,48 @@ const ProductDetails = () => {
                     Reviews content goes here
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
-                    Product details go here
+                    <ProductAttributes
+                      productAttributes={baleData.product.productAttributes}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
-                    Shipping details go here
+                    <PackagingInfo
+                      packageInfo={baleData.product.packageInfo}
+                    />
                   </Tabs.Content>
                 </Tabs>
               </div>
 
               {/* Buttons for pool and cart */}
               <div className="mt-8 mb-4 flex gap-4 items-center">
-                <Button
-                  primary
-                  className={`uppercase gap-2 items-center`}
-                  disabled={Boolean(formValues.slots == 0)}
-                  onClick={openBuy}
-                >
-                  <RiBankCardFill className="block" />
-                  Buy
-                </Button>
-                <Button
-                  primary
-                  className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                  disabled={Boolean(formValues.slots == 0)}
-                  onClick={openPool}
-                >
-                  <RiGroup2Fill className="block" />
-                  Join Pool
-                </Button>
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase gap-2 items-center`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openBuy}
+                  >
+                    <RiBankCardFill className="block" />
+                    Buy
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    { baleData.oldPrice.toLocaleString() }
+                  </div>
+                </div>
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openPool}
+                  >
+                    <RiGroup2Fill className="block" />
+                    Join Pool
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    { baleData.price.toLocaleString() }
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -712,6 +760,12 @@ const ProductDetails = () => {
           joinPool={joinPool}
           handleBuyNow={handleBuyNow}
           handleAddToCart={handleAddToCart}
+          totalAllocatedQuantity={totalAllocatedQuantity}
+          hasColors={hasColors}
+          maxDirectAllowedQuantity={maxDirectAllowedQuantity}
+          maxAllowedQuantity={maxAllowedQuantity}
+          updateSizeQuantity={updateSizeQuantity}
+          updateColorQuantity={updateColorQuantity}
         />
       )}
     </>

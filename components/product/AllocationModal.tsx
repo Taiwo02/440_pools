@@ -26,6 +26,7 @@ type Props = {
     handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement, Element>) => void
     activeColorId: number | null,
     hasSizes: boolean,
+    hasColors: boolean,
     sizesList: {
       id: number,
       value: string,
@@ -34,6 +35,8 @@ type Props = {
     isAllocationExceeded: boolean,
     allocations: AllocationState,
     setAllocations: React.Dispatch<React.SetStateAction<AllocationState>>,
+    updateSizeQuantity: (colorId: number, sizeId: number, sizeLabel: string, quantity: number) => void,
+    updateColorQuantity: (colorId: number, quantity: number) => void,
     decreaseSizeQty: (colorId: number, sizeId: number, sizeLabel: string) => void,
     increaseSizeQty: (colorId: number, sizeId: number, sizeLabel: string) => void,
     decreaseColorQty: (colorId: number) => void,
@@ -42,7 +45,10 @@ type Props = {
     buyDirectly: boolean,
     joinPool: () => void,
     handleBuyNow: () => void
-    handleAddToCart: () => void
+    handleAddToCart: () => void,
+    totalAllocatedQuantity: number,
+    maxDirectAllowedQuantity: number,
+    maxAllowedQuantity: number,
 }
 
 const AllocationModal = (
@@ -52,17 +58,22 @@ const AllocationModal = (
     baleData,
     formatPrice,
     productsPerSlot = 0,
+    totalAllocatedQuantity,
     colorsList,
     formValues,
+    maxAllowedQuantity,
+    maxDirectAllowedQuantity,
     setFormValues,
     getColorQuantity,
     handleCheckboxChange,
     activeColorId,
     hasSizes,
+    hasColors,
     sizesList,
     isAllocationExceeded,
     allocations,
-    setAllocations,
+    updateSizeQuantity,
+    updateColorQuantity,
     decreaseSizeQty,
     increaseSizeQty,
     decreaseColorQty,
@@ -73,6 +84,8 @@ const AllocationModal = (
     handleAddToCart,
     handleBuyNow
   }: Props) => {
+  const DEFAULT_COLOR_ID = 0
+
   return (
     <Modal
       isOpen={isModalOpen}
@@ -104,17 +117,21 @@ const AllocationModal = (
       <div className="overflow-auto h-[calc(100vh-150px)] no-scrollbar">
         <div className="my-4">
           <h2 className="text-lg">
-            Prices
+            Price
           </h2>
           <div className="flex flex-wrap items-end gap-4">
-            <div>
-              <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price + 10)}</p>
-              <span className='relative -top-2 text-xs text-(--text-muted)'>Pooled Price per Unit</span>
-            </div>
-            <div>
-              <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.oldPrice)}</p>
-              <span className='relative -top-2 text-xs text-(--text-muted)'>Direct Buy Price per Unit</span>
-            </div>
+            {
+              buyDirectly ? 
+                <div>
+                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.oldPrice)}</p>
+                  <span className='relative -top-2 text-xs text-(--text-muted)'>Direct Buy Price per Unit</span>
+                </div> : 
+                <div>
+                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
+                  <span className='relative -top-2 text-xs text-(--text-muted)'>Pooled Price per Unit</span>
+                </div>
+            }
+            
           </div>
         </div>
 
@@ -142,7 +159,7 @@ const AllocationModal = (
                   value={formValues.directQty}
                   handler={handleChange}
                   genStyle="my-0!"
-                  styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                  styling="rounded-none p-2! focus:outline-none! w-30! text-center"
                 />
                 <Button
                   className="rounded-l-none rounded-r-xl! py-2!"
@@ -203,7 +220,7 @@ const AllocationModal = (
                     value={formValues.slots}
                     handler={handleChange}
                     genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
+                    styling="rounded-none p-2! focus:outline-none! w-30! text-center"
                   />
                   <Button
                     className="rounded-l-none rounded-r-xl! py-2!"
@@ -312,8 +329,22 @@ const AllocationModal = (
                                 input_type="text"
                                 value={qty}
                                 name="qty"
-                                handler={() => { }}
-                                disabled
+                                handler={(e) => {
+                                  const value = Number(e.target.value);
+                                  if (isNaN(value) || value < 0) return;
+
+                                  const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+
+                                  const otherSizesTotal =
+                                    totalAllocatedQuantity -
+                                    (allocations[resolvedColorId]?.sizes?.[size.id]?.quantity ?? 0);
+
+                                  const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+
+                                  if (otherSizesTotal + value > max) return;
+
+                                  updateSizeQuantity(resolvedColorId, size.id, size.label, value);
+                                }}
                                 genStyle="my-0!"
                                 styling="rounded-none p-2! w-10! text-center!"
                               />
@@ -356,8 +387,22 @@ const AllocationModal = (
                           input_type="text"
                           value={allocations[activeColorId].quantity ?? 0}
                           name="qty"
-                          disabled
-                          handler={() => { }}
+                          handler={(e) => {
+                            const value = Number(e.target.value);
+                            if (isNaN(value) || value < 0) return;
+
+                            const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+
+                            const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+
+                            // Ensure total allocation does not exceed max
+                            const otherColorsTotal =
+                              totalAllocatedQuantity - (allocations[resolvedColorId]?.quantity ?? 0);
+
+                            if (otherColorsTotal + value > max) return;
+
+                            updateColorQuantity(resolvedColorId, value);
+                          }}
                           genStyle="my-0!"
                           styling="rounded-none p-2! w-10! text-center!"
                         />
@@ -379,6 +424,11 @@ const AllocationModal = (
         </div>
       </div>
       <div className="w-full p-4 border-t border-(--border-default) absolute left-0 bottom-0 bg-(--bg-page)">
+        {buyDirectly && totalAllocatedQuantity < maxDirectAllowedQuantity && (
+          <p className="text-red-500 text-xs my-1 text-center">
+            You must allocate at least {maxDirectAllowedQuantity} items to buy or add to cart.
+          </p>
+        )}
         {
           buyDirectly ?
             <div className="flex gap-2">
@@ -386,7 +436,7 @@ const AllocationModal = (
                 primary
                 isFullWidth
                 className={`uppercase  gap-2 items-center`}
-                disabled={false}
+                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
                 onClick={handleBuyNow}
               >
                 <RiBankCardFill className="hidden md:block" />
@@ -396,7 +446,7 @@ const AllocationModal = (
                 primary
                 isFullWidth
                 className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                disabled={false}
+                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
                 onClick={handleAddToCart}
               >
                 <RiShoppingCart2Line className="hidden md:block" />
