@@ -1,6 +1,7 @@
 import axios from "axios";
 import NProgress from "nprogress";
 import { deleteCrossSubdomainCookie, getCrossSubdomainCookie, setCrossSubdomainCookie } from "./utils";
+import { v4 as uuidv4 } from "uuid";
 
 let activeRequests = 0;
 
@@ -19,6 +20,7 @@ const stopProgress = () => {
   }
 };
 
+// @ts-ignore
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const http = axios.create({
@@ -32,6 +34,15 @@ http.interceptors.request.use((config) => {
 
   const token = getCrossSubdomainCookie("440_token");
   if (token) config.headers.authorization = `Bearer ${token}`;
+
+  // Only generate a key if it's the specific endpoint AND one doesn't exist yet
+  if (
+    config.method === 'post' &&
+    config.url?.includes("/buyer/initiate-payment") &&
+    !config.headers['Idempotency-Key'] // Check if key is already there
+  ) {
+    config.headers['Idempotency-Key'] = uuidv4();
+  }
 
   return config;
 });
