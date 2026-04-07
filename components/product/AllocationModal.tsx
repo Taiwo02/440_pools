@@ -339,14 +339,14 @@ const AllocationModal = (
                                     totalAllocatedQuantity -
                                     (allocations[resolvedColorId]?.sizes?.[size.id]?.quantity ?? 0);
 
-                                  const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+                                  const max = maxAllowedQuantity;
 
                                   if (otherSizesTotal + value > max) return;
 
                                   updateSizeQuantity(resolvedColorId, size.id, size.label, value);
                                 }}
                                 genStyle="my-0!"
-                                styling="rounded-none p-2! w-10! text-center!"
+                                styling="rounded-none p-2! w-15! text-center!"
                               />
 
                               <Button
@@ -393,7 +393,7 @@ const AllocationModal = (
 
                             const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
 
-                            const max = buyDirectly ? maxDirectAllowedQuantity : maxAllowedQuantity;
+                            const max = maxAllowedQuantity;
 
                             // Ensure total allocation does not exceed max
                             const otherColorsTotal =
@@ -404,7 +404,7 @@ const AllocationModal = (
                             updateColorQuantity(resolvedColorId, value);
                           }}
                           genStyle="my-0!"
-                          styling="rounded-none p-2! w-10! text-center!"
+                          styling="rounded-none p-2! w-15! text-center!"
                         />
 
                         <Button

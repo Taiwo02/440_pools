@@ -24,7 +24,7 @@ export type SingleBale = {
 
 export type Product = {
   images: string[];
-  productAttributes: ProductSubItem;
+  productAttributes: ProductSubItem | null;
   packageInfo: ProductSubItem;
   id: number;
   supplierId: number;
@@ -55,7 +55,7 @@ export type Product = {
 export type ProductRow = Record<string, string>;
 
 export type ProductSubItem = {
-  title: string,
+  title: string | null,
   headers: string[],
   rows: ProductRow[]
 }

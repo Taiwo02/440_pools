@@ -1,7 +1,7 @@
 "use client"
 
 import { useGetUserProfile } from '@/api/auth'
-import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useDirectOrder, useGetDeliveries, useInitiateDirectPayment, useInitiateSlotPayment, useOrderMutation } from '@/api/order'
+import { useConfirmPayment, useCreateBaleSlot, useDeliveryMutation, useDirectOrder, useGetDeliveries, useInitiateDirectPayment, useInitiatePayment, useOrderMutation } from '@/api/order'
 import DeliveryForm from '@/components/checkout/DeliveryForm'
 import * as Slider from "@radix-ui/react-slider";
 import MyModal from '@/components/core/modal'
@@ -31,7 +31,7 @@ import {
   RiCloseLine
 } from 'react-icons/ri'
 import { toast } from 'react-toastify'
-import { DirectInitiate, DirectOrderPayload, InitiatePayment } from '@/types/checkout';
+import { DirectOrderPayload, InitiatePayment } from '@/types/checkout';
 
 const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +43,7 @@ const Checkout = () => {
 
   // Slot Payment
   const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
-  const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiateSlotPayment();
+  const { mutateAsync: initiatePayment, isPending: isInitiatePending } = useInitiatePayment();
 
   const { mutateAsync: orderDirect, isPending: isDirectPending } = useDirectOrder();
 
@@ -261,7 +261,12 @@ const Checkout = () => {
           action: "LOCK"
         }
 
-        const initiateRes = await initiatePayment(initiateData);
+        const data = {
+          body: initiateData,
+          idempotencyKey: crypto.randomUUID()
+        }
+
+        const initiateRes = await initiatePayment(data);
 
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           console.log(initiateRes.data);
@@ -364,25 +369,26 @@ const Checkout = () => {
         return;
       }
 
-      const payloadItems: any =
-        cartItems[0].items.length > 0
-          ? cartItems[0].items.map((item: any) => ({
-            productId: cartItems[0].productId,
-            colorId: item.color?.id ? Number(item.color.id) : null,
-            sizeId: item.size?.id ? Number(item.size.id) : null,
+      const payloadItems = cartItems.flatMap(cartItem => {
+        if (cartItem.items?.length > 0) {
+          return cartItem.items.map((item: any) => ({
+            productId: cartItem.productId,
+            colorId: item.color?.id ?? null,
+            sizeId: item.size?.id ?? null,
             quantity: Number(item.quantity),
-          }))
-          : [
-            {
-              productId: cartItems[0].productId,
-              colorId: null,
-              sizeId: null,
-              quantity: Number(cartItems[0].quantity),
-            },
-          ];
+          }));
+        }
+
+        return [{
+          productId: cartItem.productId,
+          colorId: null,
+          sizeId: null,
+          quantity: Number(cartItem.quantity),
+        }];
+      });
 
       const directOrderPay: DirectOrderPayload = {
-        items: payloadItems,
+        items: payloadItems, // pass the array directly
         paymentOption: upfrontPercent < 100 ? "split" : "full",
         upfrontPercent: upfrontPercent,
         deliveryAddressId: deliveryId,
@@ -393,14 +399,20 @@ const Checkout = () => {
       if (directRes.status === 200 || directRes.status === 201) {
         console.log(directRes.data);
         const orderId = directRes.data.data.orders[0].id;
+        const checkoutId = directRes.data.data.checkout.id;
 
         const initiatePayload: InitiatePayment = {
           flowType: "DIRECT",
           action: "UPFRONT",
-          orderId
+          checkoutId
         }
 
-        const initiateRes = await initiatePayment(initiatePayload);
+        const data = {
+          body: initiatePayload,
+          idempotencyKey: crypto.randomUUID()
+        }
+
+        const initiateRes = await initiatePayment(data);
 
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           console.log(initiateRes.data)
@@ -891,9 +903,16 @@ const Checkout = () => {
                 <RiCloseLine size={24} />
               </button>
             </div>
-            <p className="mt-2 text-sm">
-                You can pay <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> and pay the remaining within the next 2 months
-            </p>
+            {
+              upfrontPercent < 100 ?
+                <p className="mt-2 text-sm">
+                  You can pay <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> and pay the remaining within the next 2 months
+                </p> :
+                <p className="mt-2 text-sm">
+                  You are paying <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> in full without any other payments
+                </p>
+            }
+            
 
             <div className="w-full max-w-md mt-4 mb-8">
               <Slider.Root

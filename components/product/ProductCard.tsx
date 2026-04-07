@@ -1,6 +1,6 @@
 import { Bale } from '@/types/types'
 import React from 'react'
-import { Card, StarRating } from '../ui'
+import { Card, StarRatings } from '../ui'
 import Link from 'next/link'
 import ProductThumbPlaceholder from './ProductThumbPlaceholder'
 import { RiBuilding2Line } from 'react-icons/ri'
@@ -42,7 +42,8 @@ const ProductCard = ({ bale }: Props) => {
         <div className="p-2 md:p-3">
           {/* 2. Title - single line */}
           <p className="text-xs md:text-sm font-bold truncate">{bale.product.name}</p>
-          <StarRating rating={(bale.product as { rating?: number }).rating ?? 4} size={12} className="mt-0.5" />
+          {/* <StarRating rating={(bale.product as { rating?: number }).rating ?? 4} size={12} className="mt-0.5" /> */}
+          <StarRatings rating={bale.product.rate!} />
 
           {/* 3. Market name */}
           <p className="flex items-center gap-1 text-xs text-(--text-muted) mt-2">
