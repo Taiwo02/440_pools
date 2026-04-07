@@ -9,28 +9,43 @@ type CountdownProps = {
   className?: string;
 };
 
-const pad2 = (n: number) => String(n).padStart(2, "0");
+const MS_DAY = 24 * 60 * 60 * 1000;
+const MS_HOUR = 60 * 60 * 1000;
+const MS_MIN = 60 * 1000;
 
-/** Total whole hours (unbounded), minutes 0–59, seconds 0–59 — e.g. 631:12:00 */
-const formatHms = (endDate: string): { text: string; ended: boolean } => {
+/** >24h → days; (1h, 24h] → hours; ≤1h → minutes + seconds */
+const formatRemaining = (endDate: string): { text: string; ended: boolean } => {
   const diff = new Date(endDate).getTime() - Date.now();
   if (diff <= 0) {
     return { text: "Ended", ended: true };
   }
-  const totalHours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  if (diff > MS_DAY) {
+    const days = Math.floor(diff / MS_DAY);
+    return {
+      text: days === 1 ? "1 day left" : `${days} days left`,
+      ended: false,
+    };
+  }
+  if (diff > MS_HOUR) {
+    const hours = Math.floor(diff / MS_HOUR);
+    return {
+      text: hours === 1 ? "1hr left" : `${hours}hrs left`,
+      ended: false,
+    };
+  }
+  const minutes = Math.floor(diff / MS_MIN);
   const seconds = Math.floor((diff / 1000) % 60);
   return {
-    text: `${totalHours}:${pad2(minutes)}:${pad2(seconds)}`,
+    text: `${minutes}m ${seconds}s left`,
     ended: false,
   };
 };
 
 export default function Countdown({ endDate, className }: CountdownProps) {
-  const [snapshot, setSnapshot] = useState(() => formatHms(endDate));
+  const [snapshot, setSnapshot] = useState(() => formatRemaining(endDate));
 
   useEffect(() => {
-    const tick = () => setSnapshot(formatHms(endDate));
+    const tick = () => setSnapshot(formatRemaining(endDate));
     tick();
     const interval = setInterval(tick, 1_000);
     return () => clearInterval(interval);
