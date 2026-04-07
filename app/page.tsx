@@ -1,15 +1,13 @@
-import { Button } from "@/components/ui";
-import Image from "next/image";
-import { Header, ProductsSection, ShopBy, SuppliersSection } from "@/components/home";
-import { Footer, Navbar } from "@/components/core";
+import { Header, DesktopLandingBoard, ProductsSection, SuppliersSection } from "@/components/home";
 import { DealsAndTrending } from "@/components/product/DealsandTrending";
-import { dailyDeals, trendingItems } from "../components/product/data";
+import { dailyDeals } from "../components/product/data";
 
 export default function Home() {
   return (
     <>
       <Header />
-      <div className="py-10 px-4 md:px-10 lg:px-20">
+      <DesktopLandingBoard dailyDeals={dailyDeals} />
+      <div className="py-2 md:py-10 lg:pt-2 px-0 md:px-10 lg:px-20 mb-6 md:mb-8 lg:mb-0">
         <DealsAndTrending
           dailyDeals={dailyDeals}
         />

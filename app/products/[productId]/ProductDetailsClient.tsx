@@ -3,7 +3,7 @@
 import { useGetBales, useGetSingleBale } from "@/api/bale";
 import ProductImages from "@/components/product/ImageGallery";
 import Countdown from "@/components/shared/Countdown";
-import { Badge, Button } from "@/components/ui";
+import { Badge, Button, Progress, StarRating } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
@@ -24,6 +24,21 @@ import { useProductAllocation } from "@/hooks/useProductAllocation";
 import AllocationModal from "@/components/product/AllocationModal";
 import { useGetSupplier } from "@/api/product";
 import { PackagingInfo, ProductAttributes } from "@/components/product/ProductAttributes";
+import UserBubbles from "@/components/product/UserBubble";
+import ProductReviewsSection from "@/components/product/ProductReviewsSection";
+
+const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
+
+function getProductDisplayRating(
+  rate: number | undefined | null,
+  productId: number
+): number {
+  if (typeof rate === "number" && Number.isFinite(rate) && rate > 0) {
+    return Math.min(5, Math.max(0, rate));
+  }
+  const i = Math.abs(productId) % PRODUCT_RATING_FALLBACKS.length;
+  return PRODUCT_RATING_FALLBACKS[i];
+}
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
@@ -454,15 +469,20 @@ const ProductDetails = () => {
     )
   }
 
+  const productDisplayRating = getProductDisplayRating(
+    baleData.product.rate,
+    baleData.product.id
+  );
+
   return (
     <>
       <section className="pt-21.5 md:pt-24 mb-16">
-        <div className="px-2 md:px-10 lg:px-32 flex flex-col gap-8">
-          <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4">
+        <div className="px-0 sm:px-2 md:px-10 lg:px-32 flex flex-col gap-0 md:gap-8">
+          <div className="flex flex-col md:flex-row items-stretch md:items-start gap-0 md:gap-6 lg:gap-8">
 
             {/* LEFT */}
-            <div className="md:basis-2/3 md:sticky md:top-24">
-              <div className="bg-(--bg-surface) p-6 rounded-xl mb-8">
+            <div className="w-full md:basis-2/3 md:min-w-0 md:sticky md:top-24">
+              <div className="bg-(--bg-surface) p-3 md:p-6 rounded-none md:rounded-xl mb-0 md:mb-8">
                 <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
@@ -492,7 +512,7 @@ const ProductDetails = () => {
                   </Tabs.List>
 
                   <Tabs.Content value="reviews" className="pt-4">
-                    Reviews content goes here
+                    <ProductReviewsSection reviews={baleData.product.reviews} />
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
                     <ProductAttributes
@@ -529,9 +549,22 @@ const ProductDetails = () => {
             </div>
 
             {/* RIGHT */}
-            <div className="md:basis-1/3 bg-(--bg-surface) p-6 rounded-xl md:sticky md:top-20 border border-(--border-default)">
+            <div className="w-full md:basis-1/3 md:min-w-0 bg-(--bg-surface) p-4 md:p-6 rounded-none md:rounded-xl md:sticky md:top-20 border-0 md:border border-(--border-default)">
               <div>
                 <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
+                <div
+                  className="mt-2 flex flex-wrap items-center gap-2"
+                  aria-label={`Product rating ${productDisplayRating.toFixed(1)} out of 5`}
+                >
+                  <StarRating
+                    rating={productDisplayRating}
+                    size={18}
+                    className="shrink-0"
+                  />
+                  <span className="text-sm font-semibold text-(--primary) tabular-nums">
+                    {productDisplayRating.toFixed(1)}
+                  </span>
+                </div>
                 <div className="my-4">
                   <div className="flex flex-wrap items-end gap-2">
                     <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
@@ -592,6 +625,33 @@ const ProductDetails = () => {
                       )
                     }
                   </div>
+
+                  {hasSizes && baleData.slot > 0 && (
+                    <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg border border-(--border-default)">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-(--primary)">
+                          <RiGroup2Fill className="shrink-0" />
+                          <h3 className="text-lg font-bold uppercase">Pool Progress</h3>
+                        </div>
+                        <UserBubbles count={baleData.filledSlot} />
+                      </div>
+
+                      <div className="mt-2 flex justify-between items-center">
+                        <p className="text-(--text-muted) text-sm">
+                          <span className="text-lg md:text-2xl text-(--primary) font-bold">
+                            {baleData.filledSlot}
+                          </span>{" "}
+                          / {baleData.slot} slots reserved
+                        </p>
+                      </div>
+
+                      <Progress
+                        totalQty={baleData.slot}
+                        currentQty={baleData.filledSlot}
+                        className="my-0!"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -623,7 +683,7 @@ const ProductDetails = () => {
                   </Tabs.List>
 
                   <Tabs.Content value="reviews" className="pt-4">
-                    Reviews content goes here
+                    <ProductReviewsSection reviews={baleData.product.reviews} />
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
                     <ProductAttributes

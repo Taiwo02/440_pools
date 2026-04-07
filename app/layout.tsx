@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Footer, Navbar } from "@/components/core";
+import MobileBottomNav from "@/components/core/MobileBottomNav";
 import Providers from "@/providers/providers";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,7 +35,10 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            {children}
+            <div className="pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0 min-h-0">
+              {children}
+            </div>
+            <MobileBottomNav />
             <Footer />
           </ThemeProvider>
         </Providers>

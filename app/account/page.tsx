@@ -31,7 +31,7 @@ export default function AccountPage() {
   
   
   return (
-    <section className="pt-24 mb-10 md:mb-16">
+    <section className="pt-[7.5rem] lg:pt-24 mb-10 md:mb-16 pb-20 lg:pb-0">
       <div className="px-4 md:px-10 py-10 flex flex-col md:flex-row gap-4 md:items-center justify-around rounded-2xl bg-(--bg-surface) mx-4 mt-4 relative">
         <div className="flex gap-4 items-center">
           <div className="w-20 h-20 rounded-full bg-(--primary-soft) flex items-center justify-center">

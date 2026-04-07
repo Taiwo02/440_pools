@@ -1,28 +1,35 @@
-import { Bale } from '@/types/types'
-import React from 'react'
-import { Card, StarRating } from '../ui'
-import Link from 'next/link'
-import ProductThumbPlaceholder from './ProductThumbPlaceholder'
-import { RiBuilding2Line } from 'react-icons/ri'
-import UserBubbles from './UserBubble'
-import Countdown from '../shared/Countdown'
-import CardJoinToast from './CardJoinToast'
-import { SingleBale } from '@/types/baletype'
+"use client";
+
+import type { Bale } from "@/types/types";
+import React, { useState } from "react";
+import { Card, StarRating } from "../ui";
+import Link from "next/link";
+import ProductThumbPlaceholder from "./ProductThumbPlaceholder";
+import { RiBuilding2Line, RiHeartFill, RiHeartLine } from "react-icons/ri";
+import UserBubbles from "./UserBubble";
+import Countdown from "../shared/Countdown";
+import CardJoinToast from "./CardJoinToast";
+import type { SingleBale } from "@/types/baletype";
 
 type Props = {
-  bale: SingleBale
-}
+  bale: SingleBale | Bale;
+};
 
 const ProductCard = ({ bale }: Props) => {
-  const percentage = bale.slot > 0 ? Math.round((bale.filledSlot / bale.slot) * 100) : 0
-  const marketName = (bale.product as { supplier?: { name?: string } })?.supplier?.name ?? 'Group Pool'
-  const hasDiscount = bale.oldPrice != null && bale.oldPrice > bale.price && bale.oldPrice > 0
-  const savePercent = hasDiscount ? Math.round(((bale.oldPrice - bale.price) / bale.oldPrice) * 100) : 0
+  const [liked, setLiked] = useState(false);
+  const percentage =
+    bale.slot > 0 ? Math.round((bale.filledSlot / bale.slot) * 100) : 0;
+  const marketName =
+    (bale.product as { supplier?: { name?: string } })?.supplier?.name ??
+    "Group Pool";
+  const hasDiscount =
+    bale.oldPrice != null && bale.oldPrice > bale.price && bale.oldPrice > 0;
+  const currency =
+    (bale.product as { currency?: string }).currency ?? "₦";
 
   return (
     <Link href={`/products/${bale.id}`} className="block cursor-pointer">
       <Card className="p-0! rounded-lg">
-        {/* 1. Image first - Save % top-left, Countdown top-right */}
         <div className="relative">
           <ProductThumbPlaceholder
             images={bale.product.images}
@@ -30,27 +37,50 @@ const ProductCard = ({ bale }: Props) => {
             className="w-full h-28 md:h-44 rounded-t-2xl"
             previewMaxChars={40}
           />
-          {hasDiscount && (
-            <span className="hidden md:inline-flex absolute top-2 left-2 z-10 items-center rounded px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-medium">
-              Save {savePercent}%
-            </span>
-          )}
-          <Countdown endDate={bale.endIn} className="left-auto! right-2 top-2" />
+          <Countdown
+            endDate={bale.endIn}
+            className="left-auto! right-2 top-2"
+          />
           <CardJoinToast cardId={bale.id} />
+          <span
+            className={`absolute right-2 bottom-2 z-20 inline-flex rounded-full bg-white/90 p-1 shadow-sm cursor-pointer transition-colors ${
+              liked
+                ? "text-red-500"
+                : "text-(--text-muted) hover:text-red-500"
+            }`}
+            aria-label={liked ? "Unlike" : "Like"}
+            title={liked ? "Unlike" : "Like"}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setLiked((v) => !v);
+            }}
+          >
+            {liked ? (
+              <RiHeartFill size={18} aria-hidden />
+            ) : (
+              <RiHeartLine size={18} aria-hidden />
+            )}
+          </span>
         </div>
 
         <div className="p-2 md:p-3">
-          {/* 2. Title - single line */}
-          <p className="text-xs md:text-sm font-bold truncate">{bale.product.name}</p>
-          <StarRating rating={(bale.product as { rating?: number }).rating ?? 4} size={12} className="mt-0.5" />
-
-          {/* 3. Market name */}
-          <p className="flex items-center gap-1 text-xs text-(--text-muted) mt-2">
-            <RiBuilding2Line className="shrink-0" size={14} />
-            <span>{marketName}</span>
+          <p className="text-xs md:text-sm font-bold truncate">
+            {bale.product.name}
           </p>
 
-          {/* 4. Progress - left: filledSlot/slot Units, right: avatar icons (3 + +N) */}
+          <div className="flex items-center justify-between gap-2 mt-2 min-w-0">
+            <p className="flex items-center gap-1 text-xs text-(--text-muted) min-w-0 flex-1">
+              <RiBuilding2Line className="shrink-0" size={14} aria-hidden />
+              <span className="truncate">{marketName}</span>
+            </p>
+            <StarRating
+              rating={(bale.product as { rating?: number }).rating ?? 4}
+              size={12}
+              className="shrink-0 mt-0"
+            />
+          </div>
+
           <div className="mt-1">
             <div className="flex justify-between items-center">
               <p className="font-bold text-(--primary) text-xs md:text-sm">
@@ -66,32 +96,29 @@ const ProductCard = ({ bale }: Props) => {
             </div>
           </div>
 
-          {/* 5. Price section: POOL PRICE | RETAIL struck through, then price + Save % badge, Join Pool */}
-          <div className="mt-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-(--text-muted) uppercase">POOL PRICE</span>
-              {hasDiscount && (
-                <span className="text-[10px] text-(--text-muted) uppercase line-through">
-                  RETAIL: {bale.product.currency}{bale.oldPrice}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap items-end justify-between mt-2">
-              <div className="flex items-baseline gap-1.5 flex-wrap">
-                <p className="text-(--text) font-bold text-sm md:text-base">
-                  { bale.product.currency }{bale.price.toLocaleString()}
-                  <span className="text-(--text-muted) font-normal text-xs">/unit</span>
-                </p>
-              </div>
-              <span className="hidden md:inline-flex shrink-0 items-center justify-center rounded-lg bg-(--primary-soft) text-(--primary) font-medium text-xs py-2 px-3 transition-all hover:bg-(--primary) hover:text-white">
-                Join Pool
+          <div className="mt-3 space-y-1.5">
+            <p className="text-(--text-primary) font-bold text-sm md:text-base leading-tight tabular-nums">
+              {currency}
+              {bale.price.toLocaleString()}
+              <span className="text-[10px] md:text-xs font-normal text-(--text-muted) ml-1">
+                per unit
               </span>
-            </div>
+            </p>
+            {hasDiscount && (
+              <span className="inline-block max-w-full truncate rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-amber-900">
+                Market: {currency}
+                {bale.oldPrice.toLocaleString()}
+              </span>
+            )}
           </div>
+
+          <span className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-(--primary-soft) text-(--primary) font-semibold text-[10px] md:text-xs py-1.5 md:py-2 pointer-events-none">
+            Join Pool
+          </span>
         </div>
       </Card>
     </Link>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default ProductCard;

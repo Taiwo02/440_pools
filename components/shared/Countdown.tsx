@@ -9,69 +9,52 @@ type CountdownProps = {
   className?: string;
 };
 
-type TimeLeft = {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-};
+const pad2 = (n: number) => String(n).padStart(2, "0");
 
-const getTimeLeft = (endDate: string): TimeLeft => {
+/** Total whole hours (unbounded), minutes 0–59, seconds 0–59 — e.g. 631:12:00 */
+const formatHms = (endDate: string): { text: string; ended: boolean } => {
   const diff = new Date(endDate).getTime() - Date.now();
-
   if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return { text: "Ended", ended: true };
   }
-
+  const totalHours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
   return {
-    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / (1000 * 60)) % 60),
-    seconds: Math.floor((diff / 1000) % 60),
+    text: `${totalHours}:${pad2(minutes)}:${pad2(seconds)}`,
+    ended: false,
   };
 };
 
 export default function Countdown({ endDate, className }: CountdownProps) {
-  const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(endDate));
+  const [snapshot, setSnapshot] = useState(() => formatHms(endDate));
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft(getTimeLeft(endDate));
-    }, 1_000);
-
+    const tick = () => setSnapshot(formatHms(endDate));
+    tick();
+    const interval = setInterval(tick, 1_000);
     return () => clearInterval(interval);
   }, [endDate]);
 
-  const isEnded =
-    timeLeft.days === 0 &&
-    timeLeft.hours === 0 &&
-    timeLeft.minutes === 0 &&
-    timeLeft.seconds === 0;
-
-  const renderTime = () => {
-    if (isEnded) return "Ended";
-    if (timeLeft.days > 0) return `${timeLeft.days}d ${timeLeft.hours}h`;
-    if (timeLeft.hours > 0) return `${timeLeft.hours}h ${timeLeft.minutes}m`;
-    if (timeLeft.minutes > 0) return `${timeLeft.minutes}m ${timeLeft.seconds}s`;
-    return `${timeLeft.seconds}s`;
-  };
+  const { text, ended } = snapshot;
 
   return (
     <div
       className={cn(
-        `absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full ${(timeLeft.days < 0 && timeLeft.hours < 0) || isEnded ? "bg-red-500/70" : "bg-(--primary)"} px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xl`,
+        `absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full ${
+          ended ? "bg-red-500/70" : "bg-(--primary)"
+        } px-2 py-1 text-[10px] font-medium text-white backdrop-blur-xl`,
         className
       )}
     >
-      {
-        (timeLeft.days < 0 && timeLeft.hours < 0) || isEnded ? 
-        <RiFlashlightFill /> :
-        <RiTimeFill />
-      }
-      <div className="flex gap-1 items-center">
-        {!isEnded && <span>Ends in</span>}
-        <span className="font-semibold">{renderTime()}</span>
-      </div>
+      {ended ? (
+        <RiFlashlightFill className="shrink-0" aria-hidden />
+      ) : (
+        <RiTimeFill className="shrink-0" aria-hidden />
+      )}
+      <span className="font-mono font-semibold tabular-nums tracking-tight">
+        {text}
+      </span>
     </div>
   );
 }

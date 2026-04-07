@@ -4,15 +4,20 @@ import { useState } from 'react'
 import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine } from 'react-icons/ri'
 import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import SearchForm from './search'
+import SupportMessagePanel from './SupportMessagePanel'
 import { useBuy } from '@/hooks/use-buy';
+import { useAuth } from '@/hooks/use-auth';
 
 const Navbar = () => {
+  const { user, authenticated } = useAuth();
+  const isLoggedIn = Boolean(user) || authenticated;
+  const router = useRouter();
   const [category, setCategory] = useState('Electronics')
   const pathname = usePathname() ?? "/";
   const [isVisible, setIsVisible] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const productCategories = [
     "Electronics",
@@ -130,14 +135,72 @@ const Navbar = () => {
   return (
     <>
     <nav className='fixed w-full z-50 shadow-sm'>
-      <div className='bg-(--bg-surface) py-2 px-4 md:px-20 flex gap-12 items-center justify-between'>
+      {/* Mobile / tablet — 1688-style: logo row + search + sign in */}
+      <div className="lg:hidden bg-(--bg-surface) border-b border-(--border-default)">
+        <div className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-2">
+          <Link href="/" className="shrink-0 flex items-center gap-2 min-w-0">
+            <img
+              src="/images/440_Logo.png"
+              alt="440"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+            />
+            <span className="text-sm font-bold text-(--primary) truncate"></span>
+          </Link>
+          <button
+            type="button"
+            aria-label="Menu"
+            className="shrink-0 p-2 rounded-lg border border-(--border-default) text-(--text-primary)"
+            onClick={() => setIsVisible((prev) => !prev)}
+          >
+            {isVisible ? <RiCloseLine className="text-xl" /> : <RiMenu3Line className="text-xl" />}
+          </button>
+        </div>
+        <form
+          className="flex items-stretch gap-2 px-3 pb-2.5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = searchTerm.trim();
+            router.push(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
+          }}
+        >
+          <div className="flex flex-1 min-w-0 items-stretch rounded-full border-2 border-(--primary) overflow-hidden bg-(--bg-surface)">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search products, pools & suppliers"
+              className="min-w-0 flex-1 px-3 py-2 text-sm bg-transparent border-none outline-none placeholder:text-(--text-muted)"
+              aria-label="Search"
+            />
+            <button
+              type="submit"
+              className="shrink-0 flex items-center justify-center px-3 bg-(--primary) text-white"
+              aria-label="Search"
+            >
+              <RiSearchLine className="text-lg" />
+            </button>
+          </div>
+          {!isLoggedIn && (
+            <Link
+              href="/account"
+              className="shrink-0 flex items-center justify-center rounded-md bg-(--primary) text-white text-xs font-bold px-3 py-2 hover:opacity-95 transition-opacity"
+            >
+              Sign in
+            </Link>
+          )}
+        </form>
+      </div>
+
+      <div className='hidden lg:flex bg-(--bg-surface) py-2 px-4 md:px-20 gap-12 items-center justify-between'>
         <Link href={'/'} className="text-2xl font-bold shrink-0 ">
           <img src="/images/440_Logo.png" alt="" width={70} height={70} className='text-5xl' />
         </Link>
         <div className="hidden lg:flex w-150">
           <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
         </div>
-        <ul className="hidden md:flex items-center gap-4 shrink-0 navBar">
+        <ul className="flex items-center gap-4 shrink-0 navBar">
           {
             navLinks.map((nav, index) => {
               const isActive =
@@ -156,28 +219,6 @@ const Navbar = () => {
             })
           }
         </ul>
-        <div className="md:hidden flex items-center gap-3">
-          <button
-            aria-label="Search"
-            className="p-2 relative text-(--text-primary)"
-            onClick={() => setIsSearchOpen(prev => !prev)}
-          >
-            {isSearchOpen ? <RiCloseLine /> : <RiSearchLine />}
-          </button>
-          <Link href={'/cart'} className="p-2 relative">
-            <RiShoppingCartLine />
-            <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold top-0 right-0">
-              { buyCart.length }
-            </div>
-          </Link>
-          <button
-            aria-label="Toggle menu"
-            className="p-2 rounded-full bg-(--primary) text-white"
-            onClick={() => setIsVisible((prev) => !prev)}
-          >
-            {isVisible ? <RiCloseLine /> : <RiMenu3Line />}
-          </button>
-        </div>
       </div>
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -188,10 +229,10 @@ const Navbar = () => {
             animate="visible"
             exit="exit"
             className="
-              fixed inset-x-0 z-40
+              fixed inset-x-0 z-[52]
               rounded-r-3xl bg-(--bg-surface) text-(--text-primary)
               p-4 w-[85%] h-screen top-0 shadow-lg
-              md:hidden
+              lg:hidden
             "
           >
             <motion.li
@@ -257,82 +298,26 @@ const Navbar = () => {
           </motion.ul>
         )}
       </AnimatePresence>
-      {/* Tablet-only search bar (md → lg) */}
-      <div className="hidden md:block lg:hidden px-4 pb-2 bg-(--bg-surface)">
-        <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
-      </div>
     </nav>
 
-    {/* Mobile search overlay — fixed, does not push page content */}
-    <AnimatePresence>
-      {isSearchOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="md:hidden fixed inset-0 z-[45] bg-black/40"
-            onClick={() => setIsSearchOpen(false)}
-          />
-          {/* Dropdown panel */}
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-            className="md:hidden fixed top-[86px] left-0 right-0 z-[46] bg-(--bg-surface) shadow-2xl border-t border-(--border)"
-          >
-            {/* Search input */}
-            <div className="px-4 pt-3 pb-3">
-              <SearchForm
-                category={category}
-                setCategory={setCategory}
-                productCategories={productCategories}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </div>
-            {/* Suggestions card */}
-            <div className="px-4 pb-5">
-              <p className="text-xs font-medium text-(--text-muted) mb-3 px-1">
-                {searchTerm ? 'Suggestions' : 'Popular Categories'}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {productCategories
-                  .filter(cat =>
-                    !searchTerm || cat.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .slice(0, 8)
-                  .map(cat => (
-                    <Link
-                      key={cat}
-                      href={`/products?search=${encodeURIComponent(cat)}`}
-                      onClick={() => setIsSearchOpen(false)}
-                      className="flex items-center text-sm py-2.5 px-3 rounded-xl bg-(--bg-page) border border-(--border) hover:bg-(--primary-soft) hover:text-(--primary) hover:border-(--primary) transition-colors truncate"
-                    >
-                      {cat}
-                    </Link>
-                  ))}
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <SupportMessagePanel
+      open={supportOpen}
+      onClose={() => setSupportOpen(false)}
+    />
 
     {/* Floating support message button */}
-    <Link
-      href="/messages"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group"
-      aria-label="Message support"
+    <button
+      type="button"
+      onClick={() => setSupportOpen((v) => !v)}
+      className={`fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-[55] flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group ${supportOpen ? "ring-2 ring-white ring-offset-2 ring-offset-(--bg-page)" : ""}`}
+      aria-label={supportOpen ? "Close support" : "Message support"}
+      aria-expanded={supportOpen}
     >
       <RiMessageLine className="text-xl shrink-0" />
       <span className="text-sm font-medium overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
         Support
       </span>
-    </Link>
+    </button>
     </>
   )
 }
