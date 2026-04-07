@@ -40,10 +40,12 @@ export const useCreateBaleSlot = () => {
   });
 };
 
-export const useInitiateSlotPayment = () => {
+export const useInitiatePayment = () => {
   return useMutation({
-    mutationFn: (body: InitiatePayment) => {
-      return http.post(`/buyer/initiate-payment`, body);
+    mutationFn: ({ body, idempotencyKey }: { body: InitiatePayment, idempotencyKey: string }) => {
+      return http.post(`/buyer/initiate-payment`, body, {
+        headers: { 'Idempotency-Key': idempotencyKey }
+      });
     },
   });
 };
@@ -100,3 +102,11 @@ export const useInitiateDirectPayment = () => {
     },
   });
 };
+
+// export const usePayInstallments = () => {
+//   return useMutation({
+//     mutationFn: (orderId: number) => {
+//       return http.post(`/buyer/orders/${orderId}/initiate-balance-installment-payment`);
+//     }
+//   });
+// };

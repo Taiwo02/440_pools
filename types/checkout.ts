@@ -236,8 +236,8 @@ export type DirectOrderPayload = {
     productId: number,
     colorId: number | null,
     sizeId: number | null,
-    quantity: number
-  },
+    quantity?: number
+  }[],
   paymentOption: "split" | "full",
   upfrontPercent: number,
   deliveryAddressId: number

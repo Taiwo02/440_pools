@@ -1,12 +1,15 @@
 "use client"
 
-import { useGetSingleOrder } from "@/api/order"
+import { useConfirmPayment, useGetSingleOrder, useInitiatePayment } from "@/api/order"
 import { Badge, Button } from "../ui"
 import { getOrderStatusVariant } from "./orderStatusBadge"
 import { RiLoader4Fill } from "react-icons/ri"
 import { formatDistanceToNow } from "date-fns"
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "../ui/table/TableWrapper"
-import { Installments, OrderDetails } from "@/types/checkout"
+import { InitiatePayment, Installments, OrderDetails } from "@/types/checkout"
+import { toast } from "react-toastify"
+import { openPaystackPopup } from "@/types/funcs"
+import { AxiosError } from "axios"
 
 type Props = {
   orderId: number
@@ -14,6 +17,8 @@ type Props = {
 
 const SingleOrder = ({ orderId }: Props) => {
   const { data: order, isLoading } = useGetSingleOrder(orderId);
+  const { mutateAsync: payInstallment, isPending: isPaymentPending, error: isPaymentError } = useInitiatePayment();
+  const confirmPayment = useConfirmPayment();
 
   const groupOrderItems = (items: any[]) => {
     const grouped: Record<string, any> = {}
@@ -64,6 +69,61 @@ const SingleOrder = ({ orderId }: Props) => {
       currency: "NGN",
       minimumFractionDigits: 2,
     }).format(value)
+
+  const initiatePayment = async () => {
+    const initiatePayload: InitiatePayment = {
+      flowType: "DIRECT",
+      action: "INSTALLMENT_ENTRY",
+      checkoutId: order?.order.checkoutId
+    }
+
+    const data = {
+      body: initiatePayload,
+      idempotencyKey: crypto.randomUUID()
+    }
+
+    try {
+      const res = await payInstallment(data);
+
+      if(res.status == 200 || res.status == 201) {
+        console.log(res.data)
+        const accessCode = res?.data?.data?.accessCode;
+
+        await openPaystackPopup(
+          accessCode,
+          async ({ reference }) => {
+            await confirmPayment.mutateAsync(reference);
+            toast.success("Payment successful");
+          },
+          () => {
+            toast.error("Payment cancelled");
+          }
+        );
+      } else {
+        toast.error(`Failed to make payment`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(
+        err.response?.data?.message ??
+        err.message ??
+        "Something went wrong, please try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }
 
   if (isLoading) {
     return (
@@ -202,6 +262,7 @@ const SingleOrder = ({ orderId }: Props) => {
                     <TableColumn>Due Date</TableColumn>
                     <TableColumn>Amount</TableColumn>
                     <TableColumn>Interest Rate</TableColumn>
+                    <TableColumn>Status</TableColumn>
                     <TableColumn>Action</TableColumn>
                   </TableRow>
                 </TableHeader>
@@ -213,7 +274,15 @@ const SingleOrder = ({ orderId }: Props) => {
                         <TableCell>{payment.amount}</TableCell>
                         <TableCell>{payment.interest}</TableCell>
                         <TableCell>
-                          <Button className="py-2! px-3! rounded-xl">
+                          <Badge
+                            variant={getOrderStatusVariant(payment.status!)}
+                            className="font-semibold w-fit"
+                          >
+                            {payment.status!.replaceAll("_", " ")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button className="py-2! px-3! rounded-xl" onClick={initiatePayment} disabled={isPaymentPending || payment.status == "PAID"}>
                             Pay Now
                           </Button>
                         </TableCell>
