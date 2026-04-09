@@ -1,0 +1,26 @@
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Let real files and folders through (CSS, JS, images, existing HTML)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # With trailingSlash: true, product pages are products/<id>/index.html
+  # Accept numeric IDs, UUIDs, and slug-like values (single URL segment).
+  RewriteRule ^products/([^/]+)/?$ products/$1/index.html [L]
+
+  # Main app routes (directory-style output)
+  RewriteRule ^products/?$ products/index.html [L]
+  RewriteRule ^cart/?$ cart/index.html [L]
+  RewriteRule ^checkout/?$ checkout/index.html [L]
+  RewriteRule ^account/?$ account/index.html [L]
+  RewriteRule ^account/register/?$ account/register/index.html [L]
+
+  # Home
+  RewriteRule ^$ index.html [L]
+</IfModule>
+
+DirectoryIndex index.html index.php

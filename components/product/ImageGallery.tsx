@@ -9,41 +9,41 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
 
   return (
     <>
-      <div className="rounded-xl md:mb-8 bg-(--bg-surface) flex flex-col-reverse md:flex-row gap-4 items-stretch w-full">
+      <div className="rounded-xl md:mb-8 bg-(--bg-surface) flex flex-col-reverse md:flex-row gap-2 md:gap-3 items-start w-full">
         {/* Thumbnails */}
-        <div 
+        <div
           className="
-            flex gap-2 w-[82vw] md:w-20 md:gap-4
-            md:flex-col md:basis-1/6
-            md:overflow-y-auto md:overflow-x-hidden md:h-120
+            flex gap-2 w-full max-w-full
+            md:w-20 md:shrink-0 md:flex-col md:gap-3
+            md:h-120 md:overflow-y-auto md:overflow-x-hidden
             no-scrollbar overflow-x-auto overflow-y-hidden
           "
         >
           {imageList.map((image, index) => (
             <div
               key={index}
-              className={`cursor-pointer border-4 rounded-xl overflow-hidden w-20 h-20 md:w-19 md:h-auto shrink-0 ${mainImage === image ? "border-(--primary)" : "border-transparent"
+              className={`cursor-pointer border-2 md:border-[3px] rounded-lg overflow-hidden w-16 h-16 sm:w-20 sm:h-20 md:w-full md:aspect-square shrink-0 ${mainImage === image ? "border-(--primary)" : "border-transparent"
                 }`}
               onClick={() => setMainImage(image)}
             >
               <img
                 src={image}
                 alt={`Thumbnail ${index + 1}`}
-                className="w-80 md:w-full aspect-square object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
           ))}
         </div>
 
-        {/* Main image */}
-        <div className="w-full md:basis-5/6">
-          <div className="relative md:w-fit w-full mx-auto">
+        {/* Main image — fixed height on mobile so every product uses the same frame */}
+        <div className="min-w-0 w-full flex-1">
+          <div className="relative w-full h-80 sm:h-96 md:h-auto overflow-hidden rounded-xl">
             <img
               src={mainImage}
               alt="Product image"
               width={0}
               height={0}
-              className="w-full md:h-140 rounded-xl object-cover"
+              className="h-full w-full object-cover md:h-140 md:max-h-none md:w-full"
             />
             {countdown}
           </div>

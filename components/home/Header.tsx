@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Button, Card } from "../ui";
-import Image from "next/image";
-import { industries } from "./data";
+import { Card } from "../ui";
 import Link from "next/link";
 import { RequestQuoteForm } from "@/components/requestForQuot";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetCategories } from "@/api/product";
 import { CategoryDetails } from "@/types/types";
 import { RiLoader5Line } from "react-icons/ri";
+import MobileMarketplaceStrip from "./MobileMarketplaceStrip";
+import HeaderBannerCarousel from "./HeaderBannerCarousel";
 
 const Header = () => {
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
@@ -28,8 +28,9 @@ const Header = () => {
 
   return (
     <>
-      <header className="h-110 md:h-120 flex items-stretch gap-4 md:px-20 pt-[86px] md:pt-24">
-        <div className="hidden md:block md:w-80">
+      <MobileMarketplaceStrip onRequestQuote={() => setIsRfqModalOpen(true)} />
+      <header className="hidden md:flex lg:hidden md:h-108 md:pb-0 items-stretch gap-4 px-0 md:px-20 pt-0 md:pt-24">
+        <div className="md:w-80 shrink-0">
           <Card className="h-full p-0! overflow-hidden">
             <div className="py-3 px-6 bg-(--bg-muted)">
               <h4 className="text-xl">Categories</h4>
@@ -55,28 +56,10 @@ const Header = () => {
             </div>
           </Card>
         </div>
-        <div className="relative h-full w-full flex-1 md:rounded-xl">
-          <img
-            src="/images/bg1.jpg"
-            alt=""
-            className="w-full h-full object-cover md:rounded-xl"
+        <div className="relative h-full min-h-0 w-full flex-1 overflow-hidden md:rounded-xl">
+          <HeaderBannerCarousel
+            onRequestQuote={() => setIsRfqModalOpen(true)}
           />
-          <div className="w-full h-full bg-black/50 absolute top-0 left-0 md:flex flex-col justify-center px-4 lg:px-20 text-white md:rounded-xl pt-6">
-            <h1 className="text-3xl lg:text-5xl">
-              Join <br /> <span className="text-(--primary)">Africa&apos;s Only</span> <br /> Demand Pool
-            </h1>
-            <p className="my-2 lg:my-3 max-w-150 font-light">
-              Get direct from factory prices without meeting the minimum order requirements. Source from globally verified suppliers.
-            </p>
-            <Button
-              type="button"
-              primary
-              className="w-fit"
-              onClick={() => setIsRfqModalOpen(true)}
-            >
-              Request For Quotation
-            </Button>
-          </div>
         </div>
       </header>
 

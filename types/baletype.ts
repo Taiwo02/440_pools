@@ -1,3 +1,18 @@
+export type ProductReview = {
+  id: number;
+  buyerId: number | null;
+  productId: number;
+  rating: string;
+  note: string;
+  purchasedItem: string;
+  buyerName: string;
+  images: string[];
+  dateRaw: string | null;
+  createdAt: string;
+  updatedAt: string;
+  buyer: unknown | null;
+};
+
 export type SingleBale = {
   id: number;
   productId: number;
@@ -44,6 +59,7 @@ export type Product = {
   rate?: number,
   positiveFeedbackRate?: number,
   reviewsNumber?: number,
+  reviews?: ProductReview[];
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;

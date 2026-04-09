@@ -1,6 +1,10 @@
 "use client"
 
-import { deleteCrossSubdomainCookie, setCrossSubdomainCookie } from "@/lib/utils";
+import {
+  deleteCrossSubdomainCookie,
+  getCrossSubdomainCookie,
+  setCrossSubdomainCookie,
+} from "@/lib/utils";
 import { createContext, useContext, useEffect, useState } from "react"
 
 type User = {
@@ -37,10 +41,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedUser = localStorage.getItem("merchant");
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+        setAuthenticated(true);
+      } else if (getCrossSubdomainCookie("440_token")) {
+        setAuthenticated(true);
       }
     } catch (error) {
       console.error("Error parsing user JSON:", error);
     }
+    setLoading(false);
   }, []);
 
   const authenticate = (data: AuthData) => {
@@ -61,6 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     deleteCrossSubdomainCookie("440_token");
     deleteCrossSubdomainCookie("440_refresh_token");
     localStorage.removeItem("merchant");
+    setUser(null);
+    setAuthenticated(false);
     window.location.reload();
   }
 
