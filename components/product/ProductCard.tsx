@@ -29,7 +29,7 @@ const ProductCard = ({ bale }: Props) => {
 
   return (
     <Link href={`/products/${bale.id}`} className="block cursor-pointer">
-      <Card className="p-0! rounded-lg">
+      <Card className="p-0! rounded-lg rounded-t-2xl">
         <div className="relative">
           <ProductThumbPlaceholder
             images={bale.product.images}
