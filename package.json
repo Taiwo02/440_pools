@@ -30,6 +30,7 @@
     "react-modal": "^3.16.3",
     "react-switch": "^7.1.0",
     "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.3",
     "swiper": "^12.1.0",
     "uuid": "^13.0.0"
   },

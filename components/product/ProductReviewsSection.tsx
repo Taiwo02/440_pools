@@ -109,7 +109,10 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
 
   if (sorted.length === 0) {
     return (
-      <div className="text-sm text-(--text-muted) py-2">
+      <div className="text-sm text-(--text-muted) py-2 mb-8">
+        <h3 className="text-lg font-bold text-(--text-primary)">
+          Product Reviews
+        </h3>
         No reviews yet. Be the first to share feedback after purchase.
       </div>
     );
@@ -117,7 +120,7 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
 
   return (
     <>
-      <div>
+      <div className="mb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2 mb-2">
           <h3 className="text-lg font-bold text-(--text-primary)">Product Reviews</h3>
           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -156,7 +159,7 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9998] flex min-h-[100dvh] w-full items-end justify-center bg-black/60 backdrop-blur-sm p-0 sm:items-center sm:p-4"
+            className="fixed inset-0 z-9998 flex min-h-dvh w-full items-end justify-center bg-black/60 backdrop-blur-sm p-0 sm:items-center sm:p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="product-reviews-modal-title"
