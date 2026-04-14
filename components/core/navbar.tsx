@@ -229,7 +229,7 @@ const Navbar = () => {
             animate="visible"
             exit="exit"
             className="
-              fixed inset-x-0 z-[52]
+              fixed inset-x-0 z-52
               rounded-r-3xl bg-(--bg-surface) text-(--text-primary)
               p-4 w-[85%] h-screen top-0 shadow-lg
               lg:hidden
@@ -309,7 +309,7 @@ const Navbar = () => {
     <button
       type="button"
       onClick={() => setSupportOpen((v) => !v)}
-      className={`fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-[55] flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group ${supportOpen ? "ring-2 ring-white ring-offset-2 ring-offset-(--bg-page)" : ""}`}
+      className={`fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-55 flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group ${supportOpen ? "ring-2 ring-white ring-offset-2 ring-offset-(--bg-page)" : ""}`}
       aria-label={supportOpen ? "Close support" : "Message support"}
       aria-expanded={supportOpen}
     >

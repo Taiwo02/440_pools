@@ -88,7 +88,7 @@ export default function SupportMessagePanel({ open, onClose }: Props) {
     revokeAll(images);
     setImages([]);
     setMessage("");
-    onClose();
+    // onClose();
   };
 
   return (
@@ -98,7 +98,7 @@ export default function SupportMessagePanel({ open, onClose }: Props) {
           <motion.button
             type="button"
             aria-label="Close support"
-            className="fixed inset-0 z-[60] bg-black/40 cursor-default"
+            className="fixed inset-0 z-60 bg-black/40 cursor-default"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -109,7 +109,7 @@ export default function SupportMessagePanel({ open, onClose }: Props) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="support-panel-title"
-            className="fixed z-[61] inset-x-0 bottom-0 max-h-[min(92vh,640px)] md:inset-auto md:bottom-6 md:right-6 md:left-auto md:top-auto md:max-h-[min(85vh,560px)] w-full md:w-[min(100vw-3rem,26rem)] flex flex-col rounded-t-2xl md:rounded-2xl border border-(--border-default) bg-(--bg-surface) shadow-2xl overflow-hidden"
+            className="fixed z-61 inset-x-0 bottom-0 max-h-[min(92vh,640px)] md:inset-auto md:bottom-6 md:right-6 md:left-auto md:top-auto md:max-h-[min(85vh,560px)] w-full md:w-[min(100vw-3rem,26rem)] flex flex-col rounded-t-2xl md:rounded-2xl border border-(--border-default) bg-(--bg-surface) shadow-2xl overflow-hidden"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
