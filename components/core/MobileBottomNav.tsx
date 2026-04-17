@@ -21,7 +21,7 @@ const items = [
   },
   { href: "/cart", label: "Cart", icon: RiShoppingCart2Line, match: (p: string) => p.startsWith("/cart") },
   {
-    href: "/account",
+    href: "/account/overview",
     label: "Me",
     icon: RiUser6Line,
     match: (p: string) => p.startsWith("/account"),
@@ -31,6 +31,10 @@ const items = [
 export default function MobileBottomNav() {
   const pathname = usePathname() ?? "/";
   const { buyCart } = useBuy();
+
+  if (pathname.startsWith("/checkout")) {
+    return null;
+  }
 
   return (
     <nav

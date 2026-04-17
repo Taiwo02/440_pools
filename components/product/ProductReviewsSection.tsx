@@ -87,15 +87,16 @@ function ReviewEntry({ review }: { review: ProductReview }) {
 export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
 
+  /** Chronological (oldest → newest), like a Telegram thread */
   const sorted = useMemo(() => {
     const list = rawReviews ?? [];
     return [...list].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
   }, [rawReviews]);
 
   const { avg, positivePct } = useMemo(() => reviewStats(sorted), [sorted]);
-  const preview = sorted.slice(0, 3);
+  const preview = sorted.slice(-3);
   const hasMore = sorted.length > 3;
 
   useEffect(() => {

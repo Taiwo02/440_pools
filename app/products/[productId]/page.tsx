@@ -19,14 +19,42 @@ export async function generateStaticParams() {
   }
 
   try {
-    const res = await fetch(`${baseURL}/buyer/bales`, { cache: "no-store" });
-    if (!res.ok) {
-      console.warn("[generateStaticParams] /buyer/bales failed:", res.status);
-      return [];
+    const ids = new Set<string>();
+    let page = 1;
+    const limit = 100;
+    const maxPages = 200;
+
+    while (page <= maxPages) {
+      const res = await fetch(`${baseURL}/buyer/bales?page=${page}&limit=${limit}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        console.warn(
+          `[generateStaticParams] /buyer/bales failed on page ${page}:`,
+          res.status
+        );
+        break;
+      }
+
+      const body = await res.json();
+      const bales = Array.isArray(body?.data) ? body.data : [];
+      if (!bales.length) {
+        break;
+      }
+
+      for (const bale of bales) {
+        if (bale?.id != null) {
+          ids.add(String(bale.id));
+        }
+      }
+
+      if (bales.length < limit) {
+        break;
+      }
+      page += 1;
     }
-    const data = await res.json();
-    const bales = data?.data ?? [];
-    return bales.map((b: { id: number }) => ({ productId: String(b.id) }));
+
+    return Array.from(ids).map((productId) => ({ productId }));
   } catch (e) {
     console.warn("[generateStaticParams] fetch error:", e);
     return [];

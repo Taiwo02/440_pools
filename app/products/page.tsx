@@ -13,7 +13,6 @@ import { RiArrowDownSLine, RiGlobeLine, RiGridFill, RiListUnordered, RiLoader5Li
 import { TbBoxOff } from "react-icons/tb";
 
 const ProductsContent = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<BaleFilters>({
     categories: [],
     priceRange: { min: 0, max: 99999999 },
@@ -30,6 +29,7 @@ const ProductsContent = () => {
 
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') ?? undefined;
+  const searchQuery = searchParams.get("search")?.trim() ?? "";
 
   useEffect(() => {
     if (initialCategory) {
@@ -45,6 +45,13 @@ const ProductsContent = () => {
       });
     }
   }, [initialCategory]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      search: searchQuery || undefined,
+    }));
+  }, [searchQuery]);
 
   const {
     data,
@@ -97,12 +104,7 @@ const ProductsContent = () => {
 
   const supplierRatings = ["1", "2", "3", "4", "5"];
 
-  const filteredData = allBales.filter((row) => {
-    if (!searchQuery) return true;
-    const col1 = row.product.name.toLowerCase();
-    const col2 = row.product.description.toLowerCase();
-    return col1.includes(searchQuery.toLowerCase()) || col2.includes(searchQuery.toLowerCase());
-  });
+  const filteredData = allBales;
 
   if (!isPending && allBales.length === 0 && !hasActiveFilters) {
     return <p className="text-center font-bold text-xl">No products available</p>;

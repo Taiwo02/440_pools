@@ -24,6 +24,7 @@ const ProductCard = ({ bale }: Props) => {
     "Group Pool";
   const hasDiscount =
     bale.oldPrice != null && bale.oldPrice > bale.price && bale.oldPrice > 0;
+  const savings = hasDiscount ? bale.oldPrice - bale.price : 0;
   const currency =
     (bale.product as { currency?: string }).currency ?? "₦";
 
@@ -106,8 +107,8 @@ const ProductCard = ({ bale }: Props) => {
             </p>
             {hasDiscount && (
               <span className="inline-block max-w-full truncate rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-                Market: {currency}
-                {bale.oldPrice.toLocaleString()}
+                Save: {currency}
+                {savings.toLocaleString()}
               </span>
             )}
           </div>

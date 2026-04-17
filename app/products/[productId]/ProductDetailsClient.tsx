@@ -26,6 +26,7 @@ import { useGetSupplier } from "@/api/product";
 import { PackagingInfo, ProductAttributes } from "@/components/product/ProductAttributes";
 import UserBubbles from "@/components/product/UserBubble";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
+import { recordRecentlyViewedBale } from "@/lib/recently-viewed-bales";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -110,12 +111,12 @@ const ProductDetails = () => {
   } = useProductAllocation({ baleData, buyDirectly, maxAllowedQuantity, maxDirectAllowedQuantity, setFormValues });
 
   useEffect(() => {
-    console.log("baleData changed:", baleData);
+    if (!baleData?.id || !baleData.product) return;
+    recordRecentlyViewedBale(baleData);
   }, [baleData]);
 
   useEffect(() => {
     if (!baleData) return
-    console.log(baleData)
 
     if (formValues.colors.length === 0) {
       setActiveColorId(null)
@@ -216,15 +217,25 @@ const ProductDetails = () => {
   };
 
   const joinPool = () => {
-    if (isAllocationExceeded) {
+    const useDefaultAllocation = totalAllocatedQuantity === 0;
+    const poolQuantity = useDefaultAllocation
+      ? maxAllowedQuantity
+      : totalAllocatedQuantity;
+
+    if (!useDefaultAllocation && isAllocationExceeded) {
       toast.error(
         `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
       )
       return
     }
 
-    if (totalAllocatedQuantity !== maxAllowedQuantity) {
+    if (!useDefaultAllocation && totalAllocatedQuantity !== maxAllowedQuantity) {
       toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
+      return
+    }
+
+    if (useDefaultAllocation && maxAllowedQuantity <= 0) {
+      toast.error("Choose at least one slot so your pool quantity is valid.")
       return
     }
 
@@ -248,15 +259,17 @@ const ProductDetails = () => {
           totalSlots: baleData.slot,
           totalShippingFee:
             baleData.deliveryFee * formValues.slots,
-          quantity: totalAllocatedQuantity,
+          quantity: poolQuantity,
           unit: "unit",
-          variants: selectedVariants,
+          variants: useDefaultAllocation
+            ? { sizes: [], colors: [] }
+            : selectedVariants,
           createdAt: baleData.createdAt,
           updatedAt: baleData.updatedAt,
           description: baleData.product.description,
           status: Boolean(baleData.status == "OPEN"),
           endIn: baleData.endIn,
-          items,
+          items: useDefaultAllocation ? [] : items,
           inStock: true,
         });
 

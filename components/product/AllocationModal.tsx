@@ -109,8 +109,16 @@ const AllocationModal = (
       }}
     >
       <div className="flex justify-between items-center pb-3 border-b border-(--border-default)">
-        <h1 className="text-lg font-semibold">Select variations and quantity</h1>
-        <button onClick={() => setIsModalOpen(false)} className='block ml-auto'>
+        <div className="min-w-0 pr-2">
+          <h1 className="text-lg font-semibold">Select variations and quantity</h1>
+          {!buyDirectly && (
+            <p className="mt-1 text-xs text-(--text-muted)">
+              Colors and sizes are optional for Join Pool — pick slots, then you can
+              check out without choosing variations.
+            </p>
+          )}
+        </div>
+        <button onClick={() => setIsModalOpen(false)} className='block ml-auto shrink-0'>
           <RiCloseLine size={20} />
         </button>
       </div>

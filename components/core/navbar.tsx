@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { FormEvent, useEffect, useState } from "react";
 import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine } from 'react-icons/ri'
 import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
@@ -16,8 +16,15 @@ const Navbar = () => {
   const router = useRouter();
   const [category, setCategory] = useState('Electronics')
   const pathname = usePathname() ?? "/";
+  const hideCheckoutChrome = pathname.startsWith("/checkout");
   const [isVisible, setIsVisible] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+
+  useEffect(() => {
+    if (hideCheckoutChrome) {
+      setIsVisible(false);
+    }
+  }, [hideCheckoutChrome]);
 
   const productCategories = [
     "Electronics",
@@ -43,6 +50,11 @@ const Navbar = () => {
   ];
   const [searchTerm, setSearchTerm] = useState('')
   const { buyCart } = useBuy();
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const query = searchTerm.trim();
+    router.push(query ? `/products?search=${encodeURIComponent(query)}` : "/products");
+  };
 
   const navLinks = [
     {
@@ -63,7 +75,7 @@ const Navbar = () => {
     },
     {
       label: 'Account',
-      href: '/account',
+      href: '/account/overview',
       icon: <RiAccountCircleLine />
     },
   ]
@@ -134,9 +146,13 @@ const Navbar = () => {
 
   return (
     <>
-    <nav className='fixed w-full z-50 shadow-sm'>
+    <nav
+      className={`fixed z-50 w-full shadow-sm ${
+        hideCheckoutChrome ? "hidden" : ""
+      }`}
+    >
       {/* Mobile / tablet — 1688-style: logo row + search + sign in */}
-      <div className="lg:hidden bg-(--bg-surface) border-b border-(--border-default)">
+      <div className="border-b border-(--border-default) bg-(--bg-surface) lg:hidden">
         <div className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-2">
           <Link href="/" className="shrink-0 flex items-center gap-2 min-w-0">
             <img
@@ -159,11 +175,7 @@ const Navbar = () => {
         </div>
         <form
           className="flex items-stretch gap-2 px-3 pb-2.5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = searchTerm.trim();
-            router.push(q ? `/products?search=${encodeURIComponent(q)}` : "/products");
-          }}
+          onSubmit={handleSearchSubmit}
         >
           <div className="flex flex-1 min-w-0 items-stretch rounded-full border-2 border-(--primary) overflow-hidden bg-(--bg-surface)">
             <input
@@ -198,7 +210,14 @@ const Navbar = () => {
           <img src="/images/440_Logo.png" alt="" width={70} height={70} className='text-5xl' />
         </Link>
         <div className="hidden lg:flex w-150">
-          <SearchForm category={category} setCategory={setCategory} productCategories={productCategories} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+          <SearchForm
+            category={category}
+            setCategory={setCategory}
+            productCategories={productCategories}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onSubmit={handleSearchSubmit}
+          />
         </div>
         <ul className="flex items-center gap-4 shrink-0 navBar">
           {
@@ -222,7 +241,7 @@ const Navbar = () => {
       </div>
       {/* Mobile Menu */}
       <AnimatePresence>
-        {isVisible && (
+        {isVisible && !hideCheckoutChrome && (
           <motion.ul
             variants={list}
             initial="hidden"
@@ -267,7 +286,7 @@ const Navbar = () => {
               onClick={() => setIsVisible(false)}
             >
               <Link
-                href={'/account'}
+                href={'/account/overview'}
                 className={`flex items-center gap-2`}
               >
                 <RiAccountCircleLine />
@@ -309,7 +328,9 @@ const Navbar = () => {
     <button
       type="button"
       onClick={() => setSupportOpen((v) => !v)}
-      className={`fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-[55] flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 hover:scale-105 transition-transform duration-200 group ${supportOpen ? "ring-2 ring-white ring-offset-2 ring-offset-(--bg-page)" : ""}`}
+      className={`fixed bottom-20 right-4 z-[55] flex items-center gap-2 bg-(--primary) text-white shadow-lg rounded-full px-4 py-3 transition-transform duration-200 hover:scale-105 group lg:bottom-6 lg:right-6 ${
+        hideCheckoutChrome ? "hidden" : ""
+      } ${supportOpen ? "ring-2 ring-white ring-offset-2 ring-offset-(--bg-page)" : ""}`}
       aria-label={supportOpen ? "Close support" : "Message support"}
       aria-expanded={supportOpen}
     >

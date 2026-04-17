@@ -1,5 +1,12 @@
 import http from "@/lib/http";
-import { CheckoutPayload, DirectInitiate, DirectOrderPayload, InitiatePayment, OrderDetails } from "@/types/checkout";
+import {
+  CheckoutPayload,
+  DirectInitiate,
+  DirectOrderPayload,
+  InitiatePayment,
+  OrderDetails,
+  OrderList,
+} from "@/types/checkout";
 import { BaleSlot, DeliveryPayload, Initiate } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -65,12 +72,12 @@ export const useConfirmPayment = () => {
 
 // Orders
 export const useGetAllOrders = () => {
-  return useQuery({
+  return useQuery<OrderList[]>({
     queryKey: ["order"],
     queryFn: async () => {
       const res = await http.get("/buyer/orders");
       return res?.data?.data?.data ?? [];
-    }
+    },
   });
 };
 
