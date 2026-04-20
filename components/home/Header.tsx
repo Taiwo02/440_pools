@@ -78,7 +78,7 @@ const Header = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl max-h-[100dvh] md:max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-4xl max-h-dvh md:max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <RequestQuoteForm handleRfqPopup={() => setIsRfqModalOpen(false)} />

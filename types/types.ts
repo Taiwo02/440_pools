@@ -501,18 +501,20 @@ export type CategoryDetails = {
 export interface BaleFilters {
   page?: number;
   limit?: number;
-  productId?: number
+  productId?: number;
   status?: "OPEN" | "CLOSED";
   shipmentId?: number;
   sortBy?: string;
-  // sortOrder?: 
+  sortOrder?: any;
   start_date?: string;
   end_date?: string;
   categories?: number[];
   supplierRating?: string;
   marketLocation?: string[];
   priceRange?: {
-    min: number,
-    max: number,
-  }
+    min: number;
+    max: number;
+  };
+  productTypes?: number[];
+  subCategories?: number[];
 }

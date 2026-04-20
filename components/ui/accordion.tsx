@@ -127,11 +127,11 @@ function AccordionContent({
     <div
       data-state={isOpen ? "open" : "closed"}
       className={cn(
-        "grid transition-all duration-300 overflow-hidden",
-        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        "grid transition-all duration-300 overflow-y-hidden overflow-x-visible",
+        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
       )}
     >
-      <div className="overflow-hidden">
+      <div className="overflow-y-hidden overflow-x-visible">
         <div className={cn("px-4 pb-4", className)}>{children}</div>
       </div>
     </div>
