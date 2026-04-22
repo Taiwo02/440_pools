@@ -346,14 +346,6 @@ const ProductDetails = () => {
 
     setShowBuyModal(false);
 
-    const token = getCrossSubdomainCookie("440_token");
-
-
-    if (!token) {
-      setNotLoggedIn(true);
-      return;
-    }
-
     if (baleData) {
       addToBuyCart({
         cartItemId: `cart-${baleData.baleId}`,

@@ -23,13 +23,7 @@ export const useProductPurchase = (addToBuyCart: any) => {
 
   const handleAddToCart = (cartItem: any) => {
     closeModal();
-
-    const token = getCrossSubdomainCookie("440_token");
-
-    if (!token) {
-      return { notLoggedIn: true };
-    }
-
+    // Allow guests to build cart; login is required only at checkout.
     addToBuyCart(cartItem);
   };
 

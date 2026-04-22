@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getCrossSubdomainCookie } from "@/lib/utils";
 
 type Props = {
   children: React.ReactNode;
@@ -12,7 +13,8 @@ export default function AccountGuard({ children, login }: Props) {
 
   useEffect(() => {
     const merchant = localStorage.getItem("merchant");
-    setIsLoggedIn(!!merchant);
+    const token = getCrossSubdomainCookie("440_token");
+    setIsLoggedIn(Boolean(merchant && token));
   }, []);
 
   // Prevent hydration mismatch
