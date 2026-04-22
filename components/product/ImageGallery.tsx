@@ -22,8 +22,11 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
           {imageList.map((image, index) => (
             <div
               key={index}
-              className={`cursor-pointer border-2 md:border-[3px] rounded-lg overflow-hidden w-16 h-16 sm:w-20 sm:h-20 md:w-full md:aspect-square shrink-0 ${mainImage === image ? "border-(--primary)" : "border-transparent"
-                }`}
+              className={`cursor-pointer border-2 md:border-[3px] rounded-lg overflow-hidden w-16 h-16 sm:w-20 sm:h-20 md:w-full md:aspect-square shrink-0 ${
+                mainImage === image
+                  ? "border-(--primary)"
+                  : "border-transparent"
+              }`}
               onClick={() => setMainImage(image)}
             >
               <img
@@ -36,7 +39,7 @@ export default function ProductImages({ imageList, countdown }: { imageList: str
         </div>
 
         {/* Main image — fixed height on mobile so every product uses the same frame */}
-        <div className="min-w-0 w-full flex-1">
+        <div className="min-w-0 w-full flex-1 pt-4 md:pt-0">
           <div className="relative w-full h-80 sm:h-96 md:h-auto overflow-hidden rounded-xl">
             <img
               src={mainImage}
