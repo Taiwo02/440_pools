@@ -112,7 +112,7 @@ const ProductsContent = () => {
 
   return (
     <>
-      <section className='pt-[7.5rem] lg:pt-24'>
+      <section className='pt-30 lg:pt-24'>
         <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)] mb-10">
           <div className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-6 rounded-xl bg-(--bg-surface) overflow-y-auto h-full">
             <div className="flex justify-between items-center">

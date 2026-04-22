@@ -25,11 +25,11 @@ export const ProductAttributes = ({ productAttributes }: Props) => {
 
     return (
       <div className="w-full">
-        <div className="mb-4">
+        <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">{title}</h2>
 
-          <div className="w-fit md:w-full overflow-x-auto">
-            <Table className="w-full table-fixed md:table-auto">
+          <div className="overflow-x-auto">
+            <Table>
               <TableHeader>
                 <TableRow>
                   {headers.map((header) => (
@@ -76,7 +76,7 @@ export const PackagingInfo = ({ packageInfo }: Props) => {
 
     return (
       <div className="w-full">
-        <div className="mb-4">
+        <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">{packageTitle}</h2>
 
           <div className="overflow-x-auto">

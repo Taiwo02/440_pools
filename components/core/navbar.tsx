@@ -248,7 +248,7 @@ const Navbar = () => {
             animate="visible"
             exit="exit"
             className="
-              fixed inset-x-0 z-[52]
+              fixed inset-x-0 z-52
               rounded-r-3xl bg-(--bg-surface) text-(--text-primary)
               p-4 w-[85%] h-screen top-0 shadow-lg
               lg:hidden

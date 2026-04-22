@@ -587,7 +587,7 @@ export default function SupportMessagePanel({ open, onClose }: Props) {
           <motion.button
             type="button"
             aria-label="Close support"
-            className="fixed inset-0 z-[60] bg-black/40 cursor-default"
+            className="fixed inset-0 z-60 bg-black/40 cursor-default"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

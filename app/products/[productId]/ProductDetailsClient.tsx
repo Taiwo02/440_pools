@@ -482,54 +482,25 @@ const ProductDetails = () => {
   return (
     <>
       <section className="pt-21.5 md:pt-24 mb-16">
-        <div className="px-0 sm:px-2 md:px-10 lg:px-32 flex flex-col gap-0 md:gap-8">
+        <div className="px-0 sm:px-2 md:px-10 lg:px-24 flex flex-col gap-0 md:gap-8">
           <div className="flex flex-col md:flex-row items-stretch md:items-start gap-0 md:gap-6 lg:gap-8">
-
             {/* LEFT */}
             <div className="w-full md:basis-2/3 md:min-w-0 md:sticky md:top-24">
               <div className="bg-(--bg-surface) p-3 md:p-6 rounded-none md:rounded-xl mb-0 md:mb-8">
-                <ProductImages imageList={baleData.product.images} countdown={<Countdown endDate={baleData.endIn} />} />
+                <ProductImages
+                  imageList={baleData.product.images}
+                  countdown={<Countdown endDate={baleData.endIn} />}
+                />
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
-                <Tabs defaultValue="reviews">
-                  <Tabs.List className="border-b border-(--border-default)">
-                    <Tabs.Trigger
-                      value="reviews"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Reviews</span>
-                      <span className="md:block hidden">Product Reviews</span>
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="specs"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Specs</span>
-                      <span className="hidden md:block">Specifications</span>
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="shipping"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Packaging</span>
-                      <span className="md:block hidden">Packaging Information</span>
-                    </Tabs.Trigger>
-                  </Tabs.List>
+                {/* Reviews */}
+                <ProductReviewsSection reviews={baleData.product.reviews} />
 
-                  <Tabs.Content value="reviews" className="pt-4">
-                    <ProductReviewsSection reviews={baleData.product.reviews} />
-                  </Tabs.Content>
-                  <Tabs.Content value="specs" className="pt-4">
-                    <ProductAttributes
-                      productAttributes={baleData.product.productAttributes}
-                    />
-                  </Tabs.Content>
-                  <Tabs.Content value="shipping" className="pt-4">
-                    <PackagingInfo 
-                      packageInfo={baleData.product.packageInfo}
-                    />
-                  </Tabs.Content>
-                </Tabs>
+                {/* Attributes */}
+                <ProductAttributes productAttributes={baleData.product.productAttributes}/>
+
+                {/* Packaging Info */}
+                <PackagingInfo packageInfo={baleData.product.packageInfo} />
               </div>
               {/* {
                 baleData?.product?.supplier &&
@@ -572,8 +543,12 @@ const ProductDetails = () => {
                 </div>
                 <div className="my-4">
                   <div className="flex flex-wrap items-end gap-2">
-                    <p className="text-3xl md:text-4xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
-                    <p className="text-(--text-muted) line-through">&#8358;{formatPrice(baleData.oldPrice)}</p>
+                    <p className="text-3xl md:text-4xl text-(--primary) font-bold">
+                      &#8358;{formatPrice(baleData.price)}
+                    </p>
+                    <p className="text-(--text-muted) line-through">
+                      &#8358;{formatPrice(baleData.oldPrice)}
+                    </p>
                   </div>
                 </div>
 
@@ -586,20 +561,20 @@ const ProductDetails = () => {
                         Colors
                       </p>
                       {/* Color selection (unchanged UI, just wired) */}
-                      <div className={`flex flex-wrap items-stretch gap-2 mt-1`}>
-                        {
-                          colorsList.slice(0, 4).map((color, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition border-(--border-default) h-fit`}
-                              >
-                                {color.node != null && color.node}
-                                {color.node == null && color.label}
-                              </div>
-                            )
-                          })
-                        }
+                      <div
+                        className={`flex flex-wrap items-stretch gap-2 mt-1`}
+                      >
+                        {colorsList.slice(0, 4).map((color, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition border-(--border-default) h-fit`}
+                            >
+                              {color.node != null && color.node}
+                              {color.node == null && color.label}
+                            </div>
+                          );
+                        })}
 
                         {remainingColors > 0 && (
                           <div className="px-4 rounded-lg bg-(--primary-soft) text-(--primary) flex items-center justify-center text-xl font-medium border border-white">
@@ -611,24 +586,23 @@ const ProductDetails = () => {
                   )}
 
                   <div className="flex flex-col h-full gap-3 overflow-y-auto mb-3">
-                    
-                    {
-                      hasSizes && (
-                        <>
-                          <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                            Sizes
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {
-                              sizesList.map(size => (
-                                <span key={size.id} className="px-2 py-1 rounded bg-(--primary-soft) cursor-pointer">{size.label}</span>
-                              ))
-                            }
-                          </div>
-                        </>
-                        
-                      )
-                    }
+                    {hasSizes && (
+                      <>
+                        <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                          Sizes
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {sizesList.map((size) => (
+                            <span
+                              key={size.id}
+                              className="px-2 py-1 rounded bg-(--primary-soft) cursor-pointer"
+                            >
+                              {size.label}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {hasSizes && baleData.slot > 0 && (
@@ -636,7 +610,9 @@ const ProductDetails = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-(--primary)">
                           <RiGroup2Fill className="shrink-0" />
-                          <h3 className="text-lg font-bold uppercase">Pool Progress</h3>
+                          <h3 className="text-lg font-bold uppercase">
+                            Pool Progress
+                          </h3>
                         </div>
                         <UserBubbles count={baleData.filledSlot} />
                       </div>
@@ -657,6 +633,38 @@ const ProductDetails = () => {
                       />
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Buttons for pool and cart */}
+              <div className="mt-8 mb-4 flex gap-4 items-center">
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase gap-2 items-center`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openBuy}
+                  >
+                    <RiBankCardFill className="block" />
+                    Buy
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    {baleData.oldPrice.toLocaleString()}
+                  </div>
+                </div>
+                <div className="relative w-fit">
+                  <Button
+                    primary
+                    className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+                    disabled={Boolean(formValues.slots == 0)}
+                    onClick={openPool}
+                  >
+                    <RiGroup2Fill className="block" />
+                    Join Pool
+                  </Button>
+                  <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                    {baleData.price.toLocaleString()}
+                  </div>
                 </div>
               </div>
 
@@ -683,7 +691,9 @@ const ProductDetails = () => {
                       className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
                     >
                       <span className="block md:hidden">Packaging</span>
-                      <span className="md:block hidden">Packaging Information</span>
+                      <span className="md:block hidden">
+                        Packaging Information
+                      </span>
                     </Tabs.Trigger>
                   </Tabs.List>
 
@@ -696,43 +706,9 @@ const ProductDetails = () => {
                     />
                   </Tabs.Content>
                   <Tabs.Content value="shipping" className="pt-4">
-                    <PackagingInfo
-                      packageInfo={baleData.product.packageInfo}
-                    />
+                    <PackagingInfo packageInfo={baleData.product.packageInfo} />
                   </Tabs.Content>
                 </Tabs>
-              </div>
-
-              {/* Buttons for pool and cart */}
-              <div className="mt-8 mb-4 flex gap-4 items-center">
-                <div className="relative w-fit">
-                  <Button
-                    primary
-                    className={`uppercase gap-2 items-center`}
-                    disabled={Boolean(formValues.slots == 0)}
-                    onClick={openBuy}
-                  >
-                    <RiBankCardFill className="block" />
-                    Buy
-                  </Button>
-                  <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
-                    { baleData.oldPrice.toLocaleString() }
-                  </div>
-                </div>
-                <div className="relative w-fit">
-                  <Button
-                    primary
-                    className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                    disabled={Boolean(formValues.slots == 0)}
-                    onClick={openPool}
-                  >
-                    <RiGroup2Fill className="block" />
-                    Join Pool
-                  </Button>
-                  <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
-                    { baleData.price.toLocaleString() }
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -834,7 +810,6 @@ const ProductDetails = () => {
         />
       )}
     </>
-
   );
 };
 
