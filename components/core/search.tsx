@@ -3,7 +3,7 @@ import Button from '../ui/button'
 
 import { RiSearchLine} from 'react-icons/ri'
 
-const SearchForm = ({category, setCategory, productCategories, searchTerm, setSearchTerm}:any) => (
+const SearchForm = ({category, setCategory, productCategories, searchTerm, setSearchTerm, onSubmit}:any) => (
     <form
     className="
       flex items-stretch w-full min-w-0
@@ -11,6 +11,7 @@ const SearchForm = ({category, setCategory, productCategories, searchTerm, setSe
       rounded-full
       overflow-hidden
     "
+    onSubmit={onSubmit}
   >
     {/* Category dropdown – hidden on mobile */}
     {/* <div className="hidden lg:block">
@@ -42,6 +43,7 @@ const SearchForm = ({category, setCategory, productCategories, searchTerm, setSe
 
     {/* Search button – compact on mobile */}
     <Button
+      type="submit"
       primary
       className="
         flex items-center justify-center

@@ -12,7 +12,7 @@ type CheckboxOption = {
 
 type Props = {
   element: "input" | "select" | "textarea";
-  input_type?: "text" | "email" | "password" | "radio" | "checkbox" | "number";
+  input_type?: "text" | "email" | "password" | "radio" | "checkbox" | "number" | "search";
   name: string;
   value: string | string[] | number | number[];
   handler: (e: React.ChangeEvent<any>) => void;

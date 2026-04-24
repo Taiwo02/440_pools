@@ -6,6 +6,7 @@ import { Button } from "../ui";
 import { useDeliveryMutation } from "@/api/order";
 import { toast } from "react-toastify";
 import { useGetUserProfile } from "@/api/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -18,6 +19,7 @@ type Merchant = {
 };
 
 const DeliveryForm = ({ setIsModalOpen }: Props) => {
+  const queryClient = useQueryClient();
   const { data: person, isPending, error } = useGetUserProfile();
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();;
 
@@ -67,6 +69,7 @@ const DeliveryForm = ({ setIsModalOpen }: Props) => {
 
     if (res.status == 200 || res.status == 201) {
       toast.success("Address added successfully");
+      await queryClient.invalidateQueries({ queryKey: ["delivery"] });
       setIsModalOpen(false);
     } else {
       toast.error("Something went wrong");

@@ -27,6 +27,24 @@ const http = axios.create({
   baseURL
 });
 
+function clearAuthSession() {
+  deleteCrossSubdomainCookie("440_token");
+  deleteCrossSubdomainCookie("440_refresh_token");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("merchant");
+  }
+}
+
+function redirectToAccountIfNeeded() {
+  if (typeof window === "undefined") return;
+  const path = window.location.pathname || "";
+  // Login should only be forced at checkout time.
+  if (!path.startsWith("/checkout")) return;
+  // Avoid reloading the same route endlessly when already on account pages.
+  if (path.startsWith("/account")) return;
+  window.location.assign("/account");
+}
+
 http.interceptors.request.use((config) => {
   if ((config as any).intercept === false) return config;
 
@@ -67,6 +85,11 @@ http.interceptors.response.use(
 
       try {
         const refreshToken = getCrossSubdomainCookie("440_refresh_token");
+        if (!refreshToken) {
+          clearAuthSession();
+          redirectToAccountIfNeeded();
+          return Promise.reject(error);
+        }
 
         const res = await http.post("/buyer/refresh-token", {
           refreshToken,
@@ -82,10 +105,9 @@ http.interceptors.response.use(
 
         return http(originalRequest);
       } catch (refreshError) {
-        deleteCrossSubdomainCookie("440_token");
-        deleteCrossSubdomainCookie("440_refresh_token");
-        localStorage.removeItem("merchant");
-        window.location.href = '/account';
+        clearAuthSession();
+        redirectToAccountIfNeeded();
+        return Promise.reject(refreshError);
       }
     }
 

@@ -1,6 +1,5 @@
 "use client"
-import { Badge, Button, Card, Input } from '@/components/ui'
-import Image from 'next/image'
+import { Button, Card } from "@/components/ui";
 import Link from 'next/link'
 import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react'
@@ -13,8 +12,11 @@ import {
   RiSecurePaymentLine,
   RiRefund2Line,
   RiPercentLine,
-  RiLoader4Fill
-} from 'react-icons/ri'
+  RiLoader4Fill,
+  RiShoppingCart2Line,
+  RiStarFill,
+} from "react-icons/ri";
+import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import { getCrossSubdomainCookie } from '@/lib/utils';
 import { useBuy } from '@/hooks/use-buy';
 
@@ -27,91 +29,7 @@ const Cart = () => {
 
   const cartItems = buyCart;
 
-  useEffect(() => {
-    console.log(JSON.stringify(buyCart))
-  }, [buyCart])
-  
-
-  // const cartItems = [
-  //   {
-  //     cartItemId: "cart-001",
-  //     productId: 1,
-  //     name: "Advanced Industrial Optical Sensor Module",
-  //     image: "https://picsum.photos/seed/sensor-module/300/300",
-  //     supplierId: "sup-001",
-  //     price: 15000.00,
-  //     originalPrice: 25000.00,
-  //     discount: 40,
-  //     currency: "NGN",
-  //     quantity: 0,
-  //     unit: "unit",
-  //     variants: {
-  //       size: "Standard",
-  //       color: "Black"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 675.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-002",
-  //     productId: 4,
-  //     name: "Digital Multimeter High Accuracy for Maintenance Engineers",
-  //     image: "https://picsum.photos/seed/digital-multimeter/300/300",
-  //     supplierId: "sup-004",
-  //     price: 38000.00,
-  //     originalPrice: 50000.00,
-  //     discount: 24,
-  //     currency: "NGN",
-  //     quantity: 2,
-  //     unit: "unit",
-  //     variants: {
-  //       model: "DM-9205A"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 77.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-003",
-  //     productId: 6,
-  //     name: "Ultra-Bright LED Matrix Display for Machine Information Panels",
-  //     image: "https://picsum.photos/seed/led-matrix-display/300/300",
-  //     supplierId: "sup-005",
-  //     price: 10000.00,
-  //     originalPrice: 15000.00,
-  //     discount: 33,
-  //     currency: "NGN",
-  //     quantity: 50,
-  //     unit: "set",
-  //     variants: {
-  //       resolution: "64×32",
-  //       color: "Red"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 510.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-004",
-  //     productId: 12,
-  //     name: "DIN Rail Terminal Block Connector",
-  //     image: "https://picsum.photos/seed/terminal-block/300/300",
-  //     supplierId: "sup-003",
-  //     price: 30000.00,
-  //     originalPrice: 45000.00,
-  //     discount: 33,
-  //     currency: "NGN",
-  //     quantity: 1000,
-  //     unit: "piece",
-  //     variants: {
-  //       pitch: "5.08mm"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 850.00,
-  //     inStock: false
-  //   }
-  // ];
+  const isEmpty = cartItems.length < 1;
 
   const handleQuantityChange = async (
     cartItemId: string,
@@ -141,6 +59,15 @@ const Cart = () => {
     return cartItems.reduce((sum, item) => {
       const quantity = item.slots;
       return sum + (item.price * quantity * item.quantity);
+    }, 0);
+  };
+
+  /** Sum of (original − current) × slots × units, same basis as subtotal */
+  const calculateTotalSaved = () => {
+    return cartItems.reduce((sum, item) => {
+      const original = item.originalPrice ?? item.price;
+      if (original <= item.price) return sum;
+      return sum + (original - item.price) * item.slots * item.quantity;
     }, 0);
   };
 
@@ -177,20 +104,14 @@ const Cart = () => {
   };
   
   const subtotal = calculateTotal();
+  const totalSaved = calculateTotalSaved();
   const bulkSavings = subtotal > 0 ? 225.50 : 0;
   const shipping = subtotal > 0 ? 45.00 : 0;
   const total = subtotal - bulkSavings + shipping;
 
-  // useEffect(() => {
-  //   localStorage.setItem(
-  //     "cartSummary",
-  //     JSON.stringify({ subtotal, bulkSavings, shipping, totalQty, total })
-  //   );
-  // }, [subtotal]);
-
   return (
     <>
-      <section className='pt-32 md:pt-24 mb-10 md:mb-16'>
+      <section className='pt-16 md:pt-24 mb-10 md:mb-16'>
         <div className="px-4 md:px-10 lg:px-20">
           <div className="flex justify-between items-end pt-10 md:pt-0">
             <div>
@@ -206,16 +127,50 @@ const Cart = () => {
               Clear Cart
             </Button>
           </div>  
-          <div className="flex flex-col lg:flex-row gap-4 my-4">
-            <div className="w-full lg:flex-1 flex flex-col gap-4">
-              <div className="mb-4">
-                {
-                  cartItems.length < 1 ?
-                  <div className="flex flex-col gap-2 justify-center items-center py-20">
-
-                    <p>No items in cart</p>
-                  </div> : 
-                    cartItems.map(item => {
+          <div
+            className={`my-4 flex flex-col gap-6 ${
+              isEmpty ? "" : "lg:flex-row lg:items-start lg:gap-6"
+            }`}
+          >
+            <div
+              className={`flex flex-col gap-4 ${
+                isEmpty ? "w-full" : "w-full lg:flex-1"
+              }`}
+            >
+              <div className={isEmpty ? "" : "mb-4"}>
+                {isEmpty ? (
+                  <div className="mx-auto w-full max-w-lg">
+                    <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm md:px-10 md:py-14">
+                      <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 md:h-24 md:w-24">
+                        <RiShoppingCart2Line
+                          className="text-4xl text-(--primary) md:text-[2.75rem]"
+                          aria-hidden
+                        />
+                        <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
+                          <RiStarFill
+                            className="text-base text-amber-500"
+                            aria-hidden
+                          />
+                        </span>
+                      </div>
+                      <h2 className="mt-6 text-xl font-bold text-gray-900 md:text-2xl">
+                        Your cart is empty!
+                      </h2>
+                      <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500 md:text-base">
+                        Browse our categories and discover our best deals!
+                      </p>
+                      <Link href="/products" className="mt-8 inline-block">
+                        <Button
+                          primary
+                          className="min-w-50 rounded-md px-8 py-3 font-semibold"
+                        >
+                          Start Shopping
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  cartItems.map((item) => {
                       const slots = item.slots || 0;
                       const minOrder = item.minOrder ||0
 
@@ -323,18 +278,21 @@ const Cart = () => {
                             </div> */}
                           </div>
                         </Card>
-                      )
-                    })
-                }
+                      );
+                  })
+                )}
               </div>
-              <Link href={'/products'}>
-                <Button primary>
-                  <RiArrowLeftLine />
-                  Continue Shopping
-                </Button>
-              </Link>
+              {!isEmpty && (
+                <Link href="/products">
+                  <Button primary>
+                    <RiArrowLeftLine />
+                    Continue Shopping
+                  </Button>
+                </Link>
+              )}
             </div>
-            <div className="w-full lg:w-96 lg:shrink-0 flex flex-col">
+            {!isEmpty && (
+            <div className="flex w-full flex-col lg:w-96 lg:shrink-0">
               <div className="rounded-xl bg-(--bg-surface) p-6 mb-4">
                 <h1 className="text-2xl mb-4">Cart Summary</h1>
                 <div className="pb-4 border-b border-(--border-muted)">
@@ -344,6 +302,15 @@ const Cart = () => {
                     </p>
                     <p className="text-base font-medium text-gray-900">
                       ₦ {subtotal.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between my-4">
+                    <p className="text-sm font-semibold text-emerald-700">
+                      Saved
+                    </p>
+                    <p className="text-base font-semibold text-emerald-700 tabular-nums">
+                      ₦ {totalSaved.toLocaleString()}
                     </p>
                   </div>
 
@@ -416,7 +383,10 @@ const Cart = () => {
                 </div>
               </div>
             </div>
+            )}
           </div>
+
+          <RecentlyViewed />
         </div>
 
         {isCheckoutLoading && (

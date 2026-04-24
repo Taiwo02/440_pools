@@ -87,17 +87,33 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
         const user = res.data?.data?.customer;
 
         authenticate({ user, token, refreshToken });
+        setNotLoggedIn(false);
 
         if (baleData) {
-          if(buyDirectly) {
+          const useDefaultPoolAllocation =
+            !buyDirectly && totalAllocatedQuantity === 0;
+          const poolQuantity = useDefaultPoolAllocation
+            ? maxAllowedQuantity
+            : totalAllocatedQuantity;
+
+          if (buyDirectly) {
             if (totalAllocatedQuantity !== maxDirectAllowedQuantity) {
               toast.error(`You must allocate exactly ${maxDirectAllowedQuantity} items.`)
               return
             }
           } else {
-            if (totalAllocatedQuantity !== maxAllowedQuantity) {
+            if (
+              totalAllocatedQuantity > 0 &&
+              totalAllocatedQuantity !== maxAllowedQuantity
+            ) {
               toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
               return
+            }
+            if (useDefaultPoolAllocation && maxAllowedQuantity <= 0) {
+              toast.error(
+                "Choose at least one slot so your pool quantity is valid."
+              );
+              return;
             }
           }
 
@@ -144,15 +160,17 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
               totalSlots: baleData.slot,
               totalShippingFee:
                 baleData.deliveryFee * formValues.slots,
-              quantity: totalAllocatedQuantity,
+              quantity: poolQuantity,
               unit: "unit",
-              variants: selectedVariants,
+              variants: useDefaultPoolAllocation
+                ? { sizes: [], colors: [] }
+                : selectedVariants,
               createdAt: baleData.createdAt,
               updatedAt: baleData.updatedAt,
               description: baleData.product.description,
               status: Boolean(baleData.status == "OPEN"),
               endIn: baleData.endIn,
-              items,
+              items: useDefaultPoolAllocation ? [] : items,
               inStock: true,
             });
           }
@@ -199,6 +217,7 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
               <p className="text-(--text-muted)">Enter your details to log into your account</p>
             </div>
             <button
+              type="button"
               className="text-sm text-gray-500 cursor-pointer"
               onClick={() => setNotLoggedIn(false)}
             >

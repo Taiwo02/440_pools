@@ -7,6 +7,8 @@ import { RiFlashlightFill, RiTimeFill } from "react-icons/ri";
 type CountdownProps = {
   endDate: string;
   className?: string;
+  /** Default: floating pill on images. `inline` = plain text for tables/cards. */
+  variant?: "badge" | "inline";
 };
 
 const MS_DAY = 24 * 60 * 60 * 1000;
@@ -41,7 +43,11 @@ const formatRemaining = (endDate: string): { text: string; ended: boolean } => {
   };
 };
 
-export default function Countdown({ endDate, className }: CountdownProps) {
+export default function Countdown({
+  endDate,
+  className,
+  variant = "badge",
+}: CountdownProps) {
   const [snapshot, setSnapshot] = useState(() => formatRemaining(endDate));
 
   useEffect(() => {
@@ -52,6 +58,25 @@ export default function Countdown({ endDate, className }: CountdownProps) {
   }, [endDate]);
 
   const { text, ended } = snapshot;
+
+  if (variant === "inline") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 font-semibold tabular-nums",
+          ended ? "text-red-600" : "text-gray-900",
+          className
+        )}
+      >
+        {ended ? (
+          <RiFlashlightFill className="shrink-0" aria-hidden />
+        ) : (
+          <RiTimeFill className="shrink-0 text-(--primary)" aria-hidden />
+        )}
+        {text}
+      </span>
+    );
+  }
 
   return (
     <div

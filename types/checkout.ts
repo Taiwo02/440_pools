@@ -248,15 +248,21 @@ export type DirectInitiate = {
   id?: number
 }
 
+/**
+ * POST /buyer/initiate-payment
+ * - BALE + LOCK|HALF|FULL → checkoutId (from checkout-intent response checkout.id)
+ * - DIRECT + UPFRONT|REMAINDER|INSTALLMENT_ENTRY → orderId (from direct-order response orders[0].id)
+ * - WALLET → pin required; CARD / Paystack omit pin
+ */
 export type InitiatePayment = {
   flowType: "BALE" | "DIRECT",
   action: "LOCK" | "HALF" | "FULL" | "UPFRONT" | "REMAINDER" | "INSTALLMENT_ENTRY",
   paymentType?: "WALLET" | "CARD",
-  pin?: string | null, // required when paymentType is "WALLET"
-  checkoutId?: number, //required when "BALE" && ["LOCK", "HALF", "FULL"]
-  returnUrl?: "https://shop.4401.live/verify",
-  orderId?: number //required when action is ["UPFRONT", "REMAINDER", "INSTALLMENT_ENTRY"]
-}
+  pin?: string | null,
+  checkoutId?: number,
+  returnUrl?: string,
+  orderId?: number,
+};
 
 export type OrderDetails = {
   order: Order,

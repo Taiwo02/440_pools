@@ -1,201 +1,149 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Dropdown, Button } from "../ui";
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useGetAllOrders } from "@/api/order";
-import {
-  ORDER_STATUSES,
-  OrderList,
-  OrderStatus,
-  OrderStatuses,
-} from "@/types/checkout";
-import MyModal from "../core/modal";
-import SingleOrder from "./SingleOrder";
-import OrderCard from "./OrderCard";
+import type { OrderList, OrderStatus } from "@/types/checkout";
+import OrderRowCard from "./OrderRowCard";
+import LockedPoolCard from "./LockedPoolCard";
 import { TablePagination } from "../ui/table/TableWrapper";
 import { RiLoader5Line } from "react-icons/ri";
 
-const OrderHistory = () => {
-  const { data: ordersList = [], isPending } = useGetAllOrders();
+const CANCELED_STATUSES: OrderStatus[] = [
+  "CANCELLED",
+  "REFUNDED",
+  "DEFAULTED",
+  "DISPUTE_RAISED",
+];
 
-  const [rowsPerPage] = useState(9);
+function isCanceled(order: OrderList): boolean {
+  return CANCELED_STATUSES.includes(order.status as OrderStatus);
+}
+
+export type OrdersListKind = "ongoing" | "canceled" | "locked";
+
+type Props = {
+  /** Route-driven list; each value is its own URL under `/account/orders/...`. */
+  list: OrdersListKind;
+};
+
+export default function OrderHistory({ list }: Props) {
+  const { data: ordersList = [], isPending } = useGetAllOrders();
+  const [rowsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [selectedOrderID, setSelectedOrderID] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const lockedPools = useMemo(
+    () =>
+      ordersList.filter(
+        (o) => o.checkoutType === "BALE" && o.status === "LOCKED"
+      ),
+    [ordersList]
+  );
 
-  const [statusFilter, setStatusFilter] = useState<OrderStatus>("all");
-  const [dateRange, setDateRange] = useState<{
-    start: string | null;
-    end: string | null;
-  }>({
-    start: null,
-    end: null,
-  });
+  const activeOrders = useMemo(
+    () =>
+      ordersList.filter((o) => !isCanceled(o) && o.status !== "LOCKED"),
+    [ordersList]
+  );
 
-  // Filtering
-  const filteredOrders = useMemo((): OrderList[] => {
-    return ordersList.filter((order: OrderList) => {
-      const matchesStatus =
-        statusFilter === "all" || order.status === statusFilter;
+  const canceledOrders = useMemo(
+    () => ordersList.filter((o) => isCanceled(o)),
+    [ordersList]
+  );
 
-      const orderDate = new Date(order.createdAt);
+  const currentList: OrderList[] =
+    list === "ongoing"
+      ? activeOrders
+      : list === "canceled"
+        ? canceledOrders
+        : lockedPools;
 
-      const matchesStart =
-        !dateRange.start || orderDate >= new Date(dateRange.start);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [list]);
 
-      const matchesEnd =
-        !dateRange.end || orderDate <= new Date(dateRange.end);
-
-      return matchesStatus && matchesStart && matchesEnd;
-    });
-  }, [ordersList, statusFilter, dateRange]);
-
-  // Pagination
+  const totalPages = Math.ceil(
+    Math.max(1, currentList.length) / rowsPerPage
+  );
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, filteredOrders.length);
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
-
-  const pooledOrders = ordersList.filter((order: OrderList) => order.checkoutType == "BALE");
-  const directOrders = ordersList.filter((order: OrderList) => order.checkoutType == "DIRECT");
+  const endIndex = Math.min(startIndex + rowsPerPage, currentList.length);
+  const paginated = currentList.slice(startIndex, endIndex);
 
   return (
     <div className="space-y-6">
-
-      {/* ---------------- Filters Section ---------------- */}
-      <div className="bg-(--bg-page) p-4 rounded-2xl">
-        <h3 className="text-xl font-semibold mb-4">Order History</h3>
-
-        <div className="flex flex-col md:flex-row gap-4 md:items-end">
-          <div>
-            <p className="text-sm font-medium mb-1">Status</p>
-            <Dropdown
-              value={statusFilter}
-              options={ORDER_STATUSES}
-              onChange={(value) => {
-                setStatusFilter(value as OrderStatuses);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-          <div className="flex flex-col md:flex-row gap-2 w-full md:w-fit">
-            <div className="w-full md:w-auto">
-              <p className="text-sm font-medium">Start Date</p>
-              <input
-                type="date"
-                className="border border-(--border-default) rounded-md px-3 py-2 bg-(--bg-surface) w-full"
-                onChange={(e) =>
-                  setDateRange((prev) => ({
-                    ...prev,
-                    start: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="w-full md:w-auto">
-              <p className="text-sm font-medium">End Date</p>
-              <input
-                type="date"
-                className="border border-(--border-default) rounded-md px-3 py-2 bg-(--bg-surface) w-full"
-                onChange={(e) =>
-                  setDateRange((prev) => ({
-                    ...prev,
-                    end: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </div>
-          
-
-          <Button
-            onClick={() => {
-              setStatusFilter("all");
-              setDateRange({ start: null, end: null });
-              setCurrentPage(1);
-            }}
-          >
-            Reset
-          </Button>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Orders</h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Track deliveries and finish pool payments.
+        </p>
       </div>
 
-      {/* ---------------- Orders Grid ---------------- */}
+      <div className="flex flex-wrap border-b border-gray-200">
+        <Link
+          href="/account/orders/ongoing"
+          className={`border-b-2 px-4 py-3 text-sm font-semibold transition sm:px-5 ${
+            list === "ongoing"
+              ? "border-(--primary) text-(--primary)"
+              : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          ONGOING / DELIVERED ({activeOrders.length})
+        </Link>
+        <Link
+          href="/account/orders/canceled"
+          className={`border-b-2 px-4 py-3 text-sm font-semibold transition sm:px-5 ${
+            list === "canceled"
+              ? "border-(--primary) text-(--primary)"
+              : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          CANCELED / RETURNED ({canceledOrders.length})
+        </Link>
+        <Link
+          href="/account/orders/locked"
+          className={`border-b-2 px-4 py-3 text-sm font-semibold transition sm:px-5 ${
+            list === "locked"
+              ? "border-(--primary) text-(--primary)"
+              : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          LOCKED POOLS ({lockedPools.length})
+        </Link>
+      </div>
+
       {isPending ? (
-        <div className="flex justify-center items-center py-20">
+        <div className="flex justify-center py-20">
           <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
         </div>
-      ) : filteredOrders.length === 0 ? (
-        <div className="text-center py-16 text-(--text-muted)">
-          No orders found.
+      ) : currentList.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
+          {list === "locked"
+            ? "No locked pools. When you lock a slot and still owe payment, it will appear here."
+            : "No orders in this tab yet."}
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-4 my-4 items-start">
-          <div className="w-full lg:flex-1 flex flex-col gap-4">
-            <div className="flex flex-col">
-              {paginatedOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                />
-              ))}
-            </div>
+        <div className="flex flex-col gap-4">
+          {paginated.map((order) =>
+            list === "locked" ? (
+              <LockedPoolCard key={order.id} order={order} />
+            ) : (
+              <OrderRowCard key={order.id} order={order} />
+            )
+          )}
 
+          {currentList.length > rowsPerPage ? (
             <TablePagination
               page={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
-              startIndex={startIndex + 1}
+              startIndex={currentList.length === 0 ? 0 : startIndex + 1}
               endIndex={endIndex}
-              totalItems={filteredOrders.length}
+              totalItems={currentList.length}
               itemLabel="order(s)"
             />
-          </div>
-          <div className="w-full hidden lg:w-96 lg:shrink-0 lg:flex flex-col border border-(--border-muted)/30 rounded-xl shadow p-6">
-            <h1 className="text-2xl mb-4">Order Summary</h1>
-            <div className="flex items-center justify-between my-2">
-              <p className="text-sm font-normal text-gray-600">
-                Direct Orders
-              </p>
-              <p className="text-base font-medium text-gray-900">
-                { directOrders.length }
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between my-2">
-              <p className="text-sm font-normal text-gray-600">
-                Pooled Orders
-              </p>
-              <p className="text-base font-medium text-gray-900">
-                { pooledOrders.length }
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between my-2">
-              <p className="text-sm font-normal text-gray-600">
-                Total Orders
-              </p>
-              <p className="text-base font-medium text-gray-900">
-                { ordersList.length }
-              </p>
-            </div>
-          </div>
+          ) : null}
         </div>
       )}
-
-      {/* ---------------- Order Details Modal ---------------- */}
-      <MyModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-      >
-        {selectedOrderID && (
-          <SingleOrder orderId={selectedOrderID} />
-        )}
-      </MyModal>
     </div>
   );
-};
-
-export default OrderHistory;
+}

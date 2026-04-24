@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useGetInfiniteBales } from "@/api/bale";
 import { useGetCategories } from "@/api/product";
@@ -6,10 +6,19 @@ import ProductCard from "@/components/product/ProductCard";
 import { Button } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
 import { BaleFilters, CategoryDetails } from "@/types/types";
-import * as Slider from '@radix-ui/react-slider';
+import * as Slider from "@radix-ui/react-slider";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiGlobeLine, RiGridFill, RiListUnordered, RiLoader5Line, RiMoneyDollarBoxFill, RiSignalWifiErrorLine, RiStarFill } from "react-icons/ri";
+import {
+  RiArrowDownSLine,
+  RiGlobeLine,
+  RiGridFill,
+  RiListUnordered,
+  RiLoader5Line,
+  RiMoneyDollarBoxFill,
+  RiSignalWifiErrorLine,
+  RiStarFill,
+} from "react-icons/ri";
 import { TbBoxOff } from "react-icons/tb";
 import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +36,12 @@ type ProductRowProps = {
   handleEnter: (category: CategoryDetails) => void;
 };
 
-const CategoryRow = ({ category, tempFilters, toggleFilter, handleEnter }: ProductRowProps) => {
+const CategoryRow = ({
+  category,
+  tempFilters,
+  toggleFilter,
+  handleEnter,
+}: ProductRowProps) => {
   const { data: subCategories } = useQuery({
     queryKey: ["sub-category", category.id],
     queryFn: async () => {
@@ -54,7 +68,7 @@ const CategoryRow = ({ category, tempFilters, toggleFilter, handleEnter }: Produ
         />
 
         {/* ACCESS SUBCATEGORIES HERE */}
-        {subCategories?.map((sub: SubCategory) =>{
+        {subCategories?.map((sub: SubCategory) => {
           const subChecked = tempFilters.subCategories?.includes(sub.id);
           return (
             <div className="my-2" key={sub.id}>
@@ -149,12 +163,12 @@ const ProductsContent = () => {
   } = useGetCategories();
 
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get('category') ?? undefined;
+  const initialCategory = searchParams.get("category") ?? undefined;
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (initialCategory) {
-      setFilters(prev => {
+      setFilters((prev) => {
         const categories = prev.categories ?? [];
         const categoryId = Number(initialCategory);
         return {
@@ -227,7 +241,7 @@ const ProductsContent = () => {
           fetchNextPage();
         }
       },
-      { threshold: 0.5, root: scrollContainerRef.current }
+      { threshold: 0.5, root: scrollContainerRef.current },
     );
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
@@ -237,7 +251,8 @@ const ProductsContent = () => {
     (filters.categories?.length ?? 0) > 0 ||
     (filters.marketLocation?.length ?? 0) > 0 ||
     filters.supplierRating ||
-    (filters.priceRange?.min !== 0 || filters.priceRange?.max !== 99999999);
+    filters.priceRange?.min !== 0 ||
+    filters.priceRange?.max !== 99999999;
 
   const toggleFilter = (
     key: "categories" | "marketLocation" | "subCategories" | "productTypes",
@@ -271,16 +286,21 @@ const ProductsContent = () => {
     if (!searchQuery) return true;
     const col1 = row.product.name.toLowerCase();
     const col2 = row.product.description.toLowerCase();
-    return col1.includes(searchQuery.toLowerCase()) || col2.includes(searchQuery.toLowerCase());
+    return (
+      col1.includes(searchQuery.toLowerCase()) ||
+      col2.includes(searchQuery.toLowerCase())
+    );
   });
 
   if (!isPending && allBales.length === 0 && !hasActiveFilters) {
-    return <p className="text-center font-bold text-xl">No products available</p>;
+    return (
+      <p className="text-center font-bold text-xl">No products available</p>
+    );
   }
 
   return (
     <>
-      <section className="pt-30 lg:pt-24">
+      <section className="pt-20 lg:pt-24">
         <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)] mb-10">
           <div
             className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-4 rounded-xl bg-(--bg-surface) overflow-y-auto overflow-x-visible h-full relative"
@@ -572,7 +592,7 @@ const ProductsContent = () => {
       </section>
     </>
   );
-}
+};
 
 const ProductsPageFallback = () => (
   <div className="flex justify-center items-center w-full min-h-[50vh] pt-24">

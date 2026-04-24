@@ -501,7 +501,8 @@ export type CategoryDetails = {
 export interface BaleFilters {
   page?: number;
   limit?: number;
-  productId?: number;
+  search?: string;
+  productId?: number
   status?: "OPEN" | "CLOSED";
   shipmentId?: number;
   sortBy?: string;

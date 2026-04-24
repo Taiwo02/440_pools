@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
 import { Footer, Navbar } from "@/components/core";
+import ConditionalMainPadding from "@/components/core/ConditionalMainPadding";
 import MobileBottomNav from "@/components/core/MobileBottomNav";
 import Providers from "@/providers/providers";
 import { ToastContainer } from 'react-toastify';
@@ -22,40 +22,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
     <html lang="en" suppressHydrationWarning>
       <body
         className={`bg-(--bg-page) antialiased`}
       >
         <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Navbar />
-            <div className="pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0 min-h-0">
-              {children}
-            </div>
-            <MobileBottomNav />
-            <Footer />
-          </ThemeProvider>
+          <Navbar />
+          <ConditionalMainPadding>{children}</ConditionalMainPadding>
+          <MobileBottomNav />
+          <Footer />
+          <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
         </Providers>
       </body>
     </html>
-    <ToastContainer
-      position="top-right"
-      autoClose={2000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme="light"
-    />
-    </>
   );
 }

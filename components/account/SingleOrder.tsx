@@ -6,7 +6,8 @@ import { getOrderStatusVariant } from "./orderStatusBadge"
 import { RiLoader4Fill } from "react-icons/ri"
 import { formatDistanceToNow } from "date-fns"
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "../ui/table/TableWrapper"
-import { InitiatePayment, Installments, OrderDetails } from "@/types/checkout"
+import { Installments, OrderDetails } from "@/types/checkout"
+import { buildDirectInstallmentEntryBody } from "@/lib/initiate-payment-helpers"
 import { toast } from "react-toastify"
 import { openPaystackPopup } from "@/types/funcs"
 import { AxiosError } from "axios"
@@ -71,11 +72,13 @@ const SingleOrder = ({ orderId }: Props) => {
     }).format(value)
 
   const initiatePayment = async () => {
-    const initiatePayload: InitiatePayment = {
-      flowType: "DIRECT",
-      action: "INSTALLMENT_ENTRY",
-      checkoutId: order?.order.checkoutId
+    const oid = order?.order.id;
+    if (oid == null) {
+      toast.error("Order is still loading or missing.");
+      return;
     }
+
+    const initiatePayload = buildDirectInstallmentEntryBody(oid);
 
     const data = {
       body: initiatePayload,
@@ -86,8 +89,11 @@ const SingleOrder = ({ orderId }: Props) => {
       const res = await payInstallment(data);
 
       if(res.status == 200 || res.status == 201) {
-        console.log(res.data)
         const accessCode = res?.data?.data?.accessCode;
+        if (!accessCode) {
+          toast.error("Payment could not be started: missing access code.");
+          return;
+        }
 
         await openPaystackPopup(
           accessCode,
