@@ -20,6 +20,7 @@ const buildBalesQueryParams = (
 
   if (filters.search?.trim()) params.search = filters.search.trim();
   if (filters.productId != null) params.productId = filters.productId;
+  if (filters.isSpecial != null) params.isSpecial = filters.isSpecial;
   if (filters.status) params.status = filters.status;
   if (filters.shipmentId != null) params.shipmentId = filters.shipmentId;
   if (filters.sortBy) params.sortBy = filters.sortBy;

@@ -13,11 +13,14 @@ import { RiArrowDownSLine, RiGlobeLine, RiGridFill, RiListUnordered, RiLoader5Li
 import { TbBoxOff } from "react-icons/tb";
 
 const ProductsContent = () => {
+  const searchParams = useSearchParams();
+  const isSpecialQuery = searchParams.get("isSpecial") === "true";
   const [filters, setFilters] = useState<BaleFilters>({
     categories: [],
     priceRange: { min: 0, max: 99999999 },
     marketLocation: [],
     limit: 12,
+    isSpecial: isSpecialQuery || undefined,
   });
 
   const [tempFilters, setTempFilters] = useState<BaleFilters>({
@@ -25,9 +28,8 @@ const ProductsContent = () => {
     priceRange: { min: 0, max: 99999999 },
     marketLocation: [],
     limit: 12,
+    isSpecial: isSpecialQuery || undefined,
   });
-
-  const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') ?? undefined;
   const searchQuery = searchParams.get("search")?.trim() ?? "";
 
@@ -52,6 +54,17 @@ const ProductsContent = () => {
       search: searchQuery || undefined,
     }));
   }, [searchQuery]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      isSpecial: isSpecialQuery || undefined,
+    }));
+    setTempFilters((prev) => ({
+      ...prev,
+      isSpecial: isSpecialQuery || undefined,
+    }));
+  }, [isSpecialQuery]);
 
   const {
     data,

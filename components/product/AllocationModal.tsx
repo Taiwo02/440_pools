@@ -110,11 +110,12 @@ const AllocationModal = (
     >
       <div className="flex justify-between items-center pb-3 border-b border-(--border-default)">
         <div className="min-w-0 pr-2">
-          <h1 className="text-lg font-semibold">Select variations and quantity</h1>
+          <h1 className="text-lg font-semibold">
+            {buyDirectly ? "Select variations and quantity" : "Pool details"}
+          </h1>
           {!buyDirectly && (
             <p className="mt-1 text-xs text-(--text-muted)">
-              Colors and sizes are optional for Join Pool — pick slots, then you can
-              check out without choosing variations.
+              Join Pool only needs slot selection. Color and size choices are for Buy flow.
             </p>
           )}
         </div>
@@ -122,7 +123,7 @@ const AllocationModal = (
           <RiCloseLine size={20} />
         </button>
       </div>
-      <div className="overflow-auto h-[calc(100vh-150px)] no-scrollbar">
+      <div className="overflow-auto h-[calc(100vh-150px)] no-scrollbar pb-32">
         <div className="my-4">
           <h2 className="text-lg">
             Price
@@ -246,7 +247,66 @@ const AllocationModal = (
         }
 
         <div className="border-t border-(--border-default) py-4">
-          {colorsList.length > 0 && (
+          {!buyDirectly && (
+            <>
+              {colorsList.length > 0 && (
+                <div className="mb-4">
+                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Colors
+                  </p>
+                  <div className="flex flex-wrap items-stretch gap-2 mt-1 px-1">
+                    {colorsList.map((color, index) => {
+                      const colorObj = baleData.product.colors.find(
+                        c => c.color === color.value
+                      );
+                      if (!colorObj) return null;
+
+                      return (
+                        <div
+                          key={index}
+                          className="relative flex gap-2 items-center rounded-lg border border-(--border-default) p-2 opacity-80"
+                        >
+                          {color.node != null && color.node}
+                          {color.node == null && color.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {hasSizes && sizesList.length > 0 ? (
+                <div className="mb-2">
+                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Sizes
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {sizesList.map((size) => (
+                      <span
+                        key={size.id}
+                        className="inline-flex rounded-full border border-(--border-default) bg-(--bg-surface) px-3 py-1 text-sm text-(--text-primary)"
+                      >
+                        {size.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : !hasSizes ? (
+                <div className="mb-2">
+                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Quantity
+                  </p>
+                  <p className="mt-2 text-sm text-(--text-muted)">
+                    Follows your selected slots automatically
+                  </p>
+                </div>
+              ) : null}
+            </>
+          )}
+
+          {buyDirectly && (
+            <>
+            {colorsList.length > 0 && (
             <div className="mb-4">
               <div className="text-xs mb-2">
               </div>
@@ -296,9 +356,9 @@ const AllocationModal = (
                 }
               </div>
             </div>
-          )}
+            )}
 
-          {activeColorId !== null && (
+            {activeColorId !== null && (
             <>
               <div className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto"} my-4`}>
                 <div className="flex justify-between">
@@ -427,6 +487,8 @@ const AllocationModal = (
                   )}
                 </div>
               </div>
+            </>
+            )}
             </>
           )}
         </div>

@@ -503,6 +503,7 @@ export interface BaleFilters {
   limit?: number;
   search?: string;
   productId?: number
+  isSpecial?: boolean;
   status?: "OPEN" | "CLOSED";
   shipmentId?: number;
   sortBy?: string;

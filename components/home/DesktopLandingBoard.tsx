@@ -53,8 +53,8 @@ export default function DesktopLandingBoard({ dailyDeals }: Props) {
   const { data: categories, isPending: categoriesPending } = useGetCategories();
   const [filters] = useState<BaleFilters>({
     categories: [],
-    priceRange: { min: 0, max: 1000000 },
     marketLocation: [],
+    isSpecial: true,
   });
   const { data: allBales = [], isPending: balesPending } = useGetBales(filters);
   const { buyCart } = useBuy();
@@ -125,7 +125,7 @@ export default function DesktopLandingBoard({ dailyDeals }: Props) {
                   Ends in {timeLeft}
                 </span>
                 <Link
-                  href="/products"
+                  href="/products?isSpecial=true"
                   className="inline-flex items-center gap-0.5 text-xs font-bold text-(--primary) hover:underline underline-offset-2"
                 >
                   View all

@@ -49,8 +49,8 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
 
   const [filters] = useState<BaleFilters>({
     categories: [],
-    priceRange: { min: 0, max: 1000000 },
     marketLocation: [],
+    isSpecial: true,
   });
 
   const { data: allBales = [], isPending } = useGetBales(filters);
@@ -72,7 +72,7 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
             </p>
           </div>
           <Link
-            href="/products"
+            href="/products?isSpecial=true"
             className="shrink-0 text-xs font-bold underline underline-offset-2"
           >
             See all
