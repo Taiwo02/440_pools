@@ -137,10 +137,11 @@ export type SubCategory = {
   name: string;
   categoryId: number;
   subCategoryslug: string | null;
-  description: string;
+  description: string | null;
   createdAt: string;
   updatedAt: string;
-  category: Category;
+  // category: Category;
+  productTypes: ProductType[];
 };
 
 export type Category = {
@@ -150,6 +151,14 @@ export type Category = {
   priority: number;
   image: string;
   description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProductType = {
+  id: number;
+  name: string;
+  subCategoryId: number;
   createdAt: string;
   updatedAt: string;
 };

@@ -21,6 +21,28 @@ export const useGetCategories = () => {
   });
 };
 
+export const useGetSubCategory = (id: number) => {
+  return useQuery({
+    queryKey: ["sub-category", id],
+    queryFn: async () => {
+      const res = await http.get(`/admin/sub-categories-by-categoryId/${id}`);
+      return res?.data?.data;
+    },
+    enabled: !!id
+  });
+};
+
+export const useGetProductTypes = (id: number) => {
+  return useQuery({
+    queryKey: ["product-types", id],
+    queryFn: async () => {
+      const res = await http.get(`/admin/category/product-types?subCategoryId=${id}`);
+      return res?.data?.data;
+    },
+    enabled: !!id
+  });
+};
+
 export const useGetMarkets = () => {
   return useQuery({
     queryKey: ["market"],

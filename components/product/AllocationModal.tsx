@@ -95,16 +95,16 @@ const AllocationModal = (
       style={{
         overlay: {
           backgroundColor: "rgba(0,0,0,0.7)",
-          zIndex: 100
+          zIndex: 100,
         },
         content: {
-          width: window.innerWidth > 768 ? '40%' : '100%',
-          top: window.innerWidth > 768 ? 0 : '10%',
-          left: window.innerWidth > 768 ? '60%' : '0%',
-          height: window.innerWidth > 768 ? '100%' : '90%',
-          backgroundColor: 'var(--bg-page)',
-          borderRadius: '10px 0 0 10px',
-          border: 'none',
+          width: window.innerWidth > 768 ? "40%" : "100%",
+          top: window.innerWidth > 768 ? 0 : "10%",
+          left: window.innerWidth > 768 ? "60%" : "0%",
+          height: window.innerWidth > 768 ? "100%" : "90%",
+          backgroundColor: "var(--bg-page)",
+          borderRadius: "10px 0 0 10px",
+          border: "none",
         },
       }}
     >
@@ -125,37 +125,110 @@ const AllocationModal = (
       </div>
       <div className="overflow-auto h-[calc(100vh-150px)] no-scrollbar pb-32">
         <div className="my-4">
-          <h2 className="text-lg">
-            Price
-          </h2>
+          <h2 className="text-lg">Price</h2>
           <div className="flex flex-wrap items-end gap-4">
-            {
-              buyDirectly ? 
-                <div>
-                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.oldPrice)}</p>
-                  <span className='relative -top-2 text-xs text-(--text-muted)'>Direct Buy Price per Unit</span>
-                </div> : 
-                <div>
-                  <p className="text-3xl text-(--primary) font-bold">&#8358;{formatPrice(baleData.price)}</p>
-                  <span className='relative -top-2 text-xs text-(--text-muted)'>Pooled Price per Unit</span>
-                </div>
-            }
-            
+            {buyDirectly ? (
+              <div>
+                <p className="text-3xl text-(--primary) font-bold">
+                  &#8358;{formatPrice(baleData.oldPrice)}
+                </p>
+                <span className="relative -top-2 text-xs text-(--text-muted)">
+                  Direct Buy Price per Unit
+                </span>
+              </div>
+            ) : (
+              <div>
+                <p className="text-3xl text-(--primary) font-bold">
+                  &#8358;{formatPrice(baleData.price)}
+                </p>
+                <span className="relative -top-2 text-xs text-(--text-muted)">
+                  Pooled Price per Unit
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {
-          buyDirectly ?
+        {buyDirectly ? (
+          <div className="pt-4 my-4 border-t border-(--border-default)">
+            <p className="uppercase text-sm font-semibold text-(--text-muted)">
+              Minimum Order Quantity (MOQ)
+            </p>
+            <div className="flex items-stretch mt-1">
+              <Button
+                className="rounded-r-none rounded-l-xl! py-2!"
+                disabled={formValues.directQty === 1}
+                onClick={() =>
+                  setFormValues((p) => ({ ...p, directQty: p.directQty - 1 }))
+                }
+                primary
+              >
+                -
+              </Button>
+              <Input
+                element="input"
+                input_type="text"
+                name="quantity"
+                value={formValues.directQty}
+                handler={handleChange}
+                genStyle="my-0!"
+                styling="rounded-none p-2! focus:outline-none! w-30! text-center"
+              />
+              <Button
+                className="rounded-l-none rounded-r-xl! py-2!"
+                onClick={() =>
+                  setFormValues((p) => ({ ...p, directQty: p.directQty + 1 }))
+                }
+                primary
+              >
+                +
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg">
+              <div className="flex md:items-end justify-between">
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex gap-2 items-center text-(--primary)">
+                    <RiGroupFill />
+                    <h2 className="text-lg uppercase">
+                      <span className="hidden md:block"></span> Pool Progress
+                    </h2>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-(--text-muted)">
+                      <span className="text-lg md:text-2xl text-(--text-primary) font-bold">
+                        {baleData.filledSlot}{" "}
+                      </span>
+                      / {baleData.slot} slots reserved
+                    </p>
+                    <UserBubbles count={baleData.filledSlot} />
+                  </div>
+                </div>
+              </div>
+              <Progress
+                totalQty={baleData.slot}
+                currentQty={baleData.filledSlot}
+                className="my-0!"
+              />
+              <Alert
+                type="success"
+                className="mt-3 py-2! px-4! w-fit! text-sm!"
+              >
+                * 1 slot = {productsPerSlot} products
+              </Alert>
+            </div>
             <div className="pt-4 my-4 border-t border-(--border-default)">
               <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                Minimum Order Quantity (MOQ)
+                Slots
               </p>
-              <div className="flex items-stretch mt-1">
+              <div className="flex items-stretch">
                 <Button
                   className="rounded-r-none rounded-l-xl! py-2!"
-                  disabled={formValues.directQty === 1}
+                  disabled={formValues.slots === 1}
                   onClick={() =>
-                    setFormValues(p => ({ ...p, directQty: p.directQty - 1 }))
+                    setFormValues((p) => ({ ...p, slots: p.slots - 1 }))
                   }
                   primary
                 >
@@ -165,7 +238,7 @@ const AllocationModal = (
                   element="input"
                   input_type="text"
                   name="quantity"
-                  value={formValues.directQty}
+                  value={formValues.slots}
                   handler={handleChange}
                   genStyle="my-0!"
                   styling="rounded-none p-2! focus:outline-none! w-30! text-center"
@@ -173,78 +246,16 @@ const AllocationModal = (
                 <Button
                   className="rounded-l-none rounded-r-xl! py-2!"
                   onClick={() =>
-                    setFormValues(p => ({ ...p, directQty: p.directQty + 1 }))
+                    setFormValues((p) => ({ ...p, slots: p.slots + 1 }))
                   }
                   primary
                 >
                   +
                 </Button>
               </div>
-            </div> :
-            <>
-              <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg">
-                <div className="flex md:items-end justify-between">
-                  <div className="flex flex-col gap-2 w-full">
-                    <div className="flex gap-2 items-center text-(--primary)">
-                      <RiGroupFill />
-                      <h2 className="text-lg uppercase"><span className="hidden md:block"></span> Pool Progress</h2>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-(--text-muted)">
-                        <span className="text-lg md:text-2xl text-(--text-primary) font-bold">{baleData.filledSlot} </span>
-                        / {baleData.slot} slots reserved
-                      </p>
-                      <UserBubbles count={baleData.filledSlot} />
-                    </div>
-                  </div>
-                </div>
-                <Progress
-                  totalQty={baleData.slot}
-                  currentQty={baleData.filledSlot}
-                  className='my-0!'
-                />
-                <Alert type="success" className="mt-3 py-2! px-4! w-fit! text-sm!">
-                  * 1 slot = {productsPerSlot} products
-                </Alert>
-              </div>
-              <div className="pt-4 my-4 border-t border-(--border-default)">
-                <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                  Slots
-                </p>
-                <div className="flex items-stretch">
-                  <Button
-                    className="rounded-r-none rounded-l-xl! py-2!"
-                    disabled={formValues.slots === 1}
-                    onClick={() =>
-                      setFormValues(p => ({ ...p, slots: p.slots - 1 }))
-                    }
-                    primary
-                  >
-                    -
-                  </Button>
-                  <Input
-                    element="input"
-                    input_type="text"
-                    name="quantity"
-                    value={formValues.slots}
-                    handler={handleChange}
-                    genStyle="my-0!"
-                    styling="rounded-none p-2! focus:outline-none! w-30! text-center"
-                  />
-                  <Button
-                    className="rounded-l-none rounded-r-xl! py-2!"
-                    onClick={() =>
-                      setFormValues(p => ({ ...p, slots: p.slots + 1 }))
-                    }
-                    primary
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-            </>
-          
-        }
+            </div>
+          </>
+        )}
 
         <div className="border-t border-(--border-default) py-4">
           {!buyDirectly && (
@@ -308,76 +319,84 @@ const AllocationModal = (
             <>
             {colorsList.length > 0 && (
             <div className="mb-4">
-              <div className="text-xs mb-2">
-              </div>
+              <div className="text-xs mb-2"></div>
               <p className="uppercase text-sm font-semibold text-(--text-muted)">
                 Colors
               </p>
               {/* Color selection (unchanged UI, just wired) */}
               <div className={`flex flex-wrap items-stretch gap-2 mt-1 px-1`}>
-                {
-                  colorsList.map((color, index) => {
-                    const isChecked = formValues.colors.includes(color.value)
+                {colorsList.map((color, index) => {
+                  const isChecked = formValues.colors.includes(color.value);
 
-                    const colorObj = baleData.product.colors.find(
-                      c => c.color === color.value
-                    );
+                  const colorObj = baleData.product.colors.find(
+                    (c) => c.color === color.value,
+                  );
 
-                    if (!colorObj) return null;
+                  if (!colorObj) return null;
 
-                    const qty = getColorQuantity(colorObj.id);
+                  const qty = getColorQuantity(colorObj.id);
 
-                    return (
-                      <label
-                        key={index}
-                        className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition ${isChecked ? "border-(--primary) ring-1 ring-(--primary)"
-                          : "border-(--border-default)"}`}
-                      >
-                        <input
-                          type="checkbox"
-                          name="colors"
-                          value={color.value}
-                          checked={isChecked}
-                          onChange={handleCheckboxChange}
-                          className="hidden"
-                        />
+                  return (
+                    <label
+                      key={index}
+                      className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition ${
+                        isChecked
+                          ? "border-(--primary) ring-1 ring-(--primary)"
+                          : "border-(--border-default)"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        name="colors"
+                        value={color.value}
+                        checked={isChecked}
+                        onChange={handleCheckboxChange}
+                        className="hidden"
+                      />
 
-                        {qty > 0 && (
-                          <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-(--primary) text-white text-xs flex items-center justify-center">
-                            {qty}
-                          </span>
-                        )}
+                      {qty > 0 && (
+                        <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-(--primary) text-white text-xs flex items-center justify-center">
+                          {qty}
+                        </span>
+                      )}
 
-                        {color.node != null && color.node}
-                        {color.node == null && color.label}
-                      </label>
-                    )
-                  })
-                }
+                      {color.node != null && color.node}
+                      {color.node == null && color.label}
+                    </label>
+                  );
+                })}
               </div>
             </div>
             )}
 
             {activeColorId !== null && (
             <>
-              <div className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto"} my-4`}>
+              <div
+                className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto"} my-4 pb-16 md:pb-3`}
+              >
                 <div className="flex justify-between">
-                  <p className="uppercase text-sm font-semibold text-(--text-muted)">{hasSizes ? 'Sizes' : 'Quantity'}</p>
+                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    {hasSizes ? "Sizes" : "Quantity"}
+                  </p>
                   {isAllocationExceeded && (
                     <p className="text-red-500 text-xs capitalize font-normal">
                       Allocation exceeds selected slots
                     </p>
                   )}
                 </div>
-                <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto mb-3 no-scrollbar">
+                <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto no-scrollbar">
                   {hasSizes && (
                     <>
-                      {sizesList.map(size => {
+                      {sizesList.map((size) => {
                         const qty =
-                          allocations[activeColorId]?.sizes?.[size.id]?.quantity ?? 0
+                          allocations[activeColorId]?.sizes?.[size.id]
+                            ?.quantity ?? 0;
 
                         return (
-                          <div key={size.id} className="flex justify-between items-center">
+                          <div
+                            key={size.id}
+                            className="flex justify-between items-center"
+                          >
                             <span className="text-sm">{size.label}</span>
 
                             <div className="flex items-stretch">
@@ -385,7 +404,11 @@ const AllocationModal = (
                                 className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
                                 disabled={qty === 0}
                                 onClick={() =>
-                                  decreaseSizeQty(activeColorId, size.id, size.label)
+                                  decreaseSizeQty(
+                                    activeColorId,
+                                    size.id,
+                                    size.label,
+                                  )
                                 }
                                 primary
                               >
@@ -401,17 +424,26 @@ const AllocationModal = (
                                   const value = Number(e.target.value);
                                   if (isNaN(value) || value < 0) return;
 
-                                  const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+                                  const resolvedColorId = hasColors
+                                    ? activeColorId!
+                                    : DEFAULT_COLOR_ID;
 
                                   const otherSizesTotal =
                                     totalAllocatedQuantity -
-                                    (allocations[resolvedColorId]?.sizes?.[size.id]?.quantity ?? 0);
+                                    (allocations[resolvedColorId]?.sizes?.[
+                                      size.id
+                                    ]?.quantity ?? 0);
 
                                   const max = maxAllowedQuantity;
 
                                   if (otherSizesTotal + value > max) return;
 
-                                  updateSizeQuantity(resolvedColorId, size.id, size.label, value);
+                                  updateSizeQuantity(
+                                    resolvedColorId,
+                                    size.id,
+                                    size.label,
+                                    value,
+                                  );
                                 }}
                                 genStyle="my-0!"
                                 styling="rounded-none p-2! w-15! text-center!"
@@ -420,7 +452,11 @@ const AllocationModal = (
                               <Button
                                 className="rounded-l-none rounded-r-xl! py-2! px-4! bg-(--primary)"
                                 onClick={() =>
-                                  increaseSizeQty(activeColorId, size.id, size.label)
+                                  increaseSizeQty(
+                                    activeColorId,
+                                    size.id,
+                                    size.label,
+                                  )
                                 }
                                 primary
                               >
@@ -428,8 +464,7 @@ const AllocationModal = (
                               </Button>
                             </div>
                           </div>
-
-                        )
+                        );
                       })}
                     </>
                   )}
@@ -443,7 +478,9 @@ const AllocationModal = (
                       <div className="flex items-stretch">
                         <Button
                           className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
-                          disabled={(allocations[activeColorId].quantity ?? 0) === 0}
+                          disabled={
+                            (allocations[activeColorId].quantity ?? 0) === 0
+                          }
                           onClick={() => decreaseColorQty(activeColorId)}
                           primary
                         >
@@ -459,13 +496,16 @@ const AllocationModal = (
                             const value = Number(e.target.value);
                             if (isNaN(value) || value < 0) return;
 
-                            const resolvedColorId = hasColors ? activeColorId! : DEFAULT_COLOR_ID;
+                            const resolvedColorId = hasColors
+                              ? activeColorId!
+                              : DEFAULT_COLOR_ID;
 
                             const max = maxAllowedQuantity;
 
                             // Ensure total allocation does not exceed max
                             const otherColorsTotal =
-                              totalAllocatedQuantity - (allocations[resolvedColorId]?.quantity ?? 0);
+                              totalAllocatedQuantity -
+                              (allocations[resolvedColorId]?.quantity ?? 0);
 
                             if (otherColorsTotal + value > max) return;
 
@@ -496,46 +536,42 @@ const AllocationModal = (
       <div className="w-full p-4 border-t border-(--border-default) absolute left-0 bottom-0 bg-(--bg-page)">
         {buyDirectly && totalAllocatedQuantity < maxDirectAllowedQuantity && (
           <p className="text-red-500 text-xs my-1 text-center">
-            You must allocate at least {maxDirectAllowedQuantity} items to buy or add to cart.
+            You must allocate at least {maxDirectAllowedQuantity} items to buy
+            or add to cart.
           </p>
         )}
-        {
-          buyDirectly ?
-            <div className="flex gap-2">
-              <Button
-                primary
-                isFullWidth
-                className={`uppercase  gap-2 items-center`}
-                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
-                onClick={handleBuyNow}
-              >
-                <RiBankCardFill className="hidden md:block" />
-                Buy
-              </Button>
-              <Button
-                primary
-                isFullWidth
-                className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
-                onClick={handleAddToCart}
-              >
-                <RiShoppingCart2Line className="hidden md:block" />
-                Add to Cart
-              </Button>
-            </div> : 
+        {buyDirectly ? (
+          <div className="flex gap-2">
             <Button
               primary
               isFullWidth
-              disabled={false}
-              onClick={joinPool}
+              className={`uppercase  gap-2 items-center`}
+              disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
+              onClick={handleBuyNow}
             >
-              <RiGroup2Fill className="hidden md:block" />
-              Join Pool
+              <RiBankCardFill className="hidden md:block" />
+              Buy
             </Button>
-        }
+            <Button
+              primary
+              isFullWidth
+              className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+              disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
+              onClick={handleAddToCart}
+            >
+              <RiShoppingCart2Line className="hidden md:block" />
+              Add to Cart
+            </Button>
+          </div>
+        ) : (
+          <Button primary isFullWidth disabled={false} onClick={joinPool}>
+            <RiGroup2Fill className="hidden md:block" />
+            Join Pool
+          </Button>
+        )}
       </div>
     </Modal>
-  )
+  );
 }
 
 export default AllocationModal;

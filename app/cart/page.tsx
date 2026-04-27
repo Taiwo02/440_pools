@@ -31,87 +31,6 @@ const Cart = () => {
 
   const isEmpty = cartItems.length < 1;
 
-  // const cartItems = [
-  //   {
-  //     cartItemId: "cart-001",
-  //     productId: 1,
-  //     name: "Advanced Industrial Optical Sensor Module",
-  //     image: "https://picsum.photos/seed/sensor-module/300/300",
-  //     supplierId: "sup-001",
-  //     price: 15000.00,
-  //     originalPrice: 25000.00,
-  //     discount: 40,
-  //     currency: "NGN",
-  //     quantity: 0,
-  //     unit: "unit",
-  //     variants: {
-  //       size: "Standard",
-  //       color: "Black"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 675.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-002",
-  //     productId: 4,
-  //     name: "Digital Multimeter High Accuracy for Maintenance Engineers",
-  //     image: "https://picsum.photos/seed/digital-multimeter/300/300",
-  //     supplierId: "sup-004",
-  //     price: 38000.00,
-  //     originalPrice: 50000.00,
-  //     discount: 24,
-  //     currency: "NGN",
-  //     quantity: 2,
-  //     unit: "unit",
-  //     variants: {
-  //       model: "DM-9205A"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 77.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-003",
-  //     productId: 6,
-  //     name: "Ultra-Bright LED Matrix Display for Machine Information Panels",
-  //     image: "https://picsum.photos/seed/led-matrix-display/300/300",
-  //     supplierId: "sup-005",
-  //     price: 10000.00,
-  //     originalPrice: 15000.00,
-  //     discount: 33,
-  //     currency: "NGN",
-  //     quantity: 50,
-  //     unit: "set",
-  //     variants: {
-  //       resolution: "64×32",
-  //       color: "Red"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 510.00,
-  //     inStock: true
-  //   },
-  //   {
-  //     cartItemId: "cart-004",
-  //     productId: 12,
-  //     name: "DIN Rail Terminal Block Connector",
-  //     image: "https://picsum.photos/seed/terminal-block/300/300",
-  //     supplierId: "sup-003",
-  //     price: 30000.00,
-  //     originalPrice: 45000.00,
-  //     discount: 33,
-  //     currency: "NGN",
-  //     quantity: 1000,
-  //     unit: "piece",
-  //     variants: {
-  //       pitch: "5.08mm"
-  //     },
-  //     minOrder: 0,
-  //     subtotal: 850.00,
-  //     inStock: false
-  //   }
-  // ];
-
   const handleQuantityChange = async (
     cartItemId: string,
     newSlots: number,
@@ -190,16 +109,9 @@ const Cart = () => {
   const shipping = subtotal > 0 ? 45.00 : 0;
   const total = subtotal - bulkSavings + shipping;
 
-  // useEffect(() => {
-  //   localStorage.setItem(
-  //     "cartSummary",
-  //     JSON.stringify({ subtotal, bulkSavings, shipping, totalQty, total })
-  //   );
-  // }, [subtotal]);
-
   return (
     <>
-      <section className='pt-32 md:pt-24 mb-10 md:mb-16'>
+      <section className='pt-16 md:pt-24 mb-10 md:mb-16'>
         <div className="px-4 md:px-10 lg:px-20">
           <div className="flex justify-between items-end pt-10 md:pt-0">
             <div>
@@ -250,7 +162,7 @@ const Cart = () => {
                       <Link href="/products" className="mt-8 inline-block">
                         <Button
                           primary
-                          className="min-w-[200px] rounded-md px-8 py-3 font-semibold"
+                          className="min-w-50 rounded-md px-8 py-3 font-semibold"
                         >
                           Start Shopping
                         </Button>
