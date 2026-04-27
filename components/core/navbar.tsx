@@ -292,7 +292,7 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed z-50 w-full shadow ${
+        className={`fixed z-50 w-full ${
           hideCheckoutChrome ? "hidden" : ""
         }`}
       >
@@ -352,12 +352,12 @@ const Navbar = () => {
             )}
           </form> */}
           {categories && (
-            <div className="bg-(--bg-muted) flex gap-1 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-0.5">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-2">
               {categories.map((category: CategoryDetails, index: number) => (
                 <Link
                   key={index}
                   href={`/products?category=${category.id}`}
-                  className={`shrink-0 px-1 py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-colors whitespace-nowrap `}
+                  className={`shrink-0 px-2 py-1.5 bg-(--primary)/20 text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap `}
                 >
                   {category.name}
                 </Link>
