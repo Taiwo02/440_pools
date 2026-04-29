@@ -116,7 +116,7 @@ function CheckoutShipmentCards({
                         alt={item.name}
                         className="h-full w-full object-cover"
                       />
-                      <span className="absolute -right-0.5 -top-0.5 min-w-[1.25rem] rounded bg-gray-600/95 px-1 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                      <span className="absolute -right-0.5 -top-0.5 min-w-5 rounded bg-gray-600/95 px-1 py-0.5 text-center text-[10px] font-bold leading-none text-white">
                         ×{lineUnits(item)}
                       </span>
                     </div>

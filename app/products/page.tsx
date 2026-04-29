@@ -24,6 +24,7 @@ import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import http from "@/lib/http";
 import { ProductType, SubCategory } from "@/types/baletype";
+import { useFilter } from "@/hooks/use-filters";
 
 type ProductRowProps = {
   category: CategoryDetails;
@@ -138,24 +139,6 @@ const ProductsContent = () => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [panelPosition, setPanelPosition] = useState({ top: 0, left: 0 });
 
-  const [filters, setFilters] = useState<BaleFilters>({
-    categories: [],
-    subCategories: [],
-    productTypes: [],
-    priceRange: { min: 0, max: 99999999 },
-    marketLocation: [],
-    limit: 12,
-  });
-
-  const [tempFilters, setTempFilters] = useState<BaleFilters>({
-    categories: [],
-    subCategories: [],
-    productTypes: [],
-    priceRange: { min: 0, max: 99999999 },
-    marketLocation: [],
-    limit: 12,
-  });
-
   const {
     data: categories,
     isPending: isCategoriesPending,
@@ -220,6 +203,17 @@ const ProductsContent = () => {
   }, [categories, queryClient]);
 
   const {
+    filters,
+    setFilters,
+    tempFilters,
+    setTempFilters,
+    updateTempFilters,
+    updateFilters,
+    clearFilters,
+    hasActiveFilters,
+  } = useFilter();
+
+  const {
     data,
     isPending,
     error,
@@ -246,26 +240,6 @@ const ProductsContent = () => {
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  const hasActiveFilters =
-    (filters.categories?.length ?? 0) > 0 ||
-    (filters.marketLocation?.length ?? 0) > 0 ||
-    filters.supplierRating ||
-    filters.priceRange?.min !== 0 ||
-    filters.priceRange?.max !== 99999999;
-
-  const toggleFilter = (
-    key: "categories" | "marketLocation" | "subCategories" | "productTypes",
-    value: string | number,
-    checked: boolean,
-  ) => {
-    setTempFilters((prev) => ({
-      ...prev,
-      [key]: checked
-        ? [...(prev[key] || []), value]
-        : (prev[key] || []).filter((item: any) => item !== value),
-    }));
-  };
 
   const supplierRatings = ["1", "2", "3", "4", "5"];
 
@@ -310,17 +284,7 @@ const ProductsContent = () => {
               <h2 className="text-xl">Filters</h2>
               <span
                 className="text-(--primary) cursor-pointer text-sm"
-                onClick={() => {
-                  const cleared = {
-                    categories: [],
-                    subCategories: [],
-                    priceRange: { min: 0, max: 99999999 },
-                    marketLocation: [],
-                    limit: 12,
-                  };
-                  setTempFilters(cleared);
-                  setFilters(cleared);
-                }}
+                onClick={clearFilters}
               >
                 Clear All
               </span>
@@ -372,7 +336,7 @@ const ProductsContent = () => {
                               type="checkbox"
                               value={category.id}
                               onChange={(e) =>
-                                toggleFilter(
+                                updateTempFilters(
                                   "categories",
                                   category.id,
                                   e.target.checked,
@@ -494,7 +458,7 @@ const ProductsContent = () => {
                     key={activeCategory.id}
                     category={activeCategory}
                     tempFilters={tempFilters}
-                    toggleFilter={toggleFilter}
+                    toggleFilter={updateTempFilters}
                     handleEnter={handleEnter}
                   />
                 </div>,
@@ -504,7 +468,7 @@ const ProductsContent = () => {
               primary
               className="mt-5"
               isFullWidth
-              onClick={() => setFilters(tempFilters)}
+              onClick={updateFilters}
             >
               Apply
             </Button>
