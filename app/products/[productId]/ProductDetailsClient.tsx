@@ -7,11 +7,12 @@ import { Badge, Button, Progress, StarRating } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
-import { FormValues } from "@/types/types";
+import { FormValues, SaveProductPayload } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   RiBankCardFill,
+  RiBookmark2Fill,
   RiCloseLine,
   RiGroup2Fill,
   RiLoader5Line,
@@ -22,11 +23,12 @@ import ProductLogin from "@/components/product/ProductLogin";
 import { useBuy } from "@/hooks/use-buy";
 import { useProductAllocation } from "@/hooks/useProductAllocation";
 import AllocationModal from "@/components/product/AllocationModal";
-import { useGetSupplier } from "@/api/product";
+import { useGetSavedProduct, useGetSupplier, useSaveProduct } from "@/api/product";
 import { PackagingInfo, ProductAttributes } from "@/components/product/ProductAttributes";
 import UserBubbles from "@/components/product/UserBubble";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
 import { recordRecentlyViewedBale } from "@/lib/recently-viewed-bales";
+import { AxiosError } from "axios";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -46,7 +48,7 @@ const ProductDetails = () => {
     sizes: [],
     colors: [],
     slots: 1,
-    directQty: 30
+    directQty: 30,
   });
 
   // State for switch
@@ -61,20 +63,33 @@ const ProductDetails = () => {
   // For login modal display
   const [notLoggedIn, setNotLoggedIn] = useState(false);
 
+  // If the product has already been saved
+  const [isProductSaved, setIsProductSaved] = useState(false);
+
+  // For merchant info
+  const merchant = JSON.parse(localStorage.getItem("merchant")!);
+  const merchantId = Number(merchant?.id);
+
   // Hooks
   const { productId } = useParams<{ productId: string }>();
   const { data: baleData, isLoading, error } = useGetSingleBale(productId);
-  const { data: allBales = [], isPending: isBalesPending, error: baleError } = useGetBales({});
+  const {
+    data: allBales = [],
+    isPending: isBalesPending,
+    error: baleError,
+  } = useGetBales({});
+  const {
+    mutateAsync: saveProduct,
+    isPending: isSavePending,
+    error: saveError,
+  } = useSaveProduct();
+  // const {
+  //   data: savedProducts,
+  //   isPending: isSavedPending,
+  //   error: savedError,
+  // } = useGetSavedProduct(String(merchantId!));
 
   const supplierId = baleData?.product?.supplierId;
-
-  // const {
-  //   data: supplier,
-  //   isPending: isSupplierPending,
-  //   error: supplierError
-  // } = useGetSupplier(supplierId!, {
-  //   enabled: !!supplierId,
-  // });
 
   const router = useRouter();
   const { addToCart } = useCart();
@@ -85,11 +100,9 @@ const ProductDetails = () => {
       ? Math.floor(baleData.quantity / baleData.slot)
       : 0;
 
-  const maxAllowedQuantity =
-    formValues.slots * productsPerSlot
+  const maxAllowedQuantity = formValues.slots * productsPerSlot;
 
-  const maxDirectAllowedQuantity =
-    formValues.directQty
+  const maxDirectAllowedQuantity = formValues.directQty;
 
   const {
     allocations,
@@ -107,8 +120,14 @@ const ProductDetails = () => {
     updateColorQuantity,
     hasColors,
     hasSizes,
-    DEFAULT_COLOR_ID
-  } = useProductAllocation({ baleData, buyDirectly, maxAllowedQuantity, maxDirectAllowedQuantity, setFormValues });
+    DEFAULT_COLOR_ID,
+  } = useProductAllocation({
+    baleData,
+    buyDirectly,
+    maxAllowedQuantity,
+    maxDirectAllowedQuantity,
+    setFormValues,
+  });
 
   useEffect(() => {
     if (!baleData?.id || !baleData.product) return;
@@ -116,28 +135,28 @@ const ProductDetails = () => {
   }, [baleData]);
 
   useEffect(() => {
-    if (!baleData) return
+    if (!baleData) return;
 
     if (formValues.colors.length === 0) {
-      setActiveColorId(null)
+      setActiveColorId(null);
     }
-  }, [formValues.colors, baleData])
+  }, [formValues.colors, baleData]);
 
   useEffect(() => {
-    if (!baleData) return
-    if (formValues.colors.length > 0) return
+    if (!baleData) return;
+    if (formValues.colors.length > 0) return;
 
-    const firstColor = baleData.product.colors[0]
-    if (!firstColor) return
+    const firstColor = baleData.product.colors[0];
+    if (!firstColor) return;
 
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
       colors: [firstColor.color],
-    }))
+    }));
 
-    setActiveColorId(firstColor.id)
+    setActiveColorId(firstColor.id);
 
-    setAllocations(prev => ({
+    setAllocations((prev) => ({
       ...prev,
       [firstColor.id]: {
         colorId: firstColor.id,
@@ -147,7 +166,6 @@ const ProductDetails = () => {
         quantity: 0,
       },
     }));
-    
   }, [baleData]);
 
   useEffect(() => {
@@ -156,7 +174,7 @@ const ProductDetails = () => {
     if (!hasColors) {
       setActiveColorId(DEFAULT_COLOR_ID);
 
-      setAllocations(prev => ({
+      setAllocations((prev) => ({
         ...prev,
         [DEFAULT_COLOR_ID]: prev[DEFAULT_COLOR_ID] ?? {
           colorId: DEFAULT_COLOR_ID,
@@ -164,10 +182,18 @@ const ProductDetails = () => {
           colorImages: baleData.product.images ?? [],
           sizes: {},
           quantity: 0,
-        }
+        },
       }));
     }
   }, [baleData, hasColors]);
+
+  // useEffect(() => {
+  //   if (savedProducts) {
+  //     const productIds = savedProducts.map((product: any) => product.id);
+  //     setIsProductSaved(productIds.includes(baleData?.productId));
+  //   }
+  // }, [savedProducts, baleData?.productId]);
+  
 
   if (isLoading) {
     return (
@@ -183,37 +209,37 @@ const ProductDetails = () => {
 
   const sizesList = Array.from(
     new Map(
-      baleData.product.productSizes.map(s => [
+      baleData.product.productSizes.map((s) => [
         s.size.label,
         {
           id: s.size.id,
           value: s.size.label,
           label: s.size.label,
-        }
-      ])
-    ).values()
+        },
+      ]),
+    ).values(),
   );
 
-  const colorsList = baleData.product.colors.map(c => ({
+  const colorsList = baleData.product.colors.map((c) => ({
     value: c.color,
     label: c.color,
-    node: c.images.length > 0 ? (
-      <img
-        src={c.images[0]}
-        alt={c.color}
-        className="w-10 h-10 rounded-lg object-cover"
-      />
-    ) : null,
+    node:
+      c.images.length > 0 ? (
+        <img
+          src={c.images[0]}
+          alt={c.color}
+          className="w-10 h-10 rounded-lg object-cover"
+        />
+      ) : null,
   }));
 
-  const isAllocationExceeded = totalAllocatedQuantity > maxAllowedQuantity
-      
+  const isAllocationExceeded = totalAllocatedQuantity > maxAllowedQuantity;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: Number(value) }));
+    setFormValues((prev) => ({ ...prev, [name]: Number(value) }));
   };
 
   const joinPool = () => {
@@ -224,19 +250,22 @@ const ProductDetails = () => {
 
     if (!useDefaultAllocation && isAllocationExceeded) {
       toast.error(
-        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-      )
-      return
+        `You selected ${totalAllocatedQuantity} items, but only ${maxAllowedQuantity} are allowed for ${formValues.slots} slot(s).`,
+      );
+      return;
     }
 
-    if (!useDefaultAllocation && totalAllocatedQuantity !== maxAllowedQuantity) {
-      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`)
-      return
+    if (
+      !useDefaultAllocation &&
+      totalAllocatedQuantity !== maxAllowedQuantity
+    ) {
+      toast.error(`You must allocate exactly ${maxAllowedQuantity} items.`);
+      return;
     }
 
     if (useDefaultAllocation && maxAllowedQuantity <= 0) {
-      toast.error("Choose at least one slot so your pool quantity is valid.")
-      return
+      toast.error("Choose at least one slot so your pool quantity is valid.");
+      return;
     }
 
     const token = getCrossSubdomainCookie("440_token");
@@ -257,8 +286,7 @@ const ProductDetails = () => {
           currency: "NGN",
           slots: formValues.slots,
           totalSlots: baleData.slot,
-          totalShippingFee:
-            baleData.deliveryFee * formValues.slots,
+          totalShippingFee: baleData.deliveryFee * formValues.slots,
           quantity: poolQuantity,
           unit: "unit",
           variants: useDefaultAllocation
@@ -273,7 +301,7 @@ const ProductDetails = () => {
           inStock: true,
         });
 
-        router.push('/checkout');
+        router.push("/checkout");
       }
     }
   };
@@ -287,8 +315,10 @@ const ProductDetails = () => {
     // }
 
     if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
-      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
-      return
+      toast.error(
+        `You must allocate at least ${maxDirectAllowedQuantity} items.`,
+      );
+      return;
     }
 
     setShowBuyModal(false);
@@ -328,7 +358,7 @@ const ProductDetails = () => {
       });
     }
 
-    router.push('/checkout?direct_order=true');
+    router.push("/checkout?direct_order=true");
   };
 
   const handleAddToCart = () => {
@@ -340,8 +370,10 @@ const ProductDetails = () => {
     // }
 
     if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
-      toast.error(`You must allocate at least ${maxDirectAllowedQuantity} items.`)
-      return
+      toast.error(
+        `You must allocate at least ${maxDirectAllowedQuantity} items.`,
+      );
+      return;
     }
 
     setShowBuyModal(false);
@@ -378,27 +410,26 @@ const ProductDetails = () => {
   };
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", { maximumFractionDigits: 0 })
-  }
+    return price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  };
 
   const cleanedAllocations = Object.fromEntries(
     Object.entries(allocations).filter(([_, color]) => {
       if (hasSizes) {
-        return Object.values(color.sizes).some(s => s.quantity > 0)
+        return Object.values(color.sizes).some((s) => s.quantity > 0);
       }
-      return (color.quantity ?? 0) > 0
-    })
-  )
+      return (color.quantity ?? 0) > 0;
+    }),
+  );
 
-  const items = Object.values(cleanedAllocations).flatMap(color => {
-
+  const items = Object.values(cleanedAllocations).flatMap((color) => {
     const hasValidColor = color.colorId && color.colorId !== 0;
 
     // WITH SIZES
     if (hasSizes) {
       return Object.values(color.sizes)
-        .filter(s => s.quantity > 0)
-        .map(s => ({
+        .filter((s) => s.quantity > 0)
+        .map((s) => ({
           size: {
             id: s.sizeId,
             label: s.sizeLabel,
@@ -412,7 +443,7 @@ const ProductDetails = () => {
               images: color.colorImages,
               productId: baleData.product.id,
               status: true,
-            }
+            },
           }),
 
           quantity: s.quantity,
@@ -423,20 +454,22 @@ const ProductDetails = () => {
     // NO SIZES
     if (!color.quantity || color.quantity <= 0) return [];
 
-    return [{
-      ...(hasValidColor && {
-        color: {
-          id: color.colorId,
-          color: color.colorLabel,
-          images: color.colorImages,
-          productId: baleData.product.id,
-          status: true,
-        }
-      }),
+    return [
+      {
+        ...(hasValidColor && {
+          color: {
+            id: color.colorId,
+            color: color.colorLabel,
+            images: color.colorImages,
+            productId: baleData.product.id,
+            status: true,
+          },
+        }),
 
-      quantity: color.quantity,
-      totalPrice: color.quantity * baleData.product.price,
-    }];
+        quantity: color.quantity,
+        totalPrice: color.quantity * baleData.product.price,
+      },
+    ];
   });
 
   const selectedVariants = {
@@ -444,19 +477,57 @@ const ProductDetails = () => {
     colors: formValues.colors,
   };
 
-  const filteredBales = allBales?.filter(bale => bale.id != Number(productId));
+  const filteredBales = allBales?.filter(
+    (bale) => bale.id != Number(productId),
+  );
 
   const remainingColors = colorsList.length - 5;
 
   const openBuy = () => {
     setBuyDirectly(true);
     setShowAllocationModal(true);
-  }
+  };
 
   const openPool = () => {
     setBuyDirectly(false);
     setShowAllocationModal(true);
-  }
+  };
+
+  const bookmark = async () => {
+    const payload: SaveProductPayload = {
+      merchantId,
+      productId: baleData?.id,
+    };
+
+    if (!merchant || !merchantId) {
+      toast.error("Log in to save product");
+    } else {
+      try {
+        const response = await saveProduct(payload);
+
+        if (response.status == 200 || response.status == 201) {
+          toast.success("Product Saved");
+        } else {
+          toast.warning("Something went wrong");
+        }
+      } catch (error) {
+        const err = error as AxiosError<{ message?: string }>;
+        toast.error(
+          err.response?.data?.message ??
+            err.message ??
+            "Something went wrong, please try again",
+          {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          },
+        );
+      }
+    }
+  };
 
   if (isBalesPending) {
     return (
@@ -471,12 +542,12 @@ const ProductDetails = () => {
       <div className="flex justify-center items-center w-full my-24">
         <p className="text-xl">Product not found</p>
       </div>
-    )
+    );
   }
 
   const productDisplayRating = getProductDisplayRating(
     baleData.product.rate,
-    baleData.product.id
+    baleData.product.id,
   );
 
   return (
@@ -494,10 +565,15 @@ const ProductDetails = () => {
               </div>
               <div className="hidden md:block p-4 md:p-6 rounded-2xl bg-(--bg-surface) w-full mb-8">
                 {/* Reviews */}
-                <ProductReviewsSection reviews={baleData.product.reviews} />
+                <ProductReviewsSection
+                  reviews={baleData.product.reviews}
+                  productId={baleData.id}
+                />
 
                 {/* Attributes */}
-                <ProductAttributes productAttributes={baleData.product.productAttributes}/>
+                <ProductAttributes
+                  productAttributes={baleData.product.productAttributes}
+                />
 
                 {/* Packaging Info */}
                 <PackagingInfo packageInfo={baleData.product.packageInfo} />
@@ -528,19 +604,27 @@ const ProductDetails = () => {
             <div className="w-full md:basis-1/3 md:min-w-0 bg-(--bg-surface) p-4 md:p-6 rounded-none md:rounded-xl md:sticky md:top-20 border-0 md:border border-(--border-default)">
               <div>
                 <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
-                <div
-                  className="mt-2 flex flex-wrap items-center gap-2"
-                  aria-label={`Product rating ${productDisplayRating.toFixed(1)} out of 5`}
-                >
-                  <StarRating
-                    rating={productDisplayRating}
-                    size={18}
-                    className="shrink-0"
-                  />
-                  <span className="text-sm font-semibold text-(--primary) tabular-nums">
-                    {productDisplayRating.toFixed(1)}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <div
+                    className="mt-2 flex flex-wrap items-center gap-2"
+                    aria-label={`Product rating ${productDisplayRating.toFixed(1)} out of 5`}
+                  >
+                    <StarRating
+                      rating={productDisplayRating}
+                      size={18}
+                      className="shrink-0"
+                    />
+                    <span className="text-sm font-semibold text-(--primary) tabular-nums">
+                      {productDisplayRating.toFixed(1)}
+                    </span>
+                  </div>
+
+                  <Button primary className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!" disabled={isProductSaved} onClick={bookmark}>
+                    <span>Save</span>
+                    <RiBookmark2Fill />
+                  </Button>
                 </div>
+
                 <div className="my-4">
                   <div className="flex flex-wrap items-end gap-2">
                     <p className="text-3xl md:text-4xl text-(--primary) font-bold">
@@ -698,7 +782,10 @@ const ProductDetails = () => {
                   </Tabs.List>
 
                   <Tabs.Content value="reviews" className="pt-4">
-                    <ProductReviewsSection reviews={baleData.product.reviews} />
+                    <ProductReviewsSection
+                      reviews={baleData.product.reviews}
+                      productId={baleData.id}
+                    />
                   </Tabs.Content>
                   <Tabs.Content value="specs" className="pt-4">
                     <ProductAttributes
@@ -811,6 +898,6 @@ const ProductDetails = () => {
       )}
     </>
   );
-};
+};;
 
 export default ProductDetails;

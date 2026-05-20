@@ -23,7 +23,7 @@ export const FilterProvider = ({ children }: { children: React.ReactNode }) => {
     categories: [],
     subCategories: [],
     productTypes: [],
-    priceRange: { min: 0, max: 99999999 },
+    priceRange: { min: 0, max: 100000 },
     marketLocation: [],
     limit: 12,
   });
@@ -32,7 +32,7 @@ export const FilterProvider = ({ children }: { children: React.ReactNode }) => {
     categories: [],
     subCategories: [],
     productTypes: [],
-    priceRange: { min: 0, max: 99999999 },
+    priceRange: { min: 0, max: 100000 },
     marketLocation: [],
     limit: 12,
   });

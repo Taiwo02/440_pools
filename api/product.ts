@@ -1,5 +1,6 @@
 import http, { noToken } from "@/lib/http"
-import { useQuery } from "@tanstack/react-query"
+import { SaveProductPayload } from "@/types/types";
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useGetAllProducts = () => {
   return useQuery({
@@ -62,5 +63,32 @@ export const useGetSupplier = (id: number, options?: any) => {
     },
     enabled: !!id,
     ...options,
+  });
+};
+
+export const useSaveProduct = () => {
+  return useMutation({
+    mutationFn: (body: SaveProductPayload) => {
+      return http.post('/buyer/save', body);
+    },
+  });
+};
+
+export const useGetSavedProduct = (merchantId: string) => {
+  return useQuery({
+    queryKey: ['saved-products', merchantId],
+    queryFn: async () => {
+      const res = await http.get(`/buyer/saved/${merchantId}`);
+      return res?.data;
+    },
+    enabled: !!merchantId,
+  });
+};
+
+export const useDeleteSavedProduct = (productId: number) => {
+  return useMutation({
+    mutationFn: () => {
+      return http.delete(`/buyer/saved/${productId}`);
+    },
   });
 };

@@ -277,7 +277,7 @@ const ProductsContent = () => {
       <section className="pt-20 lg:pt-24">
         <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)] mb-10">
           <div
-            className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-4 rounded-xl bg-(--bg-surface) overflow-y-auto overflow-x-visible h-full relative"
+            className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-4 rounded-xl bg-(--bg-surface) overflow-y-auto overflow-x-visible h-full relative no-scrollbar"
             ref={sidebarRef}
           >
             <div className="flex justify-between items-center">
@@ -368,7 +368,7 @@ const ProductsContent = () => {
                       tempFilters.priceRange!.min,
                       tempFilters.priceRange!.max,
                     ]}
-                    max={99999999}
+                    max={100000}
                     step={1}
                     onValueChange={([min, max]) =>
                       setTempFilters((prev) => ({
@@ -384,13 +384,13 @@ const ProductsContent = () => {
                     {/* Min Thumb */}
                     <Slider.Thumb className="relative block w-4 h-4 bg-(--primary) rounded-full" />
                     <span className="absolute top-5 left-0 -translate-x-1/4 text-[10px] text-gray-700 whitespace-nowrap">
-                      {tempFilters.priceRange!.min}
+                      &#8358;{tempFilters.priceRange!.min.toLocaleString()}
                     </span>
 
                     {/* Max Thumb */}
                     <Slider.Thumb className="relative block w-4 h-4 bg-(--primary) rounded-full" />
                     <span className="absolute top-5 right-0 translate-x-1/4 text-[10px] text-gray-700 whitespace-nowrap">
-                      {tempFilters.priceRange!.max}
+                      &#8358;{tempFilters.priceRange!.max.toLocaleString()}
                     </span>
                   </Slider.Root>
                 </Accordion.Content>
@@ -408,15 +408,23 @@ const ProductsContent = () => {
                     <div className="my-2 flex items-center gap-2" key={index}>
                       <input
                         type="checkbox"
+                        value={rating}
                         onChange={(e) =>
                           setTempFilters((prev) => ({
                             ...prev,
                             supplierRating: e.target.value,
                           }))
                         }
-                        checked={tempFilters.supplierRating?.includes(rating)}
+                        checked={
+                          tempFilters.supplierRating?.includes(rating) || false
+                        }
                       />
-                      {rating} <RiStarFill />
+
+                      <div className="flex items-center">
+                        {Array.from({ length: Number(rating) }).map((_, i) => (
+                          <RiStarFill key={i} />
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </Accordion.Content>
@@ -475,8 +483,8 @@ const ProductsContent = () => {
           </div>
 
           <div className="basis-full lg:basis-4/5 flex flex-col h-full overflow-hidden">
-            <div className="p-4 rounded-xl bg-(--bg-surface) hidden md:flex justify-between items-center mb-6 shrink-0">
-              <div className="flex gap-2 items-center">
+            <div className="p-4 rounded-xl bg-(--bg-surface) hidden md:flex justify-end items-center mb-6 shrink-0">
+              {/* <div className="flex gap-2 items-center">
                 <span className="text-(--primary)/70">Sort By:</span>
                 <ul className="flex items-center gap-2">
                   <li>Popularity</li>
@@ -484,26 +492,26 @@ const ProductsContent = () => {
                   <li>Price</li>
                   <li>MOQ</li>
                 </ul>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">
-                  Found {filteredData.length} products
-                </span>
-                <div className="flex border border-(--primary-soft) rounded-lg">
+              </div> */}
+              <div className="flex justify-between items-center gap-2">
+                <p className="text-sm">
+                  Found <strong>{filteredData.length}</strong> products
+                </p>
+                {/* <div className="flex border border-(--primary-soft) rounded-lg">
                   <button className="p-2 rounded-l-lg bg-(--primary-soft) text-(--primary)">
                     <RiGridFill />
                   </button>
                   <button className="p-2 rounded-r-lg">
                     <RiListUnordered />
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
 
             {/* Scrollable product container — scroll happens here, not on the page */}
             <div
               ref={scrollContainerRef}
-              className="p-4 rounded-xl bg-(--bg-surface) overflow-y-auto flex-1"
+              className="p-4 rounded-xl bg-(--bg-surface) overflow-y-auto flex-1 no-scrollbar"
             >
               {isPending ? (
                 <div className="flex items-center justify-center min-h-75">

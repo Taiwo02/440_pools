@@ -85,7 +85,7 @@ const ProductCard = ({ bale }: Props) => {
           <div className="mt-1">
             <div className="flex justify-between items-center">
               <p className="font-bold text-(--primary) text-xs md:text-sm">
-                {bale.filledSlot}/{bale.slot} Units
+                {bale.filledSlot}/{bale.slot} Slots filled
               </p>
               <UserBubbles count={bale.filledSlot} />
             </div>

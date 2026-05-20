@@ -89,8 +89,14 @@ export default function CheckoutAddressPage() {
                 </div>
               ) : deliveries.length === 0 ? (
                 <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-sm text-gray-600">
-                  <p className="mb-4">You don&apos;t have any saved addresses yet.</p>
-                  <Button primary type="button" onClick={() => setIsModalOpen(true)}>
+                  <p className="mb-4">
+                    You don&apos;t have any saved addresses yet.
+                  </p>
+                  <Button
+                    primary
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     <RiAddLine className="inline" /> Add address
                   </Button>
                 </div>
@@ -105,10 +111,22 @@ export default function CheckoutAddressPage() {
                         1. CUSTOMER ADDRESS
                       </h2>
                     </div>
-                    <span className="text-xs font-semibold uppercase text-gray-500">
-                      {deliveries.length}{" "}
-                      {deliveries.length === 1 ? "address" : "addresses"}
-                    </span>
+                    <div className="flex gap-2 items-center">
+                      <span className="text-xs font-semibold uppercase text-gray-500">
+                        {deliveries.length}{" "}
+                        {deliveries.length === 1 ? "address" : "addresses"}
+                      </span>
+                      <div className="px-2 py-1">
+                        <button
+                          type="button"
+                          onClick={() => setIsModalOpen(true)}
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--primary) hover:underline"
+                        >
+                          <RiAddLine size={18} aria-hidden />
+                          Add address
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="divide-y divide-gray-100 px-2 py-2 sm:px-4">
@@ -121,14 +139,14 @@ export default function CheckoutAddressPage() {
                           key={id ?? `${delivery.address}-${delivery.phone}`}
                           className={`flex cursor-pointer gap-3 rounded-lg p-3 transition sm:p-4 ${
                             selected
-                              ? "bg-(--primary-soft)/40 ring-2 ring-(--primary)"
+                              ? "bg-(--primary-soft)/40 ring-2 ring-(--primary) my-1"
                               : "hover:bg-gray-50"
                           }`}
                         >
                           <input
                             type="radio"
                             name="checkout-address"
-                            className="mt-1 h-4 w-4 accent-(--primary)"
+                            className={`mt-1 h-4 w-4 accent-(--primary) ${selected && 'accent-amber-950'}`}
                             checked={selected}
                             onChange={() => id != null && setPickId(id)}
                           />
@@ -153,13 +171,17 @@ export default function CheckoutAddressPage() {
                               {delivery.address}
                             </p>
                             <p className="mt-1 text-sm text-gray-500">
-                              {delivery.region}, {delivery.city}, {delivery.state}
+                              {delivery.region}, {delivery.city},{" "}
+                              {delivery.state}
                             </p>
                             <p className="mt-1 text-sm text-gray-600">
                               {delivery.countryCode} {delivery.phone}
                             </p>
                             {delivery.setDefault && (
-                              <Badge variant="secondary" className="mt-2 font-semibold">
+                              <Badge
+                                variant="primary"
+                                className="mt-2 font-semibold"
+                              >
                                 Default address
                               </Badge>
                             )}
@@ -169,21 +191,10 @@ export default function CheckoutAddressPage() {
                     })}
                   </div>
 
-                  <div className="border-t border-gray-100 px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--primary) hover:underline"
-                    >
-                      <RiAddLine size={18} aria-hidden />
-                      Add address
-                    </button>
-                  </div>
-
                   <div className="flex flex-col-reverse gap-2 border-t border-gray-100 px-4 py-4 sm:flex-row sm:justify-end">
                     <Button
                       type="button"
-                      className="ring-2 ring-(--primary) bg-transparent text-(--primary)! sm:min-w-[120px]"
+                      className="ring-2 ring-(--primary) bg-transparent text-(--primary)! sm:min-w-30"
                       onClick={() => router.push(checkoutHref)}
                     >
                       Cancel
@@ -191,7 +202,7 @@ export default function CheckoutAddressPage() {
                     <Button
                       primary
                       type="button"
-                      className="sm:min-w-[160px]"
+                      className="sm:min-w-40"
                       disabled={pickId == null}
                       onClick={handleSelectAddress}
                     >

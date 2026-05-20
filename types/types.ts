@@ -75,6 +75,12 @@ export type RegisterPayload = {
   source?: "b2b";
 };
 
+export type ChangePassword = {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
 export type CompletionDetails = {
   score: number;
   picture: boolean;
@@ -595,4 +601,18 @@ export type SingleInspection = {
   }[];
   createdAt: string;
   updatedAt: string;
+};
+
+// Review ----------------
+export type ReviewPayload = {
+  buyerId: number;
+  productId: number;
+  rating: number;
+  note: string;
+};
+
+// Save Product --------
+export type SaveProductPayload = {
+  productId: number;
+  merchantId: number;
 };

@@ -125,7 +125,7 @@ const AccountLogin = () => {
             required
           />
           <div className="flex justify-end relative -top-4">
-            <Link href={''} className='text-(--primary) font-semibold text-sm'>
+            <Link href={'/account/reset-password'} className='text-(--primary) font-semibold text-sm'>
               Forgot Password?
             </Link>
           </div>
