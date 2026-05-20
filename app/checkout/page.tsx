@@ -751,7 +751,7 @@ const Checkout = () => {
               <p className="flex-1 text-center text-base font-semibold text-gray-900">
                 Place your order
               </p>
-              <div className="flex max-w-[11rem] shrink-0 flex-col items-end gap-1.5 text-right text-[11px] leading-tight text-gray-600">
+              <div className="flex max-w-44 shrink-0 flex-col items-end gap-1.5 text-right text-[11px] leading-tight text-gray-600">
                 <span className="inline-flex items-center gap-1">
                   <RiQuestionLine className="shrink-0 text-(--primary)" />
                   Need help? Contact us
@@ -1382,7 +1382,7 @@ const Checkout = () => {
                           onChange={(e) =>
                             setUsePaySmallSmall(e.target.checked)
                           }
-                          className="h-4 w-4 shrink-0 accent-(--primary) lg:h-[1.125rem] lg:w-[1.125rem]"
+                          className="h-4 w-4 shrink-0 accent-(--primary) lg:h-4.5 lg:w-4.5"
                           aria-label="Buy now, pay later"
                         />
                       </label>
