@@ -45,6 +45,7 @@ import {
   parseCheckoutIntentCheckoutId,
   parseDirectOrderOrderId,
 } from '@/lib/initiate-payment-helpers';
+import * as fbq from "@/lib/fpixel";
 
 type ShipmentGroupEntry = [number, CartItem[]];
 
@@ -415,6 +416,16 @@ const Checkout = () => {
         })
       };
 
+      fbq.event("InitiateCheckout", {
+        content_ids: cartItems.map((item: any) => item.productId),
+        content_type: "product",
+        value: cartItems.reduce(
+          (sum: number, item: any) => sum + item.price,
+          0,
+        ),
+        currency: "NGN",
+      }, true);
+
       const createRes = await createSlot(slotData);
       if (createRes.status === 200 || createRes.status === 201) {
         const checkoutId = parseCheckoutIntentCheckoutId(createRes.data);
@@ -423,6 +434,10 @@ const Checkout = () => {
           toast.error("Checkout was created but no checkout id was returned.");
           return;
         }
+
+        fbq.event("CheckoutCreated", {
+          checkout_id: createRes.data?.id,
+        }, true);
 
         const initiateData = buildBaleLockInitiateBody(checkoutId, paymentMethod, walletPin);
 
@@ -435,6 +450,16 @@ const Checkout = () => {
 
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           if (paymentMethod === "WALLET") {
+            fbq.event("Purchase", {
+              content_ids: cartItems.map((item: any) => item.productId),
+              content_type: "product",
+              value: cartItems.reduce(
+                (sum: number, item: any) => sum + item.price,
+                0,
+              ),
+              currency: "NGN",
+            }, false);
+
             toast.success("Payment successful");
             clearCart();
             router.push('/account/orders/ongoing');
@@ -449,6 +474,17 @@ const Checkout = () => {
               async ({ reference }) => {
                 await confirmPayment.mutateAsync(reference);
                 toast.success("Payment successful");
+
+                fbq.event("Purchase", {
+                  content_ids: cartItems.map((item: any) => item.productId),
+                  content_type: "product",
+                  value: cartItems.reduce(
+                    (sum: number, item: any) => sum + item.price,
+                    0,
+                  ),
+                  currency: "NGN",
+                }, false);
+
                 clearCart();
                 router.push('/account/orders/ongoing');
               },

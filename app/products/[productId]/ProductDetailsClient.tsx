@@ -29,6 +29,7 @@ import UserBubbles from "@/components/product/UserBubble";
 import ProductReviewsSection from "@/components/product/ProductReviewsSection";
 import { recordRecentlyViewedBale } from "@/lib/recently-viewed-bales";
 import { AxiosError } from "axios";
+import * as fbq from "@/lib/fpixel";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -301,6 +302,24 @@ const ProductDetails = () => {
           inStock: true,
         });
 
+        fbq.event("JoinPool", {
+          content_ids: [baleData.id],
+          content_type: "product",
+          value: baleData.product.price,
+          number_of_slots: formValues.slots,
+          quantity: poolQuantity,
+          currency: "NGN",
+        }, true);
+
+        // fbq.event("AddToCart", {
+        //   content_ids: [baleData.id],
+        //   content_type: "product",
+        //   value: baleData.product.price,
+        //   number_of_slots: formValues.slots,
+        //   quantity: poolQuantity,
+        //   currency: "NGN",
+        // });
+
         router.push("/checkout");
       }
     }
@@ -358,6 +377,13 @@ const ProductDetails = () => {
       });
     }
 
+    fbq.event("AddToCart", {
+      content_ids: [baleData.id],
+      content_type: "product",
+      value: baleData.product.price,
+      currency: "NGN",
+    }, false);
+
     router.push("/checkout?direct_order=true");
   };
 
@@ -404,6 +430,13 @@ const ProductDetails = () => {
         items,
         inStock: true,
       });
+
+      fbq.event("AddToCart", {
+        content_ids: [baleData.id],
+        content_type: "product",
+        value: baleData.product.price,
+        currency: "NGN",
+      }, false);
 
       toast.success("Added to cart");
     }

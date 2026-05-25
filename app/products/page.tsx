@@ -25,6 +25,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import http from "@/lib/http";
 import { ProductType, SubCategory } from "@/types/baletype";
 import { useFilter } from "@/hooks/use-filters";
+import * as fbq from "@/lib/fpixel";
 
 type ProductRowProps = {
   category: CategoryDetails;
@@ -148,6 +149,11 @@ const ProductsContent = () => {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") ?? undefined;
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    fbq.pageview();
+  }, []);
+  
 
   useEffect(() => {
     if (initialCategory) {
