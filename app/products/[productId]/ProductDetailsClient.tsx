@@ -685,7 +685,7 @@ const ProductDetails = () => {
                           return (
                             <div
                               key={index}
-                              className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition border-(--border-default) h-fit`}
+                              className={`relative flex gap-2 items-center rounded-lg border p-2 transition border-(--border-default) h-fit`}
                             >
                               {color.node != null && color.node}
                               {color.node == null && color.label}
@@ -712,7 +712,7 @@ const ProductDetails = () => {
                           {sizesList.map((size) => (
                             <span
                               key={size.id}
-                              className="px-2 py-1 rounded bg-(--primary-soft) cursor-pointer"
+                              className="px-2 py-1 rounded bg-(--primary-soft)"
                             >
                               {size.label}
                             </span>
