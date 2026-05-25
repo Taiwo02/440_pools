@@ -148,6 +148,7 @@ const ProductsContent = () => {
 
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") ?? undefined;
+  const searchTerm = searchParams.get("search") ?? undefined;
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -169,6 +170,17 @@ const ProductsContent = () => {
       });
     }
   }, [initialCategory]);
+
+  useEffect(() => {
+    if(searchTerm) {
+      setFilters((prev) => {
+        return {
+          ...prev, search: searchTerm
+        }
+      });
+    };
+  }, [searchTerm]);
+  
 
   useEffect(() => {
     if (!categories || categories.length === 0) return;
