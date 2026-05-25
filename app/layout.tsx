@@ -14,6 +14,11 @@ export const metadata: Metadata = {
     template: "%s | 440",
   },
   description: "Import directly from merchants",
+  icons: {
+    icon: "/images/favicon.svg",
+    shortcut: "/images/favicon.svg",
+    apple: "/images/favicon.svg",
+  },
 };
 
 export default function RootLayout({

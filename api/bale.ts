@@ -23,12 +23,13 @@ const buildBalesQueryParams = (
   if (filters.isSpecial != null) params.isSpecial = filters.isSpecial;
   if (filters.status) params.status = filters.status;
   if (filters.shipmentId != null) params.shipmentId = filters.shipmentId;
-  if (filters.sortBy) params.sortBy = filters.sortBy;
   if (filters.start_date) params.start_date = filters.start_date;
   if (filters.end_date) params.end_date = filters.end_date;
   if (filters.supplierRating?.trim()) params.supplierRating = filters.supplierRating;
   if (filters.categories?.length) params.categories = filters.categories;
   if (filters.marketLocation?.length) params.marketLocation = filters.marketLocation;
+  // Default sort to keep results consistent across the app.
+  params.sortBy = filters.sortBy ?? "relevance";
 
   const min = filters.priceRange?.min;
   const max = filters.priceRange?.max;
