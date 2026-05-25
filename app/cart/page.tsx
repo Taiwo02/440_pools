@@ -111,22 +111,27 @@ const Cart = () => {
 
   return (
     <>
-      <section className='pt-16 md:pt-24 mb-10 md:mb-16'>
+      <section className="pt-16 md:pt-24 mb-10 md:mb-16">
         <div className="px-4 md:px-10 lg:px-20">
           <div className="flex justify-between items-end pt-10 md:pt-0">
             <div>
               <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
-              <p className='text-(--primary)/80'>{cartItems.length} pool(s)</p>
+              {cartItems.length > 0 && (
+                <p className="text-(--primary)/80">
+                  {cartItems.length} pool(s)
+                </p>
+              )}
             </div>
-            <Button 
-              className='bg-(--error)! hover:bg-(--error)/50!'
-              disabled={Boolean(cartItems.length == 0)}
-              onClick={clearBuyCart}
-            >
-              <RiDeleteBinLine />
-              Clear Cart
-            </Button>
-          </div>  
+            {cartItems.length > 0 && (
+              <Button
+                className="bg-(--error)! hover:bg-(--error)/50!"
+                onClick={clearBuyCart}
+              >
+                <RiDeleteBinLine />
+                Clear Cart
+              </Button>
+            )}
+          </div>
           <div
             className={`my-4 flex flex-col gap-6 ${
               isEmpty ? "" : "lg:flex-row lg:items-start lg:gap-6"
@@ -171,70 +176,76 @@ const Cart = () => {
                   </div>
                 ) : (
                   cartItems.map((item) => {
-                      const slots = item.slots || 0;
-                      const minOrder = item.minOrder ||0
+                    const slots = item.slots || 0;
+                    const minOrder = item.minOrder || 0;
 
-                      const removeItem = (id: string) => {
-                        removeFromBuyCart(id);
-                        toast.error(`Product removed`, {
-                          position: "top-right",
-                          autoClose: 2000,
-                          hideProgressBar: false,
-                          closeOnClick: true,
-                          pauseOnHover: true,
-                          draggable: true,
-                        });
-                      }
+                    const removeItem = (id: string) => {
+                      removeFromBuyCart(id);
+                      toast.error(`Product removed`, {
+                        position: "top-right",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                      });
+                    };
 
-                      return (
-                        <Card key={item.cartItemId} className='p-4! shadow-none! mb-3 border-b border-x-0 border-t-0'>
-                          <div className="flex justify-between gap-4">
-                            <div className="relative w-24 sm:w-24 sm:h-24 rounded-lg overflow-hidden">
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className='object-cover w-full aspect-square rounded-lg'
-                              />
-                              {!item.inStock && (
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                  <span className="text-white text-xs font-medium px-2.5 py-1 bg-red-600 rounded">
-                                    OUT OF STOCK
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex flex-col md:flex-row flex-1 justify-between gap-1">
-                              <div>
-                                <p className='text-sm md:text-lg line-clamp-2'>
-                                  {item.name}
-                                </p>
-                                <span
-                                  className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600"
-                                >
-                                  Quantity: { item.slots * item.quantity }
+                    return (
+                      <Card
+                        key={item.cartItemId}
+                        className="p-4! shadow-none! mb-3 border-b border-x-0 border-t-0"
+                      >
+                        <div className="flex justify-between gap-4">
+                          <div className="relative w-24 sm:w-24 sm:h-24 rounded-lg overflow-hidden">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="object-cover w-full aspect-square rounded-lg"
+                            />
+                            {!item.inStock && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="text-white text-xs font-medium px-2.5 py-1 bg-red-600 rounded">
+                                  OUT OF STOCK
                                 </span>
                               </div>
-                              <div className='md:text-end'>
-                                <p className="text-xl font-bold">₦ {item.price.toLocaleString()}</p>
-                                <div className="flex shrink-0 items-center gap-2 md:justify-end mb-1">
-                                  <p className="text-sm text-gray-400 line-through">
-                                    ₦{item.originalPrice.toLocaleString()}
-                                  </p>
-                                  <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">
-                                    -{item.discount}%
-                                  </span>
-                                </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col md:flex-row flex-1 justify-between gap-1">
+                            <div>
+                              <p className="text-sm md:text-lg line-clamp-2">
+                                {item.name}
+                              </p>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600">
+                                Quantity: {item.slots * item.quantity}
+                              </span>
+                            </div>
+                            <div className="md:text-end">
+                              <p className="text-xl font-bold">
+                                ₦ {item.price.toLocaleString()}
+                              </p>
+                              <div className="flex shrink-0 items-center gap-2 md:justify-end mb-1">
+                                <p className="text-sm text-gray-400 line-through">
+                                  ₦{item.originalPrice.toLocaleString()}
+                                </p>
+                                <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">
+                                  -{item.discount}%
+                                </span>
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mt-2">
-                            <div className="flex gap-3 mt-3">
-                              <button className='flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md' onClick={() => removeItem(item.cartItemId)}>
-                                <RiDeleteBinLine className="text-base" />
-                                Remove
-                              </button>
-                            </div>
-                            {/* <div className="flex items-stretch">
+                        </div>
+                        <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mt-2">
+                          <div className="flex gap-3 mt-3">
+                            <button
+                              className="flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md"
+                              onClick={() => removeItem(item.cartItemId)}
+                            >
+                              <RiDeleteBinLine className="text-base" />
+                              Remove
+                            </button>
+                          </div>
+                          {/* <div className="flex items-stretch">
                               <Button
                                 className="rounded-r-none rounded-l-xl! py-2! px-4!"
                                 disabled={slots <= 0 || loadingItems[item.cartItemId]}
@@ -276,9 +287,9 @@ const Cart = () => {
                                 +
                               </Button>
                             </div> */}
-                          </div>
-                        </Card>
-                      );
+                        </div>
+                      </Card>
+                    );
                   })
                 )}
               </div>
@@ -292,97 +303,96 @@ const Cart = () => {
               )}
             </div>
             {!isEmpty && (
-            <div className="flex w-full flex-col lg:w-96 lg:shrink-0">
-              <div className="rounded-xl bg-(--bg-surface) p-6 mb-4">
-                <h1 className="text-2xl mb-4">Cart Summary</h1>
-                <div className="pb-4 border-b border-(--border-muted)">
-                  <div className="flex items-center justify-between my-4">
-                    <p className="text-sm font-normal text-gray-600">
-                      Subtotal
-                    </p>
-                    <p className="text-base font-medium text-gray-900">
-                      ₦ {subtotal.toLocaleString()}
+              <div className="flex w-full flex-col lg:w-96 lg:shrink-0">
+                <div className="rounded-xl bg-(--bg-surface) p-6 mb-4">
+                  <h1 className="text-2xl mb-4">Cart Summary</h1>
+                  <div className="pb-4 border-b border-(--border-muted)">
+                    <div className="flex items-center justify-between my-4">
+                      <p className="text-sm font-normal text-gray-600">
+                        Subtotal
+                      </p>
+                      <p className="text-base font-medium text-gray-900">
+                        ₦ {subtotal.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between my-4">
+                      <p className="text-sm font-semibold text-emerald-700">
+                        Saved
+                      </p>
+                      <p className="text-base font-semibold text-emerald-700 tabular-nums">
+                        ₦ {totalSaved.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between my-4">
+                      <p className="text-sm font-normal text-gray-600">
+                        Bulk Savings
+                      </p>
+                      <p className="text-base font-medium text-orange-600">
+                        −₦ {bulkSavings.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between my-4">
+                      <p className="text-sm font-normal text-gray-600">
+                        Shipping
+                      </p>
+                      <p className="text-base font-medium text-gray-900">
+                        ₦ {shipping.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between my-6">
+                    <p className="text-base font-medium text-gray-900">Total</p>
+                    <p className="text-2xl font-medium text-gray-900">
+                      ₦ {total.toLocaleString()}
                     </p>
                   </div>
-
-                  <div className="flex items-center justify-between my-4">
-                    <p className="text-sm font-semibold text-emerald-700">
-                      Saved
-                    </p>
-                    <p className="text-base font-semibold text-emerald-700 tabular-nums">
-                      ₦ {totalSaved.toLocaleString()}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between my-4">
-                    <p className="text-sm font-normal text-gray-600">
-                      Bulk Savings
-                    </p>
-                    <p className="text-base font-medium text-orange-600">
-                      −₦ {bulkSavings.toLocaleString()}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between my-4">
-                    <p className="text-sm font-normal text-gray-600">
-                      Shipping
-                    </p>
-                    <p className="text-base font-medium text-gray-900">
-                      ₦ {shipping.toLocaleString()}
-                    </p>
+                  <Button
+                    onClick={handleCheckOut}
+                    primary
+                    disabled={subtotal === 0 || isCheckoutLoading}
+                    className="w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-sm shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Checkout (₦ {total.toLocaleString()})
+                  </Button>
+                  <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">
+                    <div className="flex gap-3 items-start">
+                      <RiShieldCheckLine className="text-green-600 text-lg shrink-0 mt-0.5" />
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Trade Assurance protects your orders
+                      </p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <RiSecurePaymentLine className="text-blue-600 text-lg shrink-0 mt-0.5" />
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Secure payment methods
+                      </p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <RiRefund2Line className="text-green-600 text-lg shrink-0 mt-0.5" />
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Free returns within 30 days
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between my-6">
-                  <p className="text-base font-medium text-gray-900">
-                    Total
-                  </p>
-                  <p className="text-2xl font-medium text-gray-900">
-                    ₦ {total.toLocaleString()}
-                  </p>
-                </div>
-                <Button
-                  onClick={handleCheckOut}
-                  primary
-                  disabled={subtotal === 0 || isCheckoutLoading}
-                  className='w-full flex gap-2 items-center justify-center py-3 text-sm font-normal rounded-sm shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                >
-                  Checkout (₦ {total.toLocaleString()})
-                </Button>
-                <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">
-                  <div className="flex gap-3 items-start">
-                    <RiShieldCheckLine className='text-green-600 text-lg shrink-0 mt-0.5' />
-                    <p className="text-xs text-gray-600 leading-relaxed">
-                      Trade Assurance protects your orders
-                    </p>
+                <div className="rounded-lg bg-(--primary-soft)/30 border border-(--primary-soft) p-5 flex gap-3 items-start">
+                  <div className="w-8 h-8 rounded-full bg-(--primary) flex items-center justify-center shrink-0">
+                    <RiPercentLine className="text-white text-sm" />
                   </div>
-                  <div className="flex gap-3 items-start">
-                    <RiSecurePaymentLine className='text-blue-600 text-lg shrink-0 mt-0.5' />
-                    <p className="text-xs text-gray-600 leading-relaxed">
-                      Secure payment methods
+                  <div>
+                    <p className="font-medium text-sm text-gray-900 mb-1.5">
+                      Bulk Savings Tip
                     </p>
-                  </div>
-                  <div className="flex gap-3 items-start">
-                    <RiRefund2Line className='text-green-600 text-lg shrink-0 mt-0.5' />
-                    <p className="text-xs text-gray-600 leading-relaxed">
-                      Free returns within 30 days
+                    <p className="text-gray-700 text-xs leading-relaxed">
+                      Add 25% more "Precision Brass Pipe Fittings" to save an
+                      additional 3% (₦9.37) on this item.
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="rounded-lg bg-(--primary-soft)/30 border border-(--primary-soft) p-5 flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-(--primary) flex items-center justify-center shrink-0">
-                  <RiPercentLine className='text-white text-sm' />
-                </div>
-                <div>
-                  <p className="font-medium text-sm text-gray-900 mb-1.5">
-                    Bulk Savings Tip
-                  </p>
-                  <p className='text-gray-700 text-xs leading-relaxed'>
-                    Add 25% more "Precision Brass Pipe Fittings" to save an additional 3% (₦9.37) on this item.
-                  </p>
-                </div>
-              </div>
-            </div>
             )}
           </div>
 
@@ -392,14 +402,19 @@ const Cart = () => {
         {isCheckoutLoading && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-2xl">
-              <RiLoader4Fill size={48} className='text-(--primary) animate-spin' />
-              <p className="text-gray-900 font-medium">Proceeding to checkout...</p>
+              <RiLoader4Fill
+                size={48}
+                className="text-(--primary) animate-spin"
+              />
+              <p className="text-gray-900 font-medium">
+                Proceeding to checkout...
+              </p>
             </div>
           </div>
         )}
-      </section> 
+      </section>
     </>
-  )
+  );
 }
 
 export default Cart

@@ -1,6 +1,6 @@
 import http from "@/lib/http";
 import { userHttp } from "@/lib/user_auth";
-import { Login, Merchant, ProfileData, RegisterPayload } from "@/types/types";
+import { ChangePassword, Login, Merchant, ProfileData, RegisterPayload } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useRegisterMutation = () => {
@@ -27,4 +27,22 @@ export const useGetUserProfile = () => {
       return res?.data?.data?.profile;
     }
   })
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: (phone: string) => {
+      return http.post("/buyer/reset-password", {
+        phone
+      });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (body: ChangePassword) => {
+      return http.post("/buyer/change-password", body);
+    },
+  });
 };

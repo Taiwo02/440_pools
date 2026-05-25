@@ -45,6 +45,7 @@ import {
   parseCheckoutIntentCheckoutId,
   parseDirectOrderOrderId,
 } from '@/lib/initiate-payment-helpers';
+import * as fbq from "@/lib/fpixel";
 
 type ShipmentGroupEntry = [number, CartItem[]];
 
@@ -116,7 +117,7 @@ function CheckoutShipmentCards({
                         alt={item.name}
                         className="h-full w-full object-cover"
                       />
-                      <span className="absolute -right-0.5 -top-0.5 min-w-[1.25rem] rounded bg-gray-600/95 px-1 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                      <span className="absolute -right-0.5 -top-0.5 min-w-5 rounded bg-gray-600/95 px-1 py-0.5 text-center text-[10px] font-bold leading-none text-white">
                         ×{lineUnits(item)}
                       </span>
                     </div>
@@ -415,6 +416,16 @@ const Checkout = () => {
         })
       };
 
+      fbq.event("InitiateCheckout", {
+        content_ids: cartItems.map((item: any) => item.productId),
+        content_type: "product",
+        value: cartItems.reduce(
+          (sum: number, item: any) => sum + item.price,
+          0,
+        ),
+        currency: "NGN",
+      }, true);
+
       const createRes = await createSlot(slotData);
       if (createRes.status === 200 || createRes.status === 201) {
         const checkoutId = parseCheckoutIntentCheckoutId(createRes.data);
@@ -423,6 +434,10 @@ const Checkout = () => {
           toast.error("Checkout was created but no checkout id was returned.");
           return;
         }
+
+        fbq.event("CheckoutCreated", {
+          checkout_id: createRes.data?.id,
+        }, true);
 
         const initiateData = buildBaleLockInitiateBody(checkoutId, paymentMethod, walletPin);
 
@@ -435,6 +450,16 @@ const Checkout = () => {
 
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           if (paymentMethod === "WALLET") {
+            fbq.event("Purchase", {
+              content_ids: cartItems.map((item: any) => item.productId),
+              content_type: "product",
+              value: cartItems.reduce(
+                (sum: number, item: any) => sum + item.price,
+                0,
+              ),
+              currency: "NGN",
+            }, false);
+
             toast.success("Payment successful");
             clearCart();
             router.push('/account/orders/ongoing');
@@ -449,6 +474,17 @@ const Checkout = () => {
               async ({ reference }) => {
                 await confirmPayment.mutateAsync(reference);
                 toast.success("Payment successful");
+
+                fbq.event("Purchase", {
+                  content_ids: cartItems.map((item: any) => item.productId),
+                  content_type: "product",
+                  value: cartItems.reduce(
+                    (sum: number, item: any) => sum + item.price,
+                    0,
+                  ),
+                  currency: "NGN",
+                }, false);
+
                 clearCart();
                 router.push('/account/orders/ongoing');
               },
@@ -751,7 +787,7 @@ const Checkout = () => {
               <p className="flex-1 text-center text-base font-semibold text-gray-900">
                 Place your order
               </p>
-              <div className="flex max-w-[11rem] shrink-0 flex-col items-end gap-1.5 text-right text-[11px] leading-tight text-gray-600">
+              <div className="flex max-w-44 shrink-0 flex-col items-end gap-1.5 text-right text-[11px] leading-tight text-gray-600">
                 <span className="inline-flex items-center gap-1">
                   <RiQuestionLine className="shrink-0 text-(--primary)" />
                   Need help? Contact us
@@ -1382,7 +1418,7 @@ const Checkout = () => {
                           onChange={(e) =>
                             setUsePaySmallSmall(e.target.checked)
                           }
-                          className="h-4 w-4 shrink-0 accent-(--primary) lg:h-[1.125rem] lg:w-[1.125rem]"
+                          className="h-4 w-4 shrink-0 accent-(--primary) lg:h-4.5 lg:w-4.5"
                           aria-label="Buy now, pay later"
                         />
                       </label>

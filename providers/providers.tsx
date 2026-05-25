@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
 import { BuyProvider } from "@/hooks/use-buy";
+import { FilterProvider } from "@/hooks/use-filters";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -23,7 +24,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       <AuthProvider>
         <CartProvider>
           <BuyProvider>
-            {children}
+            <FilterProvider>{children}</FilterProvider>
           </BuyProvider>
         </CartProvider>
       </AuthProvider>
