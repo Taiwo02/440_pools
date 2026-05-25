@@ -171,12 +171,12 @@ export default function AccountShell({
                 href="/account/orders/ongoing"
                 active={ordersActive}
               />
-              <NavRow
+              {/* <NavRow
                 icon={RiTruckLine}
                 label="Deliveries"
                 href="/account/deliveries"
                 active={deliveriesActive}
-              />
+              /> */}
               <NavRow
                 icon={RiMapPinLine}
                 label="Address book"

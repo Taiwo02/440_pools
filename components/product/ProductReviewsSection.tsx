@@ -4,9 +4,11 @@ import { useMemo, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { RiCloseLine, RiStarFill, RiStarLine, RiUser3Line } from "react-icons/ri";
 import type { ProductReview } from "@/types/baletype";
+import AddProductReview from "./AddProductReview";
 
 type Props = {
   reviews?: ProductReview[] | null;
+  productId: number
 };
 
 function parseRating(r: string): number {
@@ -84,8 +86,9 @@ function ReviewEntry({ review }: { review: ProductReview }) {
   );
 }
 
-export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
+export default function ProductReviewsSection({ reviews: rawReviews, productId }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   /** Chronological (oldest → newest), like a Telegram thread */
   const sorted = useMemo(() => {
@@ -108,14 +111,39 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
     };
   }, [modalOpen]);
 
+  useEffect(() => {
+    if (!addModalOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [addModalOpen]);
+
   if (sorted.length === 0) {
     return (
-      <div className="text-sm text-(--text-muted) py-2 mb-8">
-        <h3 className="text-lg font-bold text-(--text-primary)">
-          Product Reviews
-        </h3>
-        No reviews yet. Be the first to share feedback after purchase.
-      </div>
+      <>
+        <div className="text-sm text-(--text-muted) py-2 mb-8">
+          <h3 className="text-lg font-bold text-(--text-primary)">
+            Product Reviews
+          </h3>
+          No reviews yet. Be the first to share feedback after purchase.{" "}
+          <span
+            className="text-(--primary) cursor-pointer"
+            onClick={() => setAddModalOpen(true)}
+          >
+            Add Review
+          </span>
+        </div>
+
+        {addModalOpen && (
+          <AddProductReview
+            isOpen={addModalOpen}
+            setModalOpen={setAddModalOpen}
+            productId={productId}
+          />
+        )}
+      </>
     );
   }
 
@@ -123,10 +151,14 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
     <>
       <div className="mb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2 mb-2">
-          <h3 className="text-lg font-bold text-(--text-primary)">Product Reviews</h3>
+          <h3 className="text-lg font-bold text-(--text-primary)">
+            Product Reviews
+          </h3>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <StarsRow value={avg} size={16} />
-            <span className="font-semibold text-(--primary) tabular-nums">{avg.toFixed(1)}</span>
+            <span className="font-semibold text-(--primary) tabular-nums">
+              {avg.toFixed(1)}
+            </span>
             <span className="text-(--border-muted) select-none" aria-hidden>
               |
             </span>
@@ -193,8 +225,15 @@ export default function ProductReviewsSection({ reviews: rawReviews }: Props) {
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
+
+      {/* {addModalOpen && (
+        <AddProductReview
+          isOpen={addModalOpen}
+          setModalOpen={setAddModalOpen}
+        />
+      )} */}
     </>
   );
 }

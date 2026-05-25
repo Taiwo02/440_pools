@@ -75,6 +75,12 @@ export type RegisterPayload = {
   source?: "b2b";
 };
 
+export type ChangePassword = {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
 export type CompletionDetails = {
   score: number;
   picture: boolean;
@@ -520,3 +526,94 @@ export interface BaleFilters {
   productTypes?: number[];
   subCategories?: number[];
 }
+
+
+
+// Inspection Types ------------
+export type InspectionDepth = "BASIC" | "STANDARD" | "COMPREHENSIVE";
+
+export type InspectionProductDetails = {
+  description: string;
+  quantity: number;
+  unit: string;
+  specifications?: string;
+};
+
+export type InspectionStatus = "SUBMITTED" | "SCHEDULED" | "IN_PROGRESS" | "REPORT_READY" | "COMPLETED" | "REJECTED" | "REJECTED" | "REFUNDED" | "CANCELLED";
+
+export type InspectionRequestType = {
+  depth: InspectionDepth;
+  supplier: {
+    name: string;
+    address: string;
+    contact?: string;
+  };
+  productDetails: InspectionProductDetails;
+  pin: string;
+  attachments?: {
+    url: string;
+    kind: string;
+    note: string;
+  }[];
+};
+
+export type InspectionParams = {
+  status: InspectionStatus;
+  depth: InspectionDepth;
+  page: number;
+  limit: number;
+}
+
+export type SingleInspection = {
+  id: number;
+  reference: string;
+  merchantId: number;
+  depth: InspectionDepth;
+  feePaidNaira: number;
+  supplier: {
+    name: string;
+    address: string;
+    contact: string;
+  };
+  productDetails: InspectionProductDetails;
+  attachments: {
+    url: string;
+    kind: string;
+    uploadedBy: string;
+    uploadedById: number;
+    uploadedAt: string;
+    note: string;
+  }[];
+  status: InspectionStatus;
+  assignedAdminId: number;
+  report: string | null;
+  adminNotes: string;
+  wallet: {
+    debitTxnId: string;
+    refundTxnId: string | null;
+  };
+  history: {
+    from: InspectionStatus;
+    to: InspectionStatus;
+    actorType: "MERCHANT";
+    actorId: number;
+    note: string;
+    at: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+// Review ----------------
+export type ReviewPayload = {
+  buyerId: number;
+  productId: number;
+  rating: number;
+  note: string;
+};
+
+// Save Product --------
+export type SaveProductPayload = {
+  productId: number;
+  merchantId: number;
+};

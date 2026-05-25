@@ -155,7 +155,7 @@ const AllocationModal = (
               Minimum Order Quantity (MOQ)
             </p>
             <div className="flex items-stretch mt-1">
-              <Button
+              {/* <Button
                 className="rounded-r-none rounded-l-xl! py-2!"
                 disabled={formValues.directQty === 1}
                 onClick={() =>
@@ -164,7 +164,7 @@ const AllocationModal = (
                 primary
               >
                 -
-              </Button>
+              </Button> */}
               <Input
                 element="input"
                 input_type="text"
@@ -173,8 +173,9 @@ const AllocationModal = (
                 handler={handleChange}
                 genStyle="my-0!"
                 styling="rounded-none p-2! focus:outline-none! w-30! text-center"
+                disabled
               />
-              <Button
+              {/* <Button
                 className="rounded-l-none rounded-r-xl! py-2!"
                 onClick={() =>
                   setFormValues((p) => ({ ...p, directQty: p.directQty + 1 }))
@@ -182,7 +183,7 @@ const AllocationModal = (
                 primary
               >
                 +
-              </Button>
+              </Button> */}
             </div>
           </div>
         ) : (

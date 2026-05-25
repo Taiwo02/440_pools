@@ -16,6 +16,7 @@ type Props = {
   name: string;
   value: string | string[] | number | number[];
   handler: (e: React.ChangeEvent<any>) => void;
+  checkedFunc?: boolean;
 
   tag?: string;
   placeholder?: string;
@@ -56,6 +57,7 @@ const Input = React.memo(({
   name,
   value,
   handler,
+  checkedFunc,
   tag,
   placeholder,
   required,
@@ -160,7 +162,10 @@ const Input = React.memo(({
         {tag && <label className="block font-semibold mb-1">{tag}</label>}
         <div className="flex flex-wrap gap-2">
           {checkboxOptions.map(option => {
-            const checked = Array.isArray(value) && (value as string[]).includes(option.value);
+            const checked = checkedFunc
+              ? checkedFunc
+              : Array.isArray(value) &&
+                (value as string[]).includes(option.value);
             return (
               <label
                 key={option.value}

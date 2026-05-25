@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useEffect, useState } from "react";
-import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine, RiSearch2Line } from 'react-icons/ri'
+import { RiAccountCircleLine, RiMessageLine, RiSearchLine, RiShoppingCartLine, RiComputerLine, RiFlashlightFill, RiGridFill, RiHeartPulseLine, RiSettings2Line, RiShirtFill, RiToolsFill, RiCloseLine, RiMenu3Line, RiArchive2Line, RiHome3Line, RiTShirtLine, RiFootballLine, RiSparklingLine, RiBriefcaseLine, RiHomeLine, RiRunLine, RiVipDiamondLine, RiFootprintLine, RiPrinterLine, RiParentLine, RiMedicineBottleLine, RiGiftLine, RiBugLine, RiBook2Line, RiBuilding2Line, RiStore2Line, RiBuildingLine, RiHome4Line, RiSofaLine, RiLightbulbLine, RiFridgeLine, RiCarLine, RiCarWashingLine, RiToolsLine, RiLeafLine, RiPlugLine, RiShieldCheckLine, RiTestTubeLine, RiSettingsLine, RiCpuLine, RiBusLine, RiPlantLine, RiBox3Line, RiServiceLine, RiSearch2Line, RiFilter3Fill } from 'react-icons/ri'
 import Link from 'next/link'
 import { AnimatePresence, Variants, motion } from "framer-motion";
 import { usePathname, useRouter } from 'next/navigation'
@@ -13,6 +13,7 @@ import { Button } from "../ui";
 import { useGetCategories } from "@/api/product";
 import { CategoryDetails } from "@/types/types";
 import SearchModal from "./searchmodal";
+import FilterModal from "./filtermodal";
 
 const Navbar = () => {
   const { user, authenticated } = useAuth();
@@ -20,11 +21,15 @@ const Navbar = () => {
   const router = useRouter();
   const [category, setCategory] = useState("Electronics");
   const pathname = usePathname() ?? "/";
-  const hideCheckoutChrome = pathname.startsWith("/checkout");
   const [isVisible, setIsVisible] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
   const { data: categories, isPending: categoriesPending } = useGetCategories();
+
+  const hideCheckoutChrome = pathname.startsWith("/checkout");
+  const isProductPage = pathname.startsWith("/products");
 
   useEffect(() => {
     if (hideCheckoutChrome) {
@@ -292,9 +297,7 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed z-50 w-full shadow ${
-          hideCheckoutChrome ? "hidden" : ""
-        }`}
+        className={`fixed z-50 w-full ${hideCheckoutChrome ? "hidden" : ""}`}
       >
         {/* Mobile / tablet — 1688-style: logo row + search + sign in */}
         <div className="border-b border-(--border-default) bg-(--bg-surface) lg:hidden">
@@ -317,9 +320,23 @@ const Navbar = () => {
           >
             {isVisible ? <RiCloseLine className="text-xl" /> : <RiMenu3Line className="text-xl" />}
           </button> */}
-            <Button primary className="shrink-0 p-2! rounded-full" onClick={() => setShowSearchModal(true)}>
-              <RiSearch2Line />
-            </Button>
+            <div className="flex gap-8 items-center justify-center">
+              <Button
+                primary
+                className="shrink-0 p-2! rounded-full"
+                onClick={() => setShowSearchModal(true)}
+              >
+                <RiSearch2Line />
+              </Button>
+              {isProductPage && (
+                <Button
+                  className="shrink-0 p-2! rounded-full"
+                  onClick={() => setShowFilterModal(true)}
+                >
+                  <RiFilter3Fill />
+                </Button>
+              )}
+            </div>
           </div>
           {/* <form
             className="flex items-stretch gap-2 px-3 pb-2.5"
@@ -352,12 +369,12 @@ const Navbar = () => {
             )}
           </form> */}
           {categories && (
-            <div className="bg-(--bg-muted) flex gap-1 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-0.5">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-2">
               {categories.map((category: CategoryDetails, index: number) => (
                 <Link
                   key={index}
                   href={`/products?category=${category.id}`}
-                  className={`shrink-0 px-1 py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-colors whitespace-nowrap `}
+                  className={`shrink-0 px-2 py-1.5 bg-(--primary)/20 text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap `}
                 >
                   {category.name}
                 </Link>
@@ -366,15 +383,21 @@ const Navbar = () => {
           )}
         </div>
 
-        {
-          showSearchModal && 
-          <SearchModal 
+        {showSearchModal && (
+          <SearchModal
             isModalOpen={showSearchModal}
             setIsModalOpen={setShowSearchModal}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-        }
+        )}
+
+        {showFilterModal && (
+          <FilterModal
+            isModalOpen={showFilterModal}
+            setIsModalOpen={setShowFilterModal}
+          />
+        )}
 
         <div className="hidden lg:flex bg-(--bg-surface) py-2 px-4 md:px-20 gap-12 items-center justify-between">
           <Link href={"/"} className="text-2xl font-bold shrink-0 ">

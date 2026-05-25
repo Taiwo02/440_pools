@@ -53,7 +53,7 @@ export default function RecentlyViewed() {
               <Link
                 key={item.baleId}
                 href={`/products/${item.baleId}`}
-                className="w-[140px] shrink-0 sm:w-[160px]"
+                className="w-35 shrink-0 sm:w-40"
               >
                 <div className="relative overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition hover:border-(--primary)/40 hover:shadow-md">
                   {pct != null && pct > 0 && (
