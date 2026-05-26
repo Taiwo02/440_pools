@@ -67,8 +67,17 @@ const ProductDetails = () => {
   // If the product has already been saved
   const [isProductSaved, setIsProductSaved] = useState(false);
 
-  // For merchant info
-  const merchant = JSON.parse(localStorage.getItem("merchant")!);
+  // For merchant info — read on client only to keep static export safe.
+  const merchant =
+    typeof window === "undefined"
+      ? null
+      : (() => {
+          try {
+            return JSON.parse(localStorage.getItem("merchant") ?? "null");
+          } catch {
+            return null;
+          }
+        })();
   const merchantId = Number(merchant?.id);
 
   // Hooks

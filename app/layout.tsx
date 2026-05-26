@@ -8,6 +8,7 @@ import Providers from "@/providers/providers";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Script from "next/script";
+import { Suspense } from "react";
 import PixelTracker from "./PixelTracker";
 
 export const metadata: Metadata = {
@@ -51,7 +52,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`bg-(--bg-page) antialiased`}>
-        <PixelTracker />
+        <Suspense fallback={null}>
+          <PixelTracker />
+        </Suspense>
         <Providers>
           <Navbar />
           <ConditionalMainPadding>{children}</ConditionalMainPadding>

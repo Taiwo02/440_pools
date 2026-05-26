@@ -5,6 +5,7 @@ export const setCrossSubdomainCookie = (
   value: string,
   days?: number
 ): void => {
+  if (typeof window === "undefined") return;
   const expires = days
     ? `; expires=${new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString()}`
     : "";
@@ -19,6 +20,7 @@ export const setCrossSubdomainCookie = (
 };
 
 export const getCrossSubdomainCookie = (name: string): string | null => {
+  if (typeof document === "undefined") return null;
   const nameEQ = `${name}=`;
   const cookies = document.cookie.split(";").map((c) => c.trim());
   const found = cookies.find((c) => c.startsWith(nameEQ));
@@ -26,6 +28,7 @@ export const getCrossSubdomainCookie = (name: string): string | null => {
 };
 
 export const deleteCrossSubdomainCookie = (name: string): void => {
+  if (typeof window === "undefined") return;
   setCrossSubdomainCookie(name, "", -1);
 };
 
@@ -38,6 +41,7 @@ export const getStoredCart = (): CartItem[] => {
 };
 
 export const setStoredCart = (cart: CartItem[]) => {
+  if (typeof window === "undefined") return;
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 };
 
@@ -50,5 +54,6 @@ export const getStoredBuyCart = (): CartItem[] => {
 };
 
 export const setStoredBuyCart = (buy: CartItem[]) => {
+  if (typeof window === "undefined") return;
   localStorage.setItem(BUY_KEY, JSON.stringify(buy));
 };
