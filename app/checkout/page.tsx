@@ -204,6 +204,10 @@ const Checkout = () => {
     setSelectedDelivery(fromStorage ?? fallback);
   }, [deliveries]);
 
+  useEffect(() => {
+    fbq.pageview();
+  }, []);
+
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryPayload>({
     id: 0,
     firstName: "",
