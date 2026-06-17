@@ -352,6 +352,30 @@ export type CartItem = {
   inStock: boolean
 };
 
+export type CartItemObject = {
+  id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+  product: {
+    id: number;
+    name: string;
+    images: string[];
+    price: number;
+    currency: string;
+    status: boolean;
+  };
+};
+
+export type CartObject = {
+  id: number;
+  customer_id: number;
+  status: string;
+  items: CartItemObject[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type BaseOrderItem = {
   quantity: number;
   totalPrice: number;
