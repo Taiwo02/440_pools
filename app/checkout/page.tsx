@@ -11,7 +11,7 @@ import { Badge, Button, Input } from '@/components/ui'
 import { useBuy } from '@/hooks/use-buy'
 import { useCart } from '@/hooks/use-cart'
 import { openPaystackPopup } from '@/types/funcs'
-import { BaleSlot, CartItem, DeliveryPayload, Initiate, SizeItem } from '@/types/types'
+import { AnalyticsPayload, BaleSlot, CartItem, DeliveryPayload, Initiate, SizeItem } from '@/types/types'
 import { AxiosError } from 'axios'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -46,6 +46,8 @@ import {
   parseDirectOrderOrderId,
 } from '@/lib/initiate-payment-helpers';
 import * as fbq from "@/lib/fpixel";
+import { useSendAnalytics } from '@/api/analytics'
+import { getCrossSubdomainCookie } from '@/lib/utils'
 
 type ShipmentGroupEntry = [number, CartItem[]];
 
@@ -168,6 +170,11 @@ const Checkout = () => {
   const { data: user, isPending: isUserPending, error } = useGetUserProfile();
   const { data: walletData, isPending: isWalletPending } = useGetWalletBalance(user?.id);
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
+  const {
+    mutateAsync: sendAnalytics,
+    isPending: isAnalyticsPending,
+    error: analyticsError,
+  } = useSendAnalytics();
 
   // Slot Payment
   const { mutateAsync: createSlot, isPending: isSlotPending } = useCreateBaleSlot();
@@ -443,6 +450,40 @@ const Checkout = () => {
           checkout_id: createRes.data?.id,
         }, true);
 
+        if (user) {
+          const session_id = getCrossSubdomainCookie("440_session_id");
+          const payload: AnalyticsPayload = {
+            event_id: crypto.randomUUID(),
+            event_name: "CHECKOUT_CREATED",
+            session_id: session_id!,
+            source: "web",
+            resource_id: createRes.data?.id,
+            resource_type: "checkout",
+            properties: {
+              price: cartItems.reduce(
+                (sum: number, item: any) => sum + item.price,
+                0,
+              ),
+              currency: "NGN",
+            },
+            platform: "web",
+            occurred_at: new Date().toISOString(),
+          };
+
+          const analytics = async () => {
+            try {
+              const res = await sendAnalytics(payload);
+              if (res.status === 200) {
+                console.log("Checkout initiated");
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          analytics();
+        }
+
         const initiateData = buildBaleLockInitiateBody(checkoutId, paymentMethod, walletPin);
 
         const data = {
@@ -454,6 +495,40 @@ const Checkout = () => {
 
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           if (paymentMethod === "WALLET") {
+            if (user) {
+              const session_id = getCrossSubdomainCookie("440_session_id");
+              const payload: AnalyticsPayload = {
+                event_id: crypto.randomUUID(),
+                event_name: "PAYMENT_INITIATED",
+                session_id: session_id!,
+                source: "web",
+                resource_id: createRes.data?.id,
+                resource_type: "payment",
+                properties: {
+                  price: cartItems.reduce(
+                    (sum: number, item: any) => sum + item.price,
+                    0,
+                  ),
+                  currency: "NGN",
+                },
+                platform: "web",
+                occurred_at: new Date().toISOString(),
+              };
+
+              const analytics = async () => {
+                try {
+                  const res = await sendAnalytics(payload);
+                  if (res.status === 200) {
+                    console.log("Payment initiated");
+                  }
+                } catch (error) {
+                  console.log(error);
+                }
+              };
+
+              analytics();
+            }
+
             fbq.event("Purchase", {
               content_ids: cartItems.map((item: any) => item.productId),
               content_type: "product",
@@ -466,12 +541,82 @@ const Checkout = () => {
 
             toast.success("Payment successful");
             clearCart();
+
+            if (user) {
+              const session_id = getCrossSubdomainCookie("440_session_id");
+              const payload: AnalyticsPayload = {
+                event_id: crypto.randomUUID(),
+                event_name: "PAYMENT_COMPLETED",
+                session_id: session_id!,
+                source: "web",
+                resource_id: createRes.data?.id,
+                resource_type: "payment",
+                properties: {
+                  price: cartItems.reduce(
+                    (sum: number, item: any) => sum + item.price,
+                    0,
+                  ),
+                  currency: "NGN",
+                },
+                platform: "web",
+                occurred_at: new Date().toISOString(),
+              };
+
+              const analytics = async () => {
+                try {
+                  const res = await sendAnalytics(payload);
+                  if (res.status === 200) {
+                    console.log("Payment completed");
+                  }
+                } catch (error) {
+                  console.log(error);
+                }
+              };
+
+              analytics();
+            }
+
             router.push('/account/orders/ongoing');
           } else {
             const accessCode = initiateRes?.data?.data?.accessCode;
             if (!accessCode) {
               toast.error("Payment could not be started: missing access code.");
-              return;
+
+              if (user) {
+                const session_id = getCrossSubdomainCookie("440_session_id");
+                const payload: AnalyticsPayload = {
+                  event_id: crypto.randomUUID(),
+                  event_name: "PAYMENT_FAILED",
+                  session_id: session_id!,
+                  source: "web",
+                  resource_id: createRes.data?.id,
+                  resource_type: "payment",
+                  properties: {
+                    price: cartItems.reduce(
+                      (sum: number, item: any) => sum + item.price,
+                      0,
+                    ),
+                    currency: "NGN",
+                  },
+                  platform: "web",
+                  occurred_at: new Date().toISOString(),
+                };
+
+                const analytics = async () => {
+                  try {
+                    const res = await sendAnalytics(payload);
+                    if (res.status === 200) {
+                      console.log("Payment failed");
+                    }
+                  } catch (error) {
+                    console.log(error);
+                  }
+                };
+
+                analytics();
+              }
+
+              return;  
             }
             await openPaystackPopup(
               accessCode,
@@ -489,11 +634,78 @@ const Checkout = () => {
                   currency: "NGN",
                 }, false);
 
+                if (user) {
+                  const session_id = getCrossSubdomainCookie("440_session_id");
+                  const payload: AnalyticsPayload = {
+                    event_id: crypto.randomUUID(),
+                    event_name: "PAYMENT_COMPLETED",
+                    session_id: session_id!,
+                    source: "web",
+                    resource_id: createRes.data?.id,
+                    resource_type: "payment",
+                    properties: {
+                      price: cartItems.reduce(
+                        (sum: number, item: any) => sum + item.price,
+                        0,
+                      ),
+                      currency: "NGN",
+                    },
+                    platform: "web",
+                    occurred_at: new Date().toISOString(),
+                  };
+
+                  const analytics = async () => {
+                    try {
+                      const res = await sendAnalytics(payload);
+                      if (res.status === 200) {
+                        console.log("Payment completed");
+                      }
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  };
+
+                  analytics();
+                }
+
                 clearCart();
                 router.push('/account/orders/ongoing');
               },
               () => {
                 toast.error("Payment cancelled");
+                if (user) {
+                  const session_id = getCrossSubdomainCookie("440_session_id");
+                  const payload: AnalyticsPayload = {
+                    event_id: crypto.randomUUID(),
+                    event_name: "PAYMENT_FAILED",
+                    session_id: session_id!,
+                    source: "web",
+                    resource_id: createRes.data?.id,
+                    resource_type: "payment",
+                    properties: {
+                      price: cartItems.reduce(
+                        (sum: number, item: any) => sum + item.price,
+                        0,
+                      ),
+                      currency: "NGN",
+                    },
+                    platform: "web",
+                    occurred_at: new Date().toISOString(),
+                  };
+
+                  const analytics = async () => {
+                    try {
+                      const res = await sendAnalytics(payload);
+                      if (res.status === 200) {
+                        console.log("Payment failed");
+                      }
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  };
+
+                  analytics();
+                }
               }
             );
           }
@@ -506,6 +718,34 @@ const Checkout = () => {
             pauseOnHover: true,
             draggable: true,
           });
+
+          if (user) {
+            const session_id = getCrossSubdomainCookie("440_session_id");
+            const payload: AnalyticsPayload = {
+              event_id: crypto.randomUUID(),
+              event_name: "PAYMENT_FAILED",
+              session_id: session_id!,
+              source: "web",
+              resource_id: createRes.data?.id,
+              resource_type: "payment",
+              properties: {},
+              platform: "web",
+              occurred_at: new Date().toISOString(),
+            };
+
+            const analytics = async () => {
+              try {
+                const res = await sendAnalytics(payload);
+                if (res.status === 200) {
+                  console.log("Payment failed");
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            };
+
+            analytics();
+          }
         }
       } else {
         toast.error(`Something went wrong with creating slot`, {
@@ -516,6 +756,34 @@ const Checkout = () => {
           pauseOnHover: true,
           draggable: true,
         });
+
+        if (user) {
+          const session_id = getCrossSubdomainCookie("440_session_id");
+          const payload: AnalyticsPayload = {
+            event_id: crypto.randomUUID(),
+            event_name: "CHECKOUT_ABANDONED",
+            session_id: session_id!,
+            source: "web",
+            resource_id: createRes.data?.id,
+            resource_type: "checkout",
+            properties: {},
+            platform: "web",
+            occurred_at: new Date().toISOString(),
+          };
+
+          const analytics = async () => {
+            try {
+              const res = await sendAnalytics(payload);
+              if (res.status === 200) {
+                console.log("Checkout abandoned");
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          analytics();
+        }
       }
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;

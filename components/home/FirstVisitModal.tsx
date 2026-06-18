@@ -25,11 +25,17 @@ export default function FirstVisitModal() {
   const gridBales: Bale[] = allBales.slice(0, 8);
 
   useEffect(() => {
-    const lastSeen = localStorage.getItem("hasVisited");
+    // const lastSeen = localStorage.getItem("hasVisited");
 
-    if (!lastSeen || Date.now() - Number(lastSeen) > 86400000) {
+    // if (!lastSeen || Date.now() - Number(lastSeen) > 86400000) {
+    //   setIsOpen(true);
+    //   localStorage.setItem("hasVisited", Date.now().toString());
+    // }
+    const hasVisited = localStorage.getItem("hasVisited");
+
+    if (!hasVisited) {
       setIsOpen(true);
-      localStorage.setItem("hasVisited", Date.now().toString());
+      localStorage.setItem("hasVisited", "true");
     }
   }, []);
 

@@ -22,9 +22,14 @@ const stopProgress = () => {
 
 // @ts-ignore
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+const stagingUrl = process.env.NEXT_PUBLIC_STAGING_URL;
 
 const http = axios.create({
   baseURL
+});
+
+export const stagingHttp = axios.create({
+  baseURL: stagingUrl,
 });
 
 function clearAuthSession() {
@@ -67,6 +72,76 @@ http.interceptors.request.use((config) => {
 
 // Response interceptor to stop progress
 http.interceptors.response.use(
+  (response) => {
+    stopProgress();
+    return response;
+  },
+  async (error) => {
+    stopProgress();
+
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/buyer/refresh-token")
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = getCrossSubdomainCookie("440_refresh_token");
+        if (!refreshToken) {
+          clearAuthSession();
+          redirectToAccountIfNeeded();
+          return Promise.reject(error);
+        }
+
+        const res = await http.post("/buyer/refresh-token", {
+          refreshToken,
+        });
+
+        const newAccessToken = res.data.data.token;
+        const newRefreshToken = res.data.data.refreshToken;
+        setCrossSubdomainCookie("440_token", newAccessToken, 1);
+        setCrossSubdomainCookie("440_refresh_token", newRefreshToken, 30);
+
+        originalRequest.headers.authorization =
+          `Bearer ${newAccessToken}`;
+
+        return http(originalRequest);
+      } catch (refreshError) {
+        clearAuthSession();
+        redirectToAccountIfNeeded();
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+stagingHttp.interceptors.request.use((config) => {
+  if ((config as any).intercept === false) return config;
+
+  startProgress();
+
+  const token = getCrossSubdomainCookie("440_token");
+  if (token) config.headers.authorization = `Bearer ${token}`;
+
+  // Only generate a key if it's the specific endpoint AND one doesn't exist yet
+  if (
+    config.method === 'post' &&
+    config.url?.includes("/buyer/initiate-payment") &&
+    !config.headers['Idempotency-Key'] // Check if key is already there
+  ) {
+    config.headers['Idempotency-Key'] = uuidv4();
+  }
+
+  return config;
+});
+
+// Response interceptor to stop progress
+stagingHttp.interceptors.response.use(
   (response) => {
     stopProgress();
     return response;

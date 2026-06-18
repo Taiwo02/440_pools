@@ -19,6 +19,9 @@ import {
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import { getCrossSubdomainCookie } from '@/lib/utils';
 import { useBuy } from '@/hooks/use-buy';
+import { useAuth } from "@/hooks/use-auth";
+import { AnalyticsPayload } from "@/types/types";
+import { useSendAnalytics } from "@/api/analytics";
 
 const Cart = () => {
   const router = useRouter();
@@ -26,6 +29,13 @@ const Cart = () => {
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const { buyCart, removeFromBuyCart, updateBuyQuantity, clearBuyCart } = useBuy();
+  const { user } = useAuth();
+
+  const {
+    mutateAsync: sendAnalytics,
+    isPending: isAnalyticsPending,
+    error: analyticsError,
+  } = useSendAnalytics();
 
   const cartItems = buyCart;
 
@@ -78,7 +88,7 @@ const Cart = () => {
     }, 0);
   }
 
-  const handleCheckOut = () => {
+  const handleCheckOut = async () => {
     const accessToken = getCrossSubdomainCookie('440_token');
 
     if (!accessToken) {
@@ -179,8 +189,37 @@ const Cart = () => {
                     const slots = item.slots || 0;
                     const minOrder = item.minOrder || 0;
 
-                    const removeItem = (id: string) => {
+                    const removeItem = async (id: string) => {
                       removeFromBuyCart(id);
+
+                      const session_id =
+                        getCrossSubdomainCookie("440_session_id");
+
+                      const payload: AnalyticsPayload = {
+                        event_id: crypto.randomUUID(),
+                        event_name: "BALE_JOINED",
+                        session_id: session_id!,
+                        source: "web",
+                        resource_id: String(item.productId),
+                        resource_type: "product",
+                        properties: {},
+                        platform: "web",
+                        occurred_at: new Date().toISOString(),
+                      };
+
+                      const analytics = async () => {
+                        try {
+                          const res = await sendAnalytics(payload);
+                          if (res.status === 200) {
+                            console.log("Product viewed");
+                          }
+                        } catch (error) {
+                          console.log(error);
+                        }
+                      };
+
+                      analytics();
+
                       toast.error(`Product removed`, {
                         position: "top-right",
                         autoClose: 2000,
