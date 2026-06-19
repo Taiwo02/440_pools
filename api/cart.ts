@@ -10,6 +10,10 @@ export const useGetCart = () => {
       const res = await stagingHttp.get("/cart");
       return res.data;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
 

@@ -102,7 +102,7 @@ const Cart = () => {
             >
               <div className={isEmpty ? "" : "mb-4"}>
                 {
-                  showLoading ? (
+                  isCartPending ? (
                     <div className="mx-auto w-full max-w-lg">
                       <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm md:px-10 md:py-14 h-60 flex flex-col items-center justify-center">
                         <RiLoader5Fill size={100} className="text-(--primary) animate-spin mb-4" />
