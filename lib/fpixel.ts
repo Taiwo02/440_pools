@@ -25,11 +25,29 @@ export type StandardEvent =
   | "Contact";
 
 /**
- * Event tracker (supports both standard + custom events)
+ * Categories a tracked event can belong to.
+ * Mirrors the `category` field on the backend `live-event-track` model.
+ */
+export type EventCategory =
+  | "product"
+  | "pool"
+  | "cart"
+  | "checkout"
+  | "purchase"
+  | "auth"
+  | "search"
+  | "page";
+
+/** Payload passed to `event()` — `category` is required. */
+export type EventOptions = { category: EventCategory } & Record<string, any>;
+
+/**
+ * Event tracker (supports both standard + custom events).
+ * `options.category` is required so every event carries the section/feature it came from.
  */
 export const event = (
   name: StandardEvent | (string & {}),
-  options: Record<string, any> = {},
+  options: EventOptions,
   isCustom: boolean = false,
 ) => {
   if (typeof window === "undefined" || !window.fbq) return;

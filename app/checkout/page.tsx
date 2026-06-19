@@ -417,6 +417,7 @@ const Checkout = () => {
       };
 
       fbq.event("InitiateCheckout", {
+        category: "checkout",
         content_ids: cartItems.map((item: any) => item.productId),
         content_type: "product",
         value: cartItems.reduce(
@@ -436,6 +437,7 @@ const Checkout = () => {
         }
 
         fbq.event("CheckoutCreated", {
+          category: "checkout",
           checkout_id: createRes.data?.id,
         }, true);
 
@@ -451,6 +453,7 @@ const Checkout = () => {
         if (initiateRes.status === 200 || initiateRes.status === 201) {
           if (paymentMethod === "WALLET") {
             fbq.event("Purchase", {
+              category: "purchase",
               content_ids: cartItems.map((item: any) => item.productId),
               content_type: "product",
               value: cartItems.reduce(
@@ -476,6 +479,7 @@ const Checkout = () => {
                 toast.success("Payment successful");
 
                 fbq.event("Purchase", {
+                  category: "purchase",
                   content_ids: cartItems.map((item: any) => item.productId),
                   content_type: "product",
                   value: cartItems.reduce(
