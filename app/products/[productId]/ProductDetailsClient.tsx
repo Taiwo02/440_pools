@@ -7,7 +7,7 @@ import { Badge, Button, Progress, StarRating } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/use-cart";
 import { getCrossSubdomainCookie } from "@/lib/utils";
-import { FormValues, SaveProductPayload } from "@/types/types";
+import { AnalyticsPayload, FormValues, SaveProductPayload } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -30,6 +30,8 @@ import ProductReviewsSection from "@/components/product/ProductReviewsSection";
 import { recordRecentlyViewedBale } from "@/lib/recently-viewed-bales";
 import { AxiosError } from "axios";
 import * as fbq from "@/lib/fpixel";
+import { useAuth } from "@/hooks/use-auth";
+import { useSendAnalytics } from "@/api/analytics";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -67,6 +69,9 @@ const ProductDetails = () => {
   // If the product has already been saved
   const [isProductSaved, setIsProductSaved] = useState(false);
 
+  // User authentication
+  const { user } = useAuth();
+
   // For merchant info — read on client only to keep static export safe.
   const merchant =
     typeof window === "undefined"
@@ -93,6 +98,12 @@ const ProductDetails = () => {
     isPending: isSavePending,
     error: saveError,
   } = useSaveProduct();
+  const {
+    mutateAsync: sendAnalytics,
+    isPending: isAnalyticsPending,
+    error: analyticsError,
+  } = useSendAnalytics();
+  
   // const {
   //   data: savedProducts,
   //   isPending: isSavedPending,
@@ -197,6 +208,39 @@ const ProductDetails = () => {
     }
   }, [baleData, hasColors]);
 
+  useEffect(() => {
+    if (user && baleData) {
+      const session_id = getCrossSubdomainCookie("440_session_id");
+      const payload: AnalyticsPayload = {
+        event_id: crypto.randomUUID(),
+        event_name: "PRODUCT_VIEWED",
+        session_id: session_id!,
+        source: "web",
+        resource_id: String(baleData!.productId),
+        resource_type: "product",
+        properties: {
+          price: baleData!.product.price,
+          currency: baleData!.product.currency,
+        },
+        platform: "web",
+        occurred_at: new Date().toISOString(),
+      };
+
+      const analytics = async () => {
+        try {
+          const res = await sendAnalytics(payload);
+          if (res.status === 200) {
+            console.log("Product viewed");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      analytics();
+    }
+  }, [user, baleData]);
+
   // useEffect(() => {
   //   if (savedProducts) {
   //     const productIds = savedProducts.map((product: any) => product.id);
@@ -252,7 +296,7 @@ const ProductDetails = () => {
     setFormValues((prev) => ({ ...prev, [name]: Number(value) }));
   };
 
-  const joinPool = () => {
+  const joinPool = async () => {
     const useDefaultAllocation = totalAllocatedQuantity === 0;
     const poolQuantity = useDefaultAllocation
       ? maxAllowedQuantity
@@ -310,6 +354,41 @@ const ProductDetails = () => {
           items: useDefaultAllocation ? [] : items,
           inStock: true,
         });
+
+        if (user) {
+          const session_id = getCrossSubdomainCookie("440_session_id");
+          const payload: AnalyticsPayload = {
+            event_id: crypto.randomUUID(),
+            event_name: "BALE_JOINED",
+            session_id: session_id!,
+            source: "web",
+            resource_id: String(baleData!.productId),
+            resource_type: "product",
+            properties: {
+              price: baleData!.product.price,
+              currency: baleData!.product.currency,    
+              additionalProp1: {
+                slots: formValues.slots,
+                quantity: poolQuantity,
+              }
+            },
+            platform: "web",
+            occurred_at: new Date().toISOString(),
+          };
+
+          const analytics = async () => {
+            try {
+              const res = await sendAnalytics(payload);
+              if (res.status === 200) {
+                console.log("Product viewed");
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          };
+
+          analytics();
+        }
 
         fbq.event("JoinPool", {
           content_ids: [baleData.id],
@@ -384,6 +463,40 @@ const ProductDetails = () => {
         items,
         inStock: true,
       });
+
+      if (user) {
+        const session_id = getCrossSubdomainCookie("440_session_id");
+        const payload: AnalyticsPayload = {
+          event_id: crypto.randomUUID(),
+          event_name: "CART_ITEM_ADDED",
+          session_id: session_id!,
+          source: "web",
+          resource_id: String(baleData!.productId),
+          resource_type: "product",
+          properties: {
+            price: baleData!.product.price,
+            currency: baleData!.product.currency,
+            additionalProp1: {
+              quantity: totalAllocatedQuantity,
+            },
+          },
+          platform: "web",
+          occurred_at: new Date().toISOString(),
+        };
+
+        const analytics = async () => {
+          try {
+            const res = await sendAnalytics(payload);
+            if (res.status === 200) {
+              console.log("Product viewed");
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        analytics();
+      }
     }
 
     fbq.event("AddToCart", {
@@ -439,6 +552,40 @@ const ProductDetails = () => {
         items,
         inStock: true,
       });
+
+      if (user) {
+        const session_id = getCrossSubdomainCookie("440_session_id");
+        const payload: AnalyticsPayload = {
+          event_id: crypto.randomUUID(),
+          event_name: "CART_ITEM_ADDED",
+          session_id: session_id!,
+          source: "web",
+          resource_id: String(baleData!.productId),
+          resource_type: "product",
+          properties: {
+            price: baleData!.product.price,
+            currency: baleData!.product.currency,
+            additionalProp1: {
+              quantity: totalAllocatedQuantity,
+            },
+          },
+          platform: "web",
+          occurred_at: new Date().toISOString(),
+        };
+
+        const analytics = async () => {
+          try {
+            const res = await sendAnalytics(payload);
+            if (res.status === 200) {
+              console.log("Product viewed");
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        analytics();
+      }
 
       fbq.event("AddToCart", {
         content_ids: [baleData.id],

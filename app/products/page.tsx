@@ -5,7 +5,7 @@ import { useGetCategories } from "@/api/product";
 import ProductCard from "@/components/product/ProductCard";
 import { Button } from "@/components/ui";
 import { Accordion } from "@/components/ui/accordion";
-import { BaleFilters, CategoryDetails } from "@/types/types";
+import { AnalyticsPayload, BaleFilters, CategoryDetails } from "@/types/types";
 import * as Slider from "@radix-ui/react-slider";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -155,7 +155,6 @@ const ProductsContent = () => {
   useEffect(() => {
     fbq.pageview();
   }, []);
-  
 
   useEffect(() => {
     if (initialCategory) {
