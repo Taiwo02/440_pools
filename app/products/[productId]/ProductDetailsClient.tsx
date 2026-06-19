@@ -32,6 +32,7 @@ import { AxiosError } from "axios";
 import * as fbq from "@/lib/fpixel";
 import { useAuth } from "@/hooks/use-auth";
 import { useSendAnalytics } from "@/api/analytics";
+import { useAddCartItem } from "@/api/cart";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -45,6 +46,21 @@ function getProductDisplayRating(
   const i = Math.abs(productId) % PRODUCT_RATING_FALLBACKS.length;
   return PRODUCT_RATING_FALLBACKS[i];
 }
+
+type CartItemVariant = {
+  sizes: {
+    sizeId: number;
+    quantity: number;
+  }[];
+  colorSelections?: {
+    colorId: number;
+    quantity: number;
+    sizes: {
+      sizeId: number;
+      quantity: number;
+    }[];
+  };
+};
 
 const ProductDetails = () => {
   const [formValues, setFormValues] = useState<FormValues>({
@@ -103,6 +119,11 @@ const ProductDetails = () => {
     isPending: isAnalyticsPending,
     error: analyticsError,
   } = useSendAnalytics();
+  const {
+    mutateAsync: addCartItem,
+    isPending: isAddCartItemPending,
+    error: addCartItemError,
+  } = useAddCartItem();
   
   // const {
   //   data: savedProducts,
@@ -439,29 +460,9 @@ const ProductDetails = () => {
 
     if (baleData) {
       addToBuyCart({
-        cartItemId: `cart-${baleData.baleId}`,
         productId: baleData.productId,
-        baleId: baleData.id,
-        name: baleData.product.name,
-        image: baleData.product.images[2],
-        supplierId: baleData.product.supplierId,
-        price: baleData.product.oldPrice,
-        originalPrice: baleData.product.oldPrice,
-        discount: 10,
-        currency: "NGN",
-        slots: formValues.slots,
-        totalSlots: baleData.slot,
-        totalShippingFee: baleData.deliveryFee * formValues.slots,
         quantity: totalAllocatedQuantity,
-        unit: "unit",
-        variants: selectedVariants,
-        createdAt: baleData.createdAt,
-        updatedAt: baleData.updatedAt,
-        description: baleData.product.description,
-        status: Boolean(baleData.status == "OPEN"),
-        endIn: baleData.endIn,
-        items,
-        inStock: true,
+        ...items,
       });
 
       if (user) {
@@ -509,7 +510,7 @@ const ProductDetails = () => {
     router.push("/checkout?direct_order=true");
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     // if (isAllocationExceeded) {
     //   toast.error(
     //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
@@ -528,29 +529,9 @@ const ProductDetails = () => {
 
     if (baleData) {
       addToBuyCart({
-        cartItemId: `cart-${baleData.baleId}`,
         productId: baleData.productId,
-        baleId: baleData.id,
-        name: baleData.product.name,
-        image: baleData.product.images[2],
-        supplierId: baleData.product.supplierId,
-        price: baleData.product.oldPrice,
-        originalPrice: baleData.product.oldPrice,
-        discount: 10,
-        currency: "NGN",
-        slots: formValues.slots,
-        totalSlots: baleData.slot,
-        totalShippingFee: baleData.deliveryFee * formValues.slots,
         quantity: totalAllocatedQuantity,
-        unit: "unit",
-        variants: selectedVariants,
-        createdAt: baleData.createdAt,
-        updatedAt: baleData.updatedAt,
-        description: baleData.product.description,
-        status: Boolean(baleData.status == "OPEN"),
-        endIn: baleData.endIn,
-        items,
-        inStock: true,
+        ...items
       });
 
       if (user) {
@@ -611,55 +592,51 @@ const ProductDetails = () => {
     }),
   );
 
-  const items = Object.values(cleanedAllocations).flatMap((color) => {
-    const hasValidColor = color.colorId && color.colorId !== 0;
+const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
+  const hasValidColor = color.colorId && color.colorId !== 0;
 
-    // WITH SIZES
-    if (hasSizes) {
-      return Object.values(color.sizes)
-        .filter((s) => s.quantity > 0)
-        .map((s) => ({
-          size: {
-            id: s.sizeId,
-            label: s.sizeLabel,
-            type: baleData.product?.productSizes?.[0]?.size?.type,
-            formart: baleData.product?.productSizes?.[0]?.size?.formart,
+  // WITH SIZES
+  if (hasSizes) {
+    return Object.values(color.sizes)
+      .filter((s) => s.quantity > 0)
+      .map((s) => ({
+        sizes: [
+          {
+            sizeId: s.sizeId,
+            quantity: s.quantity,
           },
-          ...(hasValidColor && {
-            color: {
-              id: color.colorId,
-              color: color.colorLabel,
-              images: color.colorImages,
-              productId: baleData.product.id,
-              status: true,
-            },
-          }),
-
-          quantity: s.quantity,
-          totalPrice: s.quantity * baleData.product.price,
-        }));
-    }
-
-    // NO SIZES
-    if (!color.quantity || color.quantity <= 0) return [];
-
-    return [
-      {
+        ],
         ...(hasValidColor && {
-          color: {
-            id: color.colorId,
-            color: color.colorLabel,
-            images: color.colorImages,
-            productId: baleData.product.id,
-            status: true,
+          colorSelections: {
+            colorId: color.colorId,
+            quantity: s.quantity,
+            sizes: [
+              {
+                sizeId: s.sizeId,
+                quantity: s.quantity,
+              },
+            ],
           },
         }),
+      }));
+  }
 
-        quantity: color.quantity,
-        totalPrice: color.quantity * baleData.product.price,
-      },
-    ];
-  });
+  // WITHOUT SIZES (FIXED)
+  if (!color.quantity || color.quantity <= 0) return [];
+
+  return [
+    {
+      sizes: [], // 👈 IMPORTANT: always include this
+      ...(hasValidColor && {
+        colorSelections: {
+          colorId: color.colorId,
+          quantity: color.quantity,
+          sizes: [],
+        },
+      }),
+    },
+  ];
+});
 
   const selectedVariants = {
     sizes: formValues.sizes,

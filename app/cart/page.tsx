@@ -15,78 +15,26 @@ import {
   RiLoader4Fill,
   RiShoppingCart2Line,
   RiStarFill,
+  RiLoader5Fill,
 } from "react-icons/ri";
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import { getCrossSubdomainCookie } from '@/lib/utils';
 import { useBuy } from '@/hooks/use-buy';
-import { useAuth } from "@/hooks/use-auth";
-import { AnalyticsPayload } from "@/types/types";
-import { useSendAnalytics } from "@/api/analytics";
+import { useGetCart } from "@/api/cart";
 
 const Cart = () => {
   const router = useRouter();
 
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-  const { buyCart, removeFromBuyCart, updateBuyQuantity, clearBuyCart } = useBuy();
-  const { user } = useAuth();
-
-  const {
-    mutateAsync: sendAnalytics,
-    isPending: isAnalyticsPending,
-    error: analyticsError,
-  } = useSendAnalytics();
+  const { buyCart, removeFromBuyCart, clearBuyCart, hasSynced } = useBuy();
+  const { data: cartData, isPending: isCartPending, error: cartError } = useGetCart();
 
   const cartItems = buyCart;
+  console.log(cartItems);
 
   const isEmpty = cartItems.length < 1;
-
-  const handleQuantityChange = async (
-    cartItemId: string,
-    newSlots: number,
-    oldSlots: number
-  ) => {
-    const validSlots = Math.max(0, newSlots);
-
-    setLoadingItems(prev => ({ ...prev, [cartItemId]: true }));
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    updateBuyQuantity(cartItemId, validSlots);
-
-    setLoadingItems(prev => ({ ...prev, [cartItemId]: false }));
-
-    if (validSlots > oldSlots) {
-      toast.success("✓ Product added successfully");
-    } else if (validSlots < oldSlots && validSlots > 0) {
-      toast.info("Item quantity updated");
-    } else if (validSlots === 0) {
-      toast.error("Item removed from cart");
-    }
-  };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => {
-      const quantity = item.slots;
-      return sum + (item.price * quantity * item.quantity);
-    }, 0);
-  };
-
-  /** Sum of (original − current) × slots × units, same basis as subtotal */
-  const calculateTotalSaved = () => {
-    return cartItems.reduce((sum, item) => {
-      const original = item.originalPrice ?? item.price;
-      if (original <= item.price) return sum;
-      return sum + (original - item.price) * item.slots * item.quantity;
-    }, 0);
-  };
-
-  const totalQty = () => {
-    return cartItems.reduce((sum, item) => {
-      const quantity = item.slots;
-      return sum + (quantity);
-    }, 0);
-  }
+  const showLoading = isCartPending && !hasSynced;
 
   const handleCheckOut = async () => {
     const accessToken = getCrossSubdomainCookie('440_token');
@@ -113,10 +61,10 @@ const Cart = () => {
     }
   };
   
-  const subtotal = calculateTotal();
-  const totalSaved = calculateTotalSaved();
+  const subtotal = cartData?.data?.subtotal || 0;
+  // const totalSaved = calculateTotalSaved();
   const bulkSavings = subtotal > 0 ? 225.50 : 0;
-  const shipping = subtotal > 0 ? 45.00 : 0;
+  const shipping = cartData?.data?.totalShippingFee || 0;
   const total = subtotal - bulkSavings + shipping;
 
   return (
@@ -128,7 +76,7 @@ const Cart = () => {
               <h1 className="text-2xl md:text-4xl">Shopping Cart</h1>
               {cartItems.length > 0 && (
                 <p className="text-(--primary)/80">
-                  {cartItems.length} pool(s)
+                  {cartItems.length} product(s)
                 </p>
               )}
             </div>
@@ -153,184 +101,107 @@ const Cart = () => {
               }`}
             >
               <div className={isEmpty ? "" : "mb-4"}>
-                {isEmpty ? (
-                  <div className="mx-auto w-full max-w-lg">
-                    <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm md:px-10 md:py-14">
-                      <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 md:h-24 md:w-24">
-                        <RiShoppingCart2Line
-                          className="text-4xl text-(--primary) md:text-[2.75rem]"
-                          aria-hidden
-                        />
-                        <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
-                          <RiStarFill
-                            className="text-base text-amber-500"
+                {
+                  showLoading ? (
+                    <div className="mx-auto w-full max-w-lg">
+                      <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm md:px-10 md:py-14 h-60 flex flex-col items-center justify-center">
+                        <RiLoader5Fill size={100} className="text-(--primary) animate-spin mb-4" />
+                        <p className="text-gray-900 font-medium mt-2 text-lg">Loading cart...</p>
+                      </div>
+                    </div>
+                  ) :
+                  isEmpty ? (
+                    <div className="mx-auto w-full max-w-lg">
+                      <div className="rounded-xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm md:px-10 md:py-14">
+                        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 md:h-24 md:w-24">
+                          <RiShoppingCart2Line
+                            className="text-4xl text-(--primary) md:text-[2.75rem]"
                             aria-hidden
                           />
-                        </span>
-                      </div>
-                      <h2 className="mt-6 text-xl font-bold text-gray-900 md:text-2xl">
-                        Your cart is empty!
-                      </h2>
-                      <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500 md:text-base">
-                        Browse our categories and discover our best deals!
-                      </p>
-                      <Link href="/products" className="mt-8 inline-block">
-                        <Button
-                          primary
-                          className="min-w-50 rounded-md px-8 py-3 font-semibold"
-                        >
-                          Start Shopping
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  cartItems.map((item) => {
-                    const slots = item.slots || 0;
-                    const minOrder = item.minOrder || 0;
-
-                    const removeItem = async (id: string) => {
-                      removeFromBuyCart(id);
-
-                      const session_id =
-                        getCrossSubdomainCookie("440_session_id");
-
-                      const payload: AnalyticsPayload = {
-                        event_id: crypto.randomUUID(),
-                        event_name: "BALE_JOINED",
-                        session_id: session_id!,
-                        source: "web",
-                        resource_id: String(item.productId),
-                        resource_type: "product",
-                        properties: {},
-                        platform: "web",
-                        occurred_at: new Date().toISOString(),
-                      };
-
-                      const analytics = async () => {
-                        try {
-                          const res = await sendAnalytics(payload);
-                          if (res.status === 200) {
-                            console.log("Product viewed");
-                          }
-                        } catch (error) {
-                          console.log(error);
-                        }
-                      };
-
-                      analytics();
-
-                      toast.error(`Product removed`, {
-                        position: "top-right",
-                        autoClose: 2000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                      });
-                    };
-
-                    return (
-                      <Card
-                        key={item.cartItemId}
-                        className="p-4! shadow-none! mb-3 border-b border-x-0 border-t-0"
-                      >
-                        <div className="flex justify-between gap-4">
-                          <div className="relative w-24 sm:w-24 sm:h-24 rounded-lg overflow-hidden">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="object-cover w-full aspect-square rounded-lg"
+                          <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm">
+                            <RiStarFill
+                              className="text-base text-amber-500"
+                              aria-hidden
                             />
-                            {!item.inStock && (
-                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <span className="text-white text-xs font-medium px-2.5 py-1 bg-red-600 rounded">
-                                  OUT OF STOCK
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex flex-col md:flex-row flex-1 justify-between gap-1">
-                            <div>
-                              <p className="text-sm md:text-lg line-clamp-2">
-                                {item.name}
-                              </p>
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600">
-                                Quantity: {item.slots * item.quantity}
-                              </span>
-                            </div>
-                            <div className="md:text-end">
-                              <p className="text-xl font-bold">
-                                ₦ {item.price.toLocaleString()}
-                              </p>
-                              <div className="flex shrink-0 items-center gap-2 md:justify-end mb-1">
-                                <p className="text-sm text-gray-400 line-through">
-                                  ₦{item.originalPrice.toLocaleString()}
-                                </p>
-                                <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">
-                                  -{item.discount}%
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                          </span>
                         </div>
-                        <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mt-2">
-                          <div className="flex gap-3 mt-3">
-                            <button
-                              className="flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md"
-                              onClick={() => removeItem(item.cartItemId)}
-                            >
-                              <RiDeleteBinLine className="text-base" />
-                              Remove
-                            </button>
-                          </div>
-                          {/* <div className="flex items-stretch">
-                              <Button
-                                className="rounded-r-none rounded-l-xl! py-2! px-4!"
-                                disabled={slots <= 0 || loadingItems[item.cartItemId]}
-                                onClick={() =>
-                                  handleQuantityChange(item.cartItemId, slots - 1, slots)
-                                }
-                                primary
-                              >
-                                -
-                              </Button>
-                              {loadingItems[item.cartItemId] ? (
-                                <div className="w-12 sm:w-20 h-9 flex items-center justify-center">
-                                  <div className="w-4 h-4 border-3 border-gray-300 border-t-orange-600 rounded-full animate-spin"></div>
-                                </div>
-                              ) : (
-                                <Input
-                                  element="input"
-                                  input_type="text"
-                                  name="quantity"
-                                  value={slots}
-                                  handler={(e) => {
-                                    const val = parseInt(e.target.value) || 0;
-                                    handleQuantityChange(item.cartItemId, val, slots);
-                                  }}
-                                  disabled={loadingItems[item.cartItemId]}
-                                  genStyle="my-0!"
-                                  styling="w-12 sm:w-20 rounded-none text-center focus:outline-none font-normal text-gray-900 bg-transparent text-sm disabled:opacity-50"
-                                />
-                              )}
+                        <h2 className="mt-6 text-xl font-bold text-gray-900 md:text-2xl">
+                          Your cart is empty!
+                        </h2>
+                        <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500 md:text-base">
+                          Browse our categories and discover our best deals!
+                        </p>
+                        <Link href="/products" className="mt-8 inline-block">
+                          <Button
+                            primary
+                            className="min-w-50 rounded-md px-8 py-3 font-semibold"
+                          >
+                            Start Shopping
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    cartItems.map((item) => {
+                      if (!item?.product) return null;
 
-                              <Button
-                                className="rounded-l-none rounded-r-xl! py-2! px-4!"
-                                disabled={loadingItems[item.cartItemId]}
-                                onClick={() =>
-                                  handleQuantityChange(item.cartItemId, slots + 1, slots)
-                                }
-                                primary
+                      const removeItem = async (id: string) => {
+                        removeFromBuyCart(Number(id));
+                      };
+
+                      return (
+                        <Card
+                          key={item.id}
+                          className="p-4! shadow-none! mb-3 border-b border-x-0 border-t-0"
+                        >
+                          <div className="flex justify-between gap-4">
+                            <div className="relative w-24 sm:w-24 sm:h-24 rounded-lg overflow-hidden">
+                              <img
+                                src={item.product.images[0]}
+                                alt={item.product.name}
+                                className="object-cover w-full aspect-square rounded-lg"
+                              />
+                            </div>
+                            <div className="flex flex-col md:flex-row flex-1 justify-between gap-1">
+                              <div className="md:w-[90%]">
+                                <p className="text-sm md:text-lg line-clamp-2">
+                                  {item.product.name}
+                                </p>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-normal bg-gray-100 text-gray-600">
+                                  Quantity: {item.quantity}
+                                </span>
+                              </div>
+                              <div className="md:text-end ">
+                                <p className="text-xl font-bold">
+                                  ₦ {String(item.unit_price).toLocaleString()}
+                                </p>
+                                {/* <div className="flex shrink-0 items-center gap-2 md:justify-end mb-1">
+                                  <p className="text-sm text-gray-400 line-through">
+                                    ₦{item.originalPrice.toLocaleString()}
+                                  </p>
+                                  <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">
+                                    -{item.discount}%
+                                  </span>
+                                </div> */}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mt-2">
+                            <div className="flex gap-3 mt-3">
+                              <button
+                                className="flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md"
+                                onClick={() => removeItem(String(item.id))}
                               >
-                                +
-                              </Button>
-                            </div> */}
-                        </div>
-                      </Card>
-                    );
-                  })
-                )}
+                                <RiDeleteBinLine className="text-base" />
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })
+                  )
+                }
               </div>
               {!isEmpty && (
                 <Link href="/products">
@@ -360,7 +231,7 @@ const Cart = () => {
                         Saved
                       </p>
                       <p className="text-base font-semibold text-emerald-700 tabular-nums">
-                        ₦ {totalSaved.toLocaleString()}
+                        {/* ₦ {totalSaved.toLocaleString()} */}
                       </p>
                     </div>
 
