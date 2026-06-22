@@ -282,9 +282,39 @@ const ProductDetails = () => {
     return <p>Error loading bale</p>;
   }
 
+  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "4XL", "5XL"];
+
+  function sortProductSizes(productSizes: any) {
+    return [...productSizes].sort((a, b) => {
+      const labelA = a.size.label;
+      const labelB = b.size.label;
+
+      const numA = Number(labelA);
+      const numB = Number(labelB);
+
+      const aIsNum = !isNaN(numA);
+      const bIsNum = !isNaN(numB);
+
+      // Both numeric → sort ascending
+      if (aIsNum && bIsNum) return numA - numB;
+
+      // Both alpha (S, M, L etc.) → sort by predefined order
+      const indexA = sizeOrder.indexOf(labelA.toUpperCase());
+      const indexB = sizeOrder.indexOf(labelB.toUpperCase());
+
+      if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+
+      // Fallback: alphabetical
+      return labelA.localeCompare(labelB);
+    });
+  }
+
+  // Usage
+  const sortedSizes = sortProductSizes(baleData.product.productSizes);
+
   const sizesList = Array.from(
     new Map(
-      baleData.product.productSizes.map((s) => [
+      sortedSizes.map((s) => [
         s.size.label,
         {
           id: s.size.id,
