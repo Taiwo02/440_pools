@@ -100,19 +100,19 @@ type CartItemColor = {
   status: boolean;
 };
 
-// export type CartItemVariant = {
-//   size?: CartItemSize;
-//   color?: CartItemColor;
-//   quantity: number;
-//   totalPrice: number;
-// };
+export type CartItemVariant = {
+  size?: CartItemSize;
+  color?: CartItemColor;
+  quantity: number;
+  totalPrice: number;
+};
 
-// export type CartItem = {
-//   productId: number;
-//   baleId: number;
-//   slots: number;
-//   items: CartItemVariant[];
-// };
+export type CartItem = {
+  productId: number;
+  baleId: number;
+  slots: number;
+  items: CartItemVariant[];
+};
 
 export const ORDER_STATUSES = [
   "all",

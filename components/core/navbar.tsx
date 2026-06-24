@@ -368,7 +368,7 @@ const Navbar = () => {
               </Link>
             )}
           </form> */}
-          {categories && (
+          {/* {categories && (
             <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-2">
               {categories.map((category: CategoryDetails, index: number) => (
                 <Link
@@ -380,7 +380,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-          )}
+          )} */}
         </div>
 
         {showSearchModal && (

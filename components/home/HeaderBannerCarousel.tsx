@@ -4,7 +4,9 @@ import { Button } from "../ui";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { RiFlashlightFill } from "react-icons/ri";
+// @ts-ignore
 import "swiper/css";
+// @ts-ignore
 import "swiper/css/pagination";
 
 const BANNER_IMAGE = "/images/bg1.jpg";

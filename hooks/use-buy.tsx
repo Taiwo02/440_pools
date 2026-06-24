@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import {
   AnalyticsPayload,
+  CartItem,
   CartItemResponse,
   SingleCartItemPayload,
 } from "@/types/types";

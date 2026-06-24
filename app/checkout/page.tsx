@@ -48,6 +48,7 @@ import {
 import * as fbq from "@/lib/fpixel";
 import { useSendAnalytics } from '@/api/analytics'
 import { getCrossSubdomainCookie } from '@/lib/utils'
+import { useGetCart } from '@/api/cart'
 
 type ShipmentGroupEntry = [number, CartItem[]];
 
@@ -170,6 +171,7 @@ const Checkout = () => {
   const { data: user, isPending: isUserPending, error } = useGetUserProfile();
   const { data: walletData, isPending: isWalletPending } = useGetWalletBalance(user?.id);
   const { mutateAsync: postDelivery, isPending: isDeliveryLoading } = useDeliveryMutation();
+  const { data: cartData, isPending: isCartPending, error: cartError } = useGetCart();
   const {
     mutateAsync: sendAnalytics,
     isPending: isAnalyticsPending,
@@ -249,7 +251,33 @@ const Checkout = () => {
   let cartItems: CartItem[];
 
   if (directOrder === "true") {
-    cartItems = buyCart;
+    cartItems = buyCart.map(
+      (item): CartItem => ({
+        cartItemId: String(item.id),
+        productId: item.product_id,
+        baleId: 0,
+        name: item.product.name,
+        image: item.product.images?.[0] ?? "",
+        price: item.unit_price,
+        quantity: item.quantity,
+        slots: 1,
+        supplierId: 0,
+        totalShippingFee: item.unit_shipping_fee,
+        items: [],
+        originalPrice: item.product.price,
+        discount: 0,
+        currency: item.product.currency,
+        unit: "unit",
+        totalSlots: 1,
+        inStock: item.product.status,
+        status: item.product.status,
+        endIn: "",
+        createdAt: "",
+        updatedAt: "",
+        description: "",
+        variants: { sizes: [], colors: [] },
+      }),
+    );
   } else {
     cartItems = cart;
   }
