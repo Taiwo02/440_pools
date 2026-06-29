@@ -352,6 +352,30 @@ export type CartItem = {
   inStock: boolean
 };
 
+export type CartItemObject = {
+  id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+  product: {
+    id: number;
+    name: string;
+    images: string[];
+    price: number;
+    currency: string;
+    status: boolean;
+  };
+};
+
+export type CartObject = {
+  id: number;
+  customer_id: number;
+  status: string;
+  items: CartItemObject[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type BaseOrderItem = {
   quantity: number;
   totalPrice: number;
@@ -616,4 +640,52 @@ export type ReviewPayload = {
 export type SaveProductPayload = {
   productId: number;
   merchantId: number;
+};
+
+// Analytics ----------------
+export type AnalyticsSource = "web" | "mobile_ios" | "mobile_android" | "server";
+
+export type AnalyticsPlatform = "ios" | "android" | "web";
+
+export type UserAnalyticsEvent = "USER_REGISTERED" | "USER_LOGIN";
+
+export type ProductAnalyticsEvent = "PRODUCT_VIEWED" | "PRODUCT_LIST_VIEWED";
+
+export type WishListAnalyticsEvent = "PRODUCT_SAVED" | "PRODUCT_UNSAVED";
+
+export type CartAnalyticsEvent = "CART_ITEM_ADDED" | "CART_ITEM_REMOVED" | "CART_CLEARED";
+
+export type SearchAnalyticsEvent = "SEARCH_PERFORMED";
+
+export type CheckoutAnalyticsEvent = "CHECKOUT_CREATED" | "CHECKOUT_ABANDONED";
+
+export type PaymentAnalyticsEvent = "PAYMENT_INITIATED" | "PAYMENT_COMPLETED" | "PAYMENT_FAILED";
+
+export type OrderAnalyticsEvent = "ORDER_CREATED" | "ORDER_STATUS_CHANGED" | "ORDER_DELIVERED" | "ORDER_CANCELLED" | "REVIEW_SUBMITTED" | "INSTALLMENT_PAYMENT_INITIATED";
+
+export type BaleAnalyticsEvent = "BALE_JOINED";
+
+export type RFQAnalyticsEvent = "RFQ_CREATED" | "RFQ_VIEWED";
+
+export type AnalyticsEvent = UserAnalyticsEvent | ProductAnalyticsEvent | WishListAnalyticsEvent | CartAnalyticsEvent | SearchAnalyticsEvent | CheckoutAnalyticsEvent | PaymentAnalyticsEvent | OrderAnalyticsEvent | BaleAnalyticsEvent | RFQAnalyticsEvent;
+
+export type AnalyticsPayload = {
+  event_id: string;
+  event_name: AnalyticsEvent;
+  session_id: string;
+  source: AnalyticsSource;
+  resource_type?: string;
+  resource_id?: string;
+  properties: {
+    price?: number;
+    currency?: string;
+    category?: string;
+    additionalProp1?: {};
+  };
+  platform: AnalyticsPlatform;
+  occurred_at: string;
+};
+
+export type AnalyticsBatch = {
+  events: AnalyticsPayload[];
 };

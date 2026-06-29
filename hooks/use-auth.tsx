@@ -36,6 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
+  const session_id = crypto.randomUUID();
+
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("merchant");
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const authenticate = (data: AuthData) => {
     setUser(data.user);
+    setCrossSubdomainCookie("440_session_id", session_id, 1);
     if (data.user) {
       localStorage.setItem("merchant", JSON.stringify(data.user));
     }
@@ -62,12 +65,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     if (data.refreshToken) {
       setCrossSubdomainCookie("440_refresh_token", data.refreshToken, 30);
+      setCrossSubdomainCookie("440_session_id", session_id, 30);
     }
   };
 
   const logout = () => {
     deleteCrossSubdomainCookie("440_token");
     deleteCrossSubdomainCookie("440_refresh_token");
+    deleteCrossSubdomainCookie("440_session_id");
     localStorage.removeItem("merchant");
     setUser(null);
     setAuthenticated(false);

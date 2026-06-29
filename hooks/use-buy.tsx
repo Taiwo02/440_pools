@@ -1,8 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { CartItem } from "@/types/types";
-import { getStoredBuyCart, setStoredBuyCart } from "@/lib/utils";
+import { AnalyticsPayload, CartItem } from "@/types/types";
+import { getCrossSubdomainCookie, getStoredBuyCart, setStoredBuyCart } from "@/lib/utils";
+import { useAuth } from "./use-auth";
+import { useSendAnalytics } from "@/api/analytics";
 
 type BuyContextType = {
   buyCart: CartItem[];
@@ -16,6 +18,13 @@ const BuyContext = createContext<BuyContextType | undefined>(undefined);
 
 export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
   const [buyCart, setBuyCart] = useState<CartItem[]>([]);
+  const {
+    mutateAsync: sendAnalytics,
+    isPending: isAnalyticsPending,
+    error: analyticsError,
+  } = useSendAnalytics();
+
+  const { user } = useAuth();
   useEffect(() => {
     setBuyCart(getStoredBuyCart());
   }, []);
@@ -99,7 +108,36 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  const clearBuyCart = () => setBuyCart([]);
+  const clearBuyCart = () => {
+    if (user) {
+      const session_id = getCrossSubdomainCookie("440_session_id");
+      const payload: AnalyticsPayload = {
+        event_id: crypto.randomUUID(),
+        event_name: "CART_CLEARED",
+        session_id: session_id!,
+        source: "web",
+        resource_type: "cart",
+        properties: {},
+        platform: "web",
+        occurred_at: new Date().toISOString(),
+      };
+
+      const analytics = async () => {
+        try {
+          const res = await sendAnalytics(payload);
+          if (res.status === 200) {
+            console.log("Product viewed");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      analytics();
+    }
+
+    setBuyCart([]);
+  };
 
   return (
     <BuyContext.Provider
