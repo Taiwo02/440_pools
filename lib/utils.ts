@@ -1,4 +1,4 @@
-import { CartItem } from "@/types/types";
+import { CartItem, CartItemResponse, CartObject, SingleCartItemPayload } from "@/types/types";
 
 export const setCrossSubdomainCookie = (
   name: string,
@@ -46,14 +46,19 @@ export const setStoredCart = (cart: CartItem[]) => {
 };
 
 // For buying directly from supplier
-const BUY_KEY = "buy";
+const BUY_KEY = "buy_cart_v2";
 
-export const getStoredBuyCart = (): CartItem[] => {
+export const getStoredBuyCart = (): CartItemResponse[] => {
   if (typeof window === "undefined") return [];
-  return JSON.parse(localStorage.getItem(BUY_KEY) || "[]");
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 };
 
-export const setStoredBuyCart = (buy: CartItem[]) => {
+export const setStoredBuyCart = (buy: CartItemResponse[]) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(BUY_KEY, JSON.stringify(buy));
 };

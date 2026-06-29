@@ -55,9 +55,9 @@ export default function MobileBottomNav() {
             >
               <span className="relative">
                 <Icon className={`text-xl ${active ? "text-(--primary)" : ""}`} aria-hidden />
-                {isCart && buyCart.length > 0 && (
-                  <span className="absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center">
-                    {buyCart.length > 9 ? "9+" : buyCart.length}
+                {isCart && buyCart?.length > 0 && (
+                  <span className="absolute -top-1 -right-2 min-w-3.5 h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center">
+                    {buyCart?.length > 9 ? "9+" : buyCart?.length}
                   </span>
                 )}
               </span>

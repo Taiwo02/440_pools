@@ -82,7 +82,7 @@ const Navbar = () => {
         <>
           <RiShoppingCartLine />
           <div className="absolute w-4 h-4 rounded-full bg-red-500 flex justify-center items-center text-white text-[8px] font-bold -top-1 left-2">
-            {buyCart.length}
+            {buyCart?.length}
           </div>
         </>
       ),
@@ -320,7 +320,7 @@ const Navbar = () => {
           >
             {isVisible ? <RiCloseLine className="text-xl" /> : <RiMenu3Line className="text-xl" />}
           </button> */}
-            <div className="flex gap-8 items-center justify-center">
+            <div className="flex gap-2 items-center justify-center">
               <Button
                 primary
                 className="shrink-0 p-2! rounded-full"
@@ -368,7 +368,7 @@ const Navbar = () => {
               </Link>
             )}
           </form> */}
-          {categories && (
+          {/* {categories && (
             <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-0.5 px-3 py-2">
               {categories.map((category: CategoryDetails, index: number) => (
                 <Link
@@ -380,7 +380,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-          )}
+          )} */}
         </div>
 
         {showSearchModal && (

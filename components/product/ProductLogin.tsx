@@ -16,19 +16,20 @@ import { useBuy } from "@/hooks/use-buy"
 import { RiCloseLine } from "react-icons/ri"
 
 type Props = {
-  baleData: SingleBale,
-  totalAllocatedQuantity: number,
-  maxAllowedQuantity: number,
-  maxDirectAllowedQuantity: number
-  formValues: FormValues,
+  baleData: SingleBale;
+  totalAllocatedQuantity: number;
+  maxAllowedQuantity: number;
+  maxDirectAllowedQuantity: number;
+  formValues: FormValues;
   selectedVariants: {
+    
     sizes: string[];
     colors: string[];
-  },
-  items: CartItemVariant[],
-  buyDirectly: boolean,
-  setNotLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
-}
+  };
+  items: any[];
+  buyDirectly: boolean;
+  setNotLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, maxDirectAllowedQuantity, formValues, selectedVariants, items, buyDirectly, setNotLoggedIn }: Props) => {
   // Login form state
@@ -119,30 +120,9 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
 
           if (buyDirectly) {
             addToBuyCart({
-              cartItemId: `cart-${baleData.baleId}`,
               productId: baleData.productId,
-              baleId: baleData.id,
-              name: baleData.product.name,
-              image: baleData.product.images[2],
-              supplierId: baleData.product.supplierId,
-              price: baleData.product.price,
-              originalPrice: baleData.product.oldPrice,
-              discount: 10,
-              currency: "NGN",
-              slots: formValues.slots,
-              totalSlots: baleData.slot,
-              totalShippingFee:
-                baleData.deliveryFee * formValues.slots,
               quantity: totalAllocatedQuantity,
-              unit: "unit",
-              variants: selectedVariants,
-              createdAt: baleData.createdAt,
-              updatedAt: baleData.updatedAt,
-              description: baleData.product.description,
-              status: Boolean(baleData.status == "OPEN"),
-              endIn: baleData.endIn,
-              items,
-              inStock: true,
+              ...items,
             });
           } else {
             addToCart({
@@ -158,8 +138,7 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
               currency: "NGN",
               slots: formValues.slots,
               totalSlots: baleData.slot,
-              totalShippingFee:
-                baleData.deliveryFee * formValues.slots,
+              totalShippingFee: baleData.deliveryFee * formValues.slots,
               quantity: poolQuantity,
               unit: "unit",
               variants: useDefaultPoolAllocation

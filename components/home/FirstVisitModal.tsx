@@ -65,7 +65,7 @@ export default function FirstVisitModal() {
                 Get 15% OFF your first order. Available for a short time only.
                 Don’t miss out.
               </p>
-              <Link href="/products" className="block">
+              <Link href="/products/?isSpecial=true" className="block">
                 <Button primary className="py-3! rounded-xl! hidden md:block">
                   Claim Offer
                 </Button>
@@ -170,7 +170,10 @@ export default function FirstVisitModal() {
                     </SwiperSlide>
                   ))}
                 </Swiper>
-                <Button primary className="py-3! rounded-xl! block md:hidden mt-4">
+                <Button
+                  primary
+                  className="py-3! rounded-xl! block md:hidden mt-4"
+                >
                   Claim Offer
                 </Button>
               </div>

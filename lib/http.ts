@@ -20,7 +20,6 @@ const stopProgress = () => {
   }
 };
 
-// @ts-ignore
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 const stagingUrl = process.env.NEXT_PUBLIC_STAGING_URL;
 

@@ -303,7 +303,7 @@ const ProductsContent = () => {
 
   return (
     <>
-      <section className="pt-20 lg:pt-24">
+      <section className="pt-16 lg:pt-24">
         <div className="md:px-10 lg:px-20 flex flex-col md:flex-row gap-8 items-start h-[calc(100vh-6rem)] mb-10">
           <div
             className="hidden lg:flex lg:flex-col basis-full lg:basis-1/5 p-4 rounded-xl bg-(--bg-surface) overflow-y-auto overflow-x-visible h-full relative no-scrollbar"
@@ -543,7 +543,7 @@ const ProductsContent = () => {
               className="p-4 rounded-xl bg-(--bg-surface) overflow-y-auto flex-1 no-scrollbar"
             >
               {isPending ? (
-                <div className="flex items-center justify-center min-h-75">
+                <div className="flex items-center justify-center min-h-75 w-full">
                   <RiLoader5Line
                     className="animate-spin text-(--primary)"
                     size={60}
