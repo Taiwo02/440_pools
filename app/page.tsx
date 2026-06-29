@@ -2,6 +2,7 @@ import { Header, DesktopLandingBoard, ProductsSection, SuppliersSection } from "
 import { DealsAndTrending } from "@/components/product/DealsandTrending";
 import { dailyDeals } from "../components/product/data";
 import FirstVisitModal from "@/components/home/FirstVisitModal";
+import RFQMobile from "@/components/home/RFQMobile";
 
 export default function Home() {
   return (
@@ -14,7 +15,7 @@ export default function Home() {
           dailyDeals={dailyDeals}
         />
       </div>
-      
+      <RFQMobile />
       {/* <ShopBy /> */}
       <ProductsSection />
       <SuppliersSection />

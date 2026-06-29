@@ -352,18 +352,49 @@ export type CartItem = {
   inStock: boolean
 };
 
-export type CartItemObject = {
+export type CartSizes = {
+  sizeId: number;
+  quantity: number;
+};
+
+export type CartColorObject = {
+  colorId: number;
+  quantity: number;
+  sizes: CartSizes[];
+};
+
+export type SingleCartItemPayload = {
+  productId: number;
+  colorId?: number;
+  quantity: number;
+  sizes?: CartSizes[];
+  colorSelections?: CartColorObject[];
+};
+
+export type CartItemResponse = {
   id: number;
   product_id: number;
+  color_id: number;
+  sizes: CartSizeVariant[];
   quantity: number;
   unit_price: number;
+  unit_shipping_fee: number;
+  total_price: number;
+  total_shipping_fee: number;
   product: {
     id: number;
     name: string;
     images: string[];
     price: number;
+    shippingFee: number;
     currency: string;
     status: boolean;
+  };
+  color: {
+    id: number;
+    color: string;
+    hex_code: string;
+    images: string[];
   };
 };
 
@@ -371,9 +402,32 @@ export type CartObject = {
   id: number;
   customer_id: number;
   status: string;
-  items: CartItemObject[];
+  items: CartItemResponse[];
+  subtotal: number;
+  totalShippingFee: number;
+  total: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type CartSizeVariant = {
+  sizeId: number;
+  quantity: number;
+  size: {
+    id: number;
+    label: string;
+    type: string;
+  };
+};
+
+export type CartResponse = {
+  success: boolean;
+  data: CartObject;
+};
+
+export type UpdateCartItemPayload = {
+  quantity: number;
+  sizes: CartSizes[];
 };
 
 type BaseOrderItem = {

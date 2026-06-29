@@ -1,114 +1,120 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { AnalyticsPayload, CartItem } from "@/types/types";
-import { getCrossSubdomainCookie, getStoredBuyCart, setStoredBuyCart } from "@/lib/utils";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  AnalyticsPayload,
+  CartItem,
+  CartItemResponse,
+  SingleCartItemPayload,
+} from "@/types/types";
+import {
+  getCrossSubdomainCookie,
+  getStoredBuyCart,
+  setStoredBuyCart,
+} from "@/lib/utils";
 import { useAuth } from "./use-auth";
 import { useSendAnalytics } from "@/api/analytics";
+import {
+  useAddCartItem,
+  useClearCart,
+  useGetCart,
+  useRemoveCartItem,
+} from "@/api/cart";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 type BuyContextType = {
-  buyCart: CartItem[];
-  addToBuyCart: (item: CartItem) => void;
-  removeFromBuyCart: (id: string) => void;
-  updateBuyQuantity: (id: string, quantity: number) => void;
+  buyCart: CartItemResponse[];
+  hasSynced: boolean;
+  addToBuyCart: (item: SingleCartItemPayload) => void;
+  removeFromBuyCart: (productId: number) => void;
   clearBuyCart: () => void;
 };
 
 const BuyContext = createContext<BuyContextType | undefined>(undefined);
 
 export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
-  const [buyCart, setBuyCart] = useState<CartItem[]>([]);
-  const {
-    mutateAsync: sendAnalytics,
-    isPending: isAnalyticsPending,
-    error: analyticsError,
-  } = useSendAnalytics();
-
+  const [buyCart, setBuyCart] = useState<CartItemResponse[]>(getStoredBuyCart);
+  const [hasSynced, setHasSynced] = useState(false);
+  const { data: serverCart } = useGetCart();
+  const { mutateAsync: deleteItem } = useRemoveCartItem();
+  const { mutateAsync: clearCart } = useClearCart();
+  const { mutateAsync: addCartItem } = useAddCartItem();
+  const { mutateAsync: sendAnalytics } = useSendAnalytics();
   const { user } = useAuth();
-  useEffect(() => {
-    setBuyCart(getStoredBuyCart());
-  }, []);
 
-  // Sync to localStorage EVERY TIME cart changes
   useEffect(() => {
     setStoredBuyCart(buyCart);
   }, [buyCart]);
 
-  const normalizeVariants = (variants: Record<string, any>) => {
-    return Object.keys(variants)
-      .sort()
-      .reduce((acc, key) => {
-        let value = variants[key];
+  useEffect(() => {
+    if (serverCart?.data?.items) {
+      setBuyCart(serverCart.data.items);
+      setStoredBuyCart(serverCart.data.items);
+      setHasSynced(true);
+    }
+  }, [serverCart]);
 
-        // parse stringified arrays
-        if (typeof value === "string") {
-          try {
-            const parsed = JSON.parse(value);
-            value = parsed;
-          } catch { }
-        }
+  const addToBuyCart = useCallback(
+    (item: SingleCartItemPayload) => {
+      addCartItem(item)
+        .then((res) => {
+          const newItem: CartItemResponse = res.data.data;
+          setBuyCart((prev) => {
+            const existingIdx = prev.findIndex(
+              (p) => p.product_id === newItem.product_id,
+            );
+            if (existingIdx === -1) {
+              return [...prev, newItem];
+            }
+            const updated = [...prev];
+            updated[existingIdx] = newItem;
+            return updated;
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Could not add item to cart");
+        });
+    },
+    [addCartItem],
+  );
 
-        // sort arrays for consistency
-        if (Array.isArray(value)) {
-          value = [...value].sort();
-        }
+  const removeFromBuyCart = async (productId: number) => {
+    const previousCart = buyCart;
+    const target = buyCart.find((item) => item.product_id === productId);
+    if (!target) return;
 
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, any>);
-  };
+    const updatedCart = buyCart.filter((item) => item.product_id !== productId);
+    setBuyCart(updatedCart);
+    setStoredBuyCart(updatedCart);
 
-  const isSameVariant = (
-    a: Record<string, any>,
-    b: Record<string, any>
-  ) => {
-    return (
-      JSON.stringify(normalizeVariants(a)) ===
-      JSON.stringify(normalizeVariants(b))
-    );
-  };
-
-  const addToBuyCart = (item: CartItem) => {
-    setBuyCart(prev => {
-      const normalizedItem = {
-        ...item,
-        variants: normalizeVariants(item.variants),
-      };
-
-      const existing = prev.find(
-        p =>
-          p.productId === normalizedItem.productId &&
-          isSameVariant(p.variants, normalizedItem.variants)
-      );
-
-      if (existing) {
-        return prev.map(p =>
-          p.cartItemId === existing.cartItemId
-            ? { ...p, slots: p.slots + normalizedItem.slots }
-            : p
-        );
+    try {
+      const res = await deleteItem(String(target.id));
+      if (res.status === 200 || res.status === 201) {
+        toast.success("Cart item deleted");
       }
+    } catch (error) {
+      setBuyCart(previousCart);
+      setStoredBuyCart(previousCart);
 
-      return [...prev, normalizedItem];
-    });
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(
+        err.response?.data?.message ??
+          err.message ??
+          "Something went wrong, please try again",
+        { position: "top-right", autoClose: 2000 },
+      );
+    }
   };
 
-
-  const removeFromBuyCart = (id: string) => {
-    setBuyCart(prev => prev.filter(item => item.cartItemId !== id));
-  };
-
-  const updateBuyQuantity = (id: string, slots: number) => {
-    setBuyCart(prev =>
-      prev.map(item =>
-        item.cartItemId === id
-          ? { ...item, slots }
-          : item
-      )
-    );
-  };
-
-  const clearBuyCart = () => {
+  const clearBuyCart = async () => {
     if (user) {
       const session_id = getCrossSubdomainCookie("440_session_id");
       const payload: AnalyticsPayload = {
@@ -121,27 +127,41 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
         platform: "web",
         occurred_at: new Date().toISOString(),
       };
-
-      const analytics = async () => {
-        try {
-          const res = await sendAnalytics(payload);
-          if (res.status === 200) {
-            console.log("Product viewed");
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      };
-
-      analytics();
+      sendAnalytics(payload).catch((err) => console.log(err));
     }
 
+    const previousCart = buyCart;
     setBuyCart([]);
+    setStoredBuyCart([]);
+
+    try {
+      const res = await clearCart();
+      if (res.status === 200 || res.status === 201) {
+        toast.success("Cart cleared");
+      }
+    } catch (error) {
+      setBuyCart(previousCart);
+      setStoredBuyCart(previousCart);
+
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(
+        err.response?.data?.message ??
+          err.message ??
+          "Something went wrong, please try again",
+        { position: "top-right", autoClose: 2000 },
+      );
+    }
   };
 
   return (
     <BuyContext.Provider
-      value={{ buyCart, addToBuyCart, removeFromBuyCart, updateBuyQuantity, clearBuyCart }}
+      value={{
+        buyCart,
+        hasSynced,
+        addToBuyCart,
+        removeFromBuyCart,
+        clearBuyCart,
+      }}
     >
       {children}
     </BuyContext.Provider>

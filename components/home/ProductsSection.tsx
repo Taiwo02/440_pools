@@ -17,6 +17,11 @@ const POOL_TABS: { id: string; label: string; matchName?: string }[] = [
   { id: "beauty", label: "Beauty", matchName: "Beauty" },
   { id: "groceries", label: "Groceries", matchName: "Groceries" },
   { id: "sports", label: "Sports", matchName: "Sports" },
+  { id: "health", label: "Health", matchName: "Health" },
+  { id: "medicine", label: "Medicine", matchName: "Medicine" },
+  { id: "mechanical", label: "Mechanical", matchName: "Mechanical" },
+  { id: "energy", label: "Energy", matchName: "Energy" },
+  { id: "construction", label: "Construction", matchName: "Construction" },
 ];
 
 function resolveCategoryIds(
@@ -92,7 +97,7 @@ const ProductsSection = () => {
   return (
     <section className="mb-8">
       <div className="px-2 sm:px-4 md:px-10 lg:px-20">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 border-b border-(--border-default) pb-3 mb-3 lg:mb-4">
+        <div className="flex gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 border-b border-(--border-default) pb-3 mb-3 lg:mb-4">
           <nav
             className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-0.5 px-0.5 py-0.5"
             aria-label="Pool categories"
