@@ -320,7 +320,7 @@ const Navbar = () => {
           >
             {isVisible ? <RiCloseLine className="text-xl" /> : <RiMenu3Line className="text-xl" />}
           </button> */}
-            <div className="flex gap-8 items-center justify-center">
+            <div className="flex gap-2 items-center justify-center">
               <Button
                 primary
                 className="shrink-0 p-2! rounded-full"
