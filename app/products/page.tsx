@@ -59,7 +59,7 @@ const CategoryRow = ({
 
   return (
     <div onMouseEnter={() => handleEnter(category)} className="relative">
-      <label className={`p-2 mb-1 grid grid-cols-3 gap-3 ...`}>
+      <label className="p-2 mb-1 flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
           checked={checked}
@@ -68,14 +68,16 @@ const CategoryRow = ({
           }
           className="hidden"
         />
+        <span>{category.name}</span>
+      </label>
 
-        {/* ACCESS SUBCATEGORIES HERE */}
+      <div className="grid grid-cols-3 gap-3">
         {subCategories?.map((sub: SubCategory) => {
           const subChecked = tempFilters.subCategories?.includes(sub.id);
           return (
             <div className="my-2" key={sub.id}>
               <label
-                className={`font-bold p-2 ${subChecked && "bg-(--primary)/10 text-(--primary) rounded-t-xl"}`}
+                className={`font-bold p-2 cursor-pointer ${subChecked && "bg-(--primary)/10 text-(--primary) rounded-t-xl"}`}
               >
                 <input
                   type="checkbox"
@@ -90,7 +92,7 @@ const CategoryRow = ({
               </label>
 
               <div className="my-2">
-                {sub.productTypes.length == 0 && (
+                {sub.productTypes.length === 0 && (
                   <span className="text-sm text-(--text-muted)">
                     No types for this sub-category
                   </span>
@@ -99,7 +101,6 @@ const CategoryRow = ({
                   const typeChecked = tempFilters.productTypes?.includes(
                     type.id,
                   );
-
                   return (
                     <label
                       key={type.id}
@@ -118,7 +119,6 @@ const CategoryRow = ({
                         checked={typeChecked}
                         className="hidden"
                       />
-                      {/* FIXED: changed sub.name to type.name */}
                       <span>{type.name}</span>
                     </label>
                   );
@@ -127,7 +127,7 @@ const CategoryRow = ({
             </div>
           );
         })}
-      </label>
+      </div>
     </div>
   );
 };

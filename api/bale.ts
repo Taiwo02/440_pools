@@ -27,6 +27,8 @@ const buildBalesQueryParams = (
   if (filters.end_date) params.end_date = filters.end_date;
   if (filters.supplierRating?.trim()) params.supplierRating = filters.supplierRating;
   if (filters.categories?.length) params.categories = filters.categories;
+  if (filters.subCategories?.length) params.subCategories = filters.subCategories;
+  if (filters.productTypes?.length) params.productTypes = filters.productTypes;
   if (filters.marketLocation?.length) params.marketLocation = filters.marketLocation;
   // Default sort to keep results consistent across the app.
   params.sortBy = filters.sortBy ?? "relevance";
