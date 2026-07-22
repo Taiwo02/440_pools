@@ -68,26 +68,22 @@ export const useGetInfiniteBales = (filters: BaleFilters) => {
   return useInfiniteQuery({
     queryKey: ["bales", filters],
     initialPageParam: 1,
-
     queryFn: async ({ pageParam = 1 }) => {
       const res = await noToken.get("/buyer/bales", {
         params: buildBalesQueryParams(filters, pageParam),
         paramsSerializer: (p) =>
           qs.stringify(p, { arrayFormat: "brackets", skipNulls: true }),
       });
-
       return res.data;
     },
-
     getNextPageParam: (lastPage, allPages) => {
       const limit = filters.limit || 12;
-
-      if (lastPage.data.length < limit) {
-        return undefined;
-      }
-
+      if (lastPage.data.length < limit) return undefined;
       return allPages.length + 1;
     },
+    gcTime: 10 * 60 * 1000,
+    staleTime: 60 * 1000, 
+    placeholderData: keepPreviousData,
   });
 };
 
