@@ -442,6 +442,7 @@ const ProductDetails = () => {
         }
 
         fbq.event("JoinPool", {
+          category: "pool",
           content_ids: [baleData.id],
           content_type: "product",
           value: baleData.product.price,
@@ -531,6 +532,7 @@ const ProductDetails = () => {
     }
 
     fbq.event("AddToCart", {
+      category: "checkout",
       content_ids: [baleData.id],
       content_type: "product",
       value: baleData.product.price,
@@ -599,6 +601,7 @@ const ProductDetails = () => {
       }
 
       fbq.event("AddToCart", {
+        category: "cart",
         content_ids: [baleData.id],
         content_type: "product",
         value: baleData.product.price,
