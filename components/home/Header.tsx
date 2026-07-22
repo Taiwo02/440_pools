@@ -10,10 +10,19 @@ import { CategoryDetails } from "@/types/types";
 import { RiLoader5Line } from "react-icons/ri";
 import MobileMarketplaceStrip from "./MobileMarketplaceStrip";
 import HeaderBannerCarousel from "./HeaderBannerCarousel";
+import { useSearchParams } from "next/navigation";
 
 const Header = () => {
+  const searchParams = useSearchParams();
+  const isRfqParam = searchParams.get('rfq') === 'true';
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
   const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+
+  useEffect(() => {
+    if (isRfqParam) {
+      setIsRfqModalOpen(true);
+    }
+  }, [isRfqParam]);
 
   useEffect(() => {
     if (isRfqModalOpen) {
