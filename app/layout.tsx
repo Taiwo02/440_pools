@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: "Buy Bulk Products Easily",
     template: "%s | 440",
   },
-  description: "Import directly from merchants",
+  description: "Source quality products directly from China",
   icons: {
     icon: "/images/favicon.svg",
     shortcut: "/images/favicon.svg",

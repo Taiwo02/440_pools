@@ -40,8 +40,10 @@ export const FilterProvider = ({ children }: { children: React.ReactNode }) => {
   // If filters are active
   const hasActiveFilters =
     (filters.categories?.length ?? 0) > 0 ||
+    (filters.subCategories?.length ?? 0) > 0 ||
+    (filters.productTypes?.length ?? 0) > 0 ||
     (filters.marketLocation?.length ?? 0) > 0 ||
-    filters.supplierRating ||
+    !!filters.supplierRating ||
     filters.priceRange?.min !== 0 ||
     filters.priceRange?.max !== 99999999;
 
@@ -66,16 +68,17 @@ export const FilterProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Clear filters
   const clearFilters = () => {
-    const cleared = {
+    const cleared: BaleFilters = {
       categories: [],
       subCategories: [],
+      productTypes: [],
       priceRange: { min: 0, max: 99999999 },
       marketLocation: [],
       limit: 12,
     };
     setTempFilters(cleared);
     setFilters(cleared);
-  }
+  };
 
   return (
     <FilterContext.Provider

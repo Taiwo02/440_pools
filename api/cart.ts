@@ -1,4 +1,4 @@
-import { stagingHttp } from "@/lib/http";
+import http from "@/lib/http";
 import { CartResponse, SingleCartItemPayload, UpdateCartItemPayload } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
@@ -7,7 +7,7 @@ export const useGetCart = () => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
-      const res = await stagingHttp.get("/cart");
+      const res = await http.get("/cart");
       return res.data;
     },
     staleTime: 0,
@@ -20,7 +20,7 @@ export const useGetCart = () => {
 export const useClearCart = () => {
   return useMutation({
     mutationFn: () => {
-      return stagingHttp.delete("/cart");
+      return http.delete("/cart");
     },
   });
 };
@@ -28,7 +28,7 @@ export const useClearCart = () => {
 export const useRemoveCartItem = () => {
   return useMutation({
     mutationFn: (itemId: string) => {
-      return stagingHttp.delete(`/cart/items/${itemId}`);
+      return http.delete(`/cart/items/${itemId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -39,7 +39,7 @@ export const useRemoveCartItem = () => {
 export const useAddCartItem = () => {
   return useMutation({
     mutationFn: (body: SingleCartItemPayload) => {
-      return stagingHttp.post(`/cart/items`, body);
+      return http.post(`/cart/items`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -51,7 +51,7 @@ export const useUpdateCartItem = (itemId: string) => {
   return useMutation({
     mutationKey: ["updateCartItem", itemId],
     mutationFn: (body: UpdateCartItemPayload) => {
-      return stagingHttp.patch(`/cart/items/${itemId}`, body);
+      return http.patch(`/cart/items/${itemId}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });

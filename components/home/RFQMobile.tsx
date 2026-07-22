@@ -1,13 +1,23 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Img from "@/assets/rfq.jpg";
 import { Card } from '../ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RequestQuoteForm } from '../requestForQuot';
+import { useSearchParams } from 'next/navigation';
 
 const RFQMobile = () => {
+  const searchParams = useSearchParams();
+  const isRfqParam = searchParams.get('rfq') === 'true';
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isRfqParam) {
+      setIsRfqModalOpen(true);
+    }
+  }, [isRfqParam]);
+
   return (
     <>
       <Card className="flex items-center md:hidden gap-3 mx-3 p-3! border border-(--border-default) -mt-6 mb-4 shadow-none">
