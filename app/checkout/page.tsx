@@ -456,6 +456,7 @@ const Checkout = () => {
       };
 
       fbq.event("InitiateCheckout", {
+        category: "checkout",
         content_ids: cartItems.map((item: any) => item.productId),
         content_type: "product",
         value: cartItems.reduce(
@@ -475,6 +476,7 @@ const Checkout = () => {
         }
 
         fbq.event("CheckoutCreated", {
+          category: "checkout",
           checkout_id: createRes.data?.id,
         }, true);
 
@@ -558,6 +560,7 @@ const Checkout = () => {
             }
 
             fbq.event("Purchase", {
+              category: "purchase",
               content_ids: cartItems.map((item: any) => item.productId),
               content_type: "product",
               value: cartItems.reduce(
@@ -653,6 +656,7 @@ const Checkout = () => {
                 toast.success("Payment successful");
 
                 fbq.event("Purchase", {
+                  category: "purchase",
                   content_ids: cartItems.map((item: any) => item.productId),
                   content_type: "product",
                   value: cartItems.reduce(
