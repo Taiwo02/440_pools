@@ -14,7 +14,7 @@ import { useSearchParams } from "next/navigation";
 
 const Header = () => {
   const searchParams = useSearchParams();
-  const isRfqParam = searchParams.get('rfq') === 'true';
+  const isRfqParam = searchParams.has('RFQ');
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
   const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
 
