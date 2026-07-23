@@ -144,7 +144,9 @@ const ProductDetails = () => {
 
   const maxAllowedQuantity = formValues.slots * productsPerSlot;
 
-  const maxDirectAllowedQuantity = formValues.directQty;
+  const maxDirectAllowedQuantity = baleData?.product?.moq ?? 0;
+
+  const availableStock = baleData?.quantity;
 
   const {
     allocations,
@@ -338,7 +340,7 @@ const ProductDetails = () => {
       ) : null,
   }));
 
-  const isAllocationExceeded = totalAllocatedQuantity > maxAllowedQuantity;
+  const isAllocationExceeded = buyDirectly ? totalAllocatedQuantity > baleData?.quantity : totalAllocatedQuantity > maxAllowedQuantity;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -383,7 +385,7 @@ const ProductDetails = () => {
           productId: baleData.productId,
           baleId: baleData.id,
           name: baleData.product.name,
-          image: baleData.product.images[2],
+          image: baleData.product.images[0],
           supplierId: baleData.product.supplierId,
           price: baleData.product.price,
           originalPrice: baleData.product.oldPrice,
@@ -559,6 +561,13 @@ const ProductDetails = () => {
 
     setShowBuyModal(false);
 
+    const token = getCrossSubdomainCookie("440_token");
+
+    if (!token) {
+      setNotLoggedIn(true);
+      return;
+    }
+
     if (baleData) {
       addToBuyCart({
         productId: baleData.productId,
@@ -659,7 +668,7 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
 
   return [
     {
-      sizes: [], // 👈 IMPORTANT: always include this
+      sizes: [],
       ...(hasValidColor && {
         colorSelections: {
           colorId: color.colorId,
@@ -1093,6 +1102,7 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
           maxAllowedQuantity={maxAllowedQuantity}
           updateSizeQuantity={updateSizeQuantity}
           updateColorQuantity={updateColorQuantity}
+          availableStock={availableStock!}
         />
       )}
     </>

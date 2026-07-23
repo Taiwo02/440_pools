@@ -49,6 +49,7 @@ type Props = {
     totalAllocatedQuantity: number,
     maxDirectAllowedQuantity: number,
     maxAllowedQuantity: number,
+    availableStock: number
 }
 
 const AllocationModal = (
@@ -63,6 +64,7 @@ const AllocationModal = (
     formValues,
     maxAllowedQuantity,
     maxDirectAllowedQuantity,
+    availableStock,
     setFormValues,
     getColorQuantity,
     handleCheckboxChange,
@@ -95,7 +97,7 @@ const AllocationModal = (
       style={{
         overlay: {
           backgroundColor: "rgba(0,0,0,0.7)",
-          zIndex: 100,
+          zIndex: 80,
         },
         content: {
           width: window.innerWidth > 768 ? "40%" : "100%",
@@ -115,11 +117,15 @@ const AllocationModal = (
           </h1>
           {!buyDirectly && (
             <p className="mt-1 text-xs text-(--text-muted)">
-              Join Pool only needs slot selection. Color and size choices are for Buy flow.
+              Join Pool only needs slot selection. Color and size choices are
+              for Buy flow.
             </p>
           )}
         </div>
-        <button onClick={() => setIsModalOpen(false)} className='block ml-auto shrink-0'>
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="block ml-auto shrink-0"
+        >
           <RiCloseLine size={20} />
         </button>
       </div>
@@ -155,35 +161,16 @@ const AllocationModal = (
               Minimum Order Quantity (MOQ)
             </p>
             <div className="flex items-stretch mt-1">
-              {/* <Button
-                className="rounded-r-none rounded-l-xl! py-2!"
-                disabled={formValues.directQty === 1}
-                onClick={() =>
-                  setFormValues((p) => ({ ...p, directQty: p.directQty - 1 }))
-                }
-                primary
-              >
-                -
-              </Button> */}
               <Input
                 element="input"
                 input_type="text"
                 name="quantity"
-                value={formValues.directQty}
+                value={maxDirectAllowedQuantity}
                 handler={handleChange}
                 genStyle="my-0!"
-                styling="rounded-none p-2! focus:outline-none! w-30! text-center"
+                styling="rounded-none p-2! focus:outline-none! w-20! text-center"
                 disabled
               />
-              {/* <Button
-                className="rounded-l-none rounded-r-xl! py-2!"
-                onClick={() =>
-                  setFormValues((p) => ({ ...p, directQty: p.directQty + 1 }))
-                }
-                primary
-              >
-                +
-              </Button> */}
             </div>
           </div>
         ) : (
@@ -269,7 +256,7 @@ const AllocationModal = (
                   <div className="flex flex-wrap items-stretch gap-2 mt-1 px-1">
                     {colorsList.map((color, index) => {
                       const colorObj = baleData.product.colors.find(
-                        c => c.color === color.value
+                        (c) => c.color === color.value,
                       );
                       if (!colorObj) return null;
 
@@ -318,218 +305,224 @@ const AllocationModal = (
 
           {buyDirectly && (
             <>
-            {colorsList.length > 0 && (
-            <div className="mb-4">
-              <div className="text-xs mb-2"></div>
-              <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                Colors
-              </p>
-              {/* Color selection (unchanged UI, just wired) */}
-              <div className={`flex flex-wrap items-stretch gap-2 mt-1 px-1`}>
-                {colorsList.map((color, index) => {
-                  const isChecked = formValues.colors.includes(color.value);
+              {colorsList.length > 0 && (
+                <div className="mb-4">
+                  <div className="text-xs mb-2"></div>
+                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                    Colors
+                  </p>
+                  {/* Color selection (unchanged UI, just wired) */}
+                  <div
+                    className={`flex flex-wrap items-stretch gap-2 mt-1 px-1`}
+                  >
+                    {colorsList.map((color, index) => {
+                      const isChecked = formValues.colors.includes(color.value);
 
-                  const colorObj = baleData.product.colors.find(
-                    (c) => c.color === color.value,
-                  );
+                      const colorObj = baleData.product.colors.find(
+                        (c) => c.color === color.value,
+                      );
 
-                  if (!colorObj) return null;
+                      if (!colorObj) return null;
 
-                  const qty = getColorQuantity(colorObj.id);
+                      const qty = getColorQuantity(colorObj.id);
 
-                  return (
-                    <label
-                      key={index}
-                      className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition ${
-                        isChecked
-                          ? "border-(--primary) ring-1 ring-(--primary)"
-                          : "border-(--border-default)"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        name="colors"
-                        value={color.value}
-                        checked={isChecked}
-                        onChange={handleCheckboxChange}
-                        className="hidden"
-                      />
+                      return (
+                        <label
+                          key={index}
+                          className={`relative flex gap-2 items-center rounded-lg border p-2 cursor-pointer transition ${
+                            isChecked
+                              ? "border-(--primary) ring-1 ring-(--primary)"
+                              : "border-(--border-default)"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            name="colors"
+                            value={color.value}
+                            checked={isChecked}
+                            onChange={handleCheckboxChange}
+                            className="hidden"
+                          />
 
-                      {qty > 0 && (
-                        <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-(--primary) text-white text-xs flex items-center justify-center">
-                          {qty}
-                        </span>
+                          {qty > 0 && (
+                            <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-(--primary) text-white text-xs flex items-center justify-center">
+                              {qty}
+                            </span>
+                          )}
+
+                          {color.node != null && color.node}
+                          {color.node == null && color.label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {activeColorId !== null && (
+                <>
+                  <div
+                    className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto"} my-4 pb-16 md:pb-3`}
+                  >
+                    <div className="flex justify-between">
+                      <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                        {hasSizes ? "Sizes" : "Quantity"}
+                      </p>
+                      {isAllocationExceeded && (
+                        <p className="text-red-500 text-xs capitalize font-normal">
+                          Allocation exceeds selected slots
+                        </p>
+                      )}
+                    </div>
+                    <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto no-scrollbar">
+                      {hasSizes && (
+                        <>
+                          {sizesList.map((size) => {
+                            const qty =
+                              allocations[activeColorId]?.sizes?.[size.id]
+                                ?.quantity ?? 0;
+
+                            return (
+                              <div
+                                key={size.id}
+                                className="flex justify-between items-center"
+                              >
+                                <span className="text-sm">{size.label}</span>
+
+                                <div className="flex items-stretch">
+                                  <Button
+                                    className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
+                                    disabled={qty === 0}
+                                    onClick={() =>
+                                      decreaseSizeQty(
+                                        activeColorId,
+                                        size.id,
+                                        size.label,
+                                      )
+                                    }
+                                    primary
+                                  >
+                                    −
+                                  </Button>
+
+                                  <Input
+                                    element="input"
+                                    input_type="text"
+                                    value={qty}
+                                    name="qty"
+                                    handler={(e) => {
+                                      const value = Number(e.target.value);
+                                      if (isNaN(value) || value < 0) return;
+
+                                      const resolvedColorId = hasColors
+                                        ? activeColorId!
+                                        : DEFAULT_COLOR_ID;
+
+                                      const otherSizesTotal =
+                                        totalAllocatedQuantity -
+                                        (allocations[resolvedColorId]?.sizes?.[
+                                          size.id
+                                        ]?.quantity ?? 0);
+
+                                      const max = buyDirectly
+                                        ? availableStock
+                                        : maxAllowedQuantity;
+
+                                      if (otherSizesTotal + value > max) return;
+
+                                      updateSizeQuantity(
+                                        resolvedColorId,
+                                        size.id,
+                                        size.label,
+                                        value,
+                                      );
+                                    }}
+                                    genStyle="my-0!"
+                                    styling="rounded-none p-2! w-15! text-center!"
+                                  />
+
+                                  <Button
+                                    className="rounded-l-none rounded-r-xl! py-2! px-4! bg-(--primary)"
+                                    onClick={() =>
+                                      increaseSizeQty(
+                                        activeColorId,
+                                        size.id,
+                                        size.label,
+                                      )
+                                    }
+                                    primary
+                                  >
+                                    +
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </>
                       )}
 
-                      {color.node != null && color.node}
-                      {color.node == null && color.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-            )}
+                      {!hasSizes && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm capitalize">
+                            {allocations[activeColorId!]?.colorLabel}
+                          </span>
 
-            {activeColorId !== null && (
-            <>
-              <div
-                className={`${hasSizes && sizesList.length > 5 ? "h-80" : "h-auto"} my-4 pb-16 md:pb-3`}
-              >
-                <div className="flex justify-between">
-                  <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                    {hasSizes ? "Sizes" : "Quantity"}
-                  </p>
-                  {isAllocationExceeded && (
-                    <p className="text-red-500 text-xs capitalize font-normal">
-                      Allocation exceeds selected slots
-                    </p>
-                  )}
-                </div>
-                <div className="p-4 flex flex-col h-full gap-3 overflow-y-auto no-scrollbar">
-                  {hasSizes && (
-                    <>
-                      {sizesList.map((size) => {
-                        const qty =
-                          allocations[activeColorId]?.sizes?.[size.id]
-                            ?.quantity ?? 0;
+                          <div className="flex items-stretch">
+                            <Button
+                              className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
+                              disabled={
+                                (allocations[activeColorId].quantity ?? 0) === 0
+                              }
+                              onClick={() => decreaseColorQty(activeColorId)}
+                              primary
+                            >
+                              −
+                            </Button>
 
-                        return (
-                          <div
-                            key={size.id}
-                            className="flex justify-between items-center"
-                          >
-                            <span className="text-sm">{size.label}</span>
+                            <Input
+                              element="input"
+                              input_type="text"
+                              value={allocations[activeColorId].quantity ?? 0}
+                              name="qty"
+                              handler={(e) => {
+                                const value = Number(e.target.value);
+                                if (isNaN(value) || value < 0) return;
 
-                            <div className="flex items-stretch">
-                              <Button
-                                className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
-                                disabled={qty === 0}
-                                onClick={() =>
-                                  decreaseSizeQty(
-                                    activeColorId,
-                                    size.id,
-                                    size.label,
-                                  )
-                                }
-                                primary
-                              >
-                                −
-                              </Button>
+                                const resolvedColorId = hasColors
+                                  ? activeColorId!
+                                  : DEFAULT_COLOR_ID;
 
-                              <Input
-                                element="input"
-                                input_type="text"
-                                value={qty}
-                                name="qty"
-                                handler={(e) => {
-                                  const value = Number(e.target.value);
-                                  if (isNaN(value) || value < 0) return;
+                                const max = buyDirectly
+                                  ? availableStock
+                                  : maxAllowedQuantity;
 
-                                  const resolvedColorId = hasColors
-                                    ? activeColorId!
-                                    : DEFAULT_COLOR_ID;
+                                // Ensure total allocation does not exceed max
+                                const otherColorsTotal =
+                                  totalAllocatedQuantity -
+                                  (allocations[resolvedColorId]?.quantity ?? 0);
 
-                                  const otherSizesTotal =
-                                    totalAllocatedQuantity -
-                                    (allocations[resolvedColorId]?.sizes?.[
-                                      size.id
-                                    ]?.quantity ?? 0);
+                                if (otherColorsTotal + value > max) return;
 
-                                  const max = maxAllowedQuantity;
+                                updateColorQuantity(resolvedColorId, value);
+                              }}
+                              genStyle="my-0!"
+                              styling="rounded-none p-2! w-15! text-center!"
+                            />
 
-                                  if (otherSizesTotal + value > max) return;
-
-                                  updateSizeQuantity(
-                                    resolvedColorId,
-                                    size.id,
-                                    size.label,
-                                    value,
-                                  );
-                                }}
-                                genStyle="my-0!"
-                                styling="rounded-none p-2! w-15! text-center!"
-                              />
-
-                              <Button
-                                className="rounded-l-none rounded-r-xl! py-2! px-4! bg-(--primary)"
-                                onClick={() =>
-                                  increaseSizeQty(
-                                    activeColorId,
-                                    size.id,
-                                    size.label,
-                                  )
-                                }
-                                primary
-                              >
-                                +
-                              </Button>
-                            </div>
+                            <Button
+                              className="rounded-l-none rounded-r-xl! py-2! px-4! bg-(--primary)"
+                              onClick={() => increaseColorQty(activeColorId)}
+                              primary
+                            >
+                              +
+                            </Button>
                           </div>
-                        );
-                      })}
-                    </>
-                  )}
-
-                  {!hasSizes && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm capitalize">
-                        {allocations[activeColorId!]?.colorLabel}
-                      </span>
-
-                      <div className="flex items-stretch">
-                        <Button
-                          className="rounded-r-none rounded-l-xl! py-2! px-4! bg-(--primary)"
-                          disabled={
-                            (allocations[activeColorId].quantity ?? 0) === 0
-                          }
-                          onClick={() => decreaseColorQty(activeColorId)}
-                          primary
-                        >
-                          −
-                        </Button>
-
-                        <Input
-                          element="input"
-                          input_type="text"
-                          value={allocations[activeColorId].quantity ?? 0}
-                          name="qty"
-                          handler={(e) => {
-                            const value = Number(e.target.value);
-                            if (isNaN(value) || value < 0) return;
-
-                            const resolvedColorId = hasColors
-                              ? activeColorId!
-                              : DEFAULT_COLOR_ID;
-
-                            const max = maxAllowedQuantity;
-
-                            // Ensure total allocation does not exceed max
-                            const otherColorsTotal =
-                              totalAllocatedQuantity -
-                              (allocations[resolvedColorId]?.quantity ?? 0);
-
-                            if (otherColorsTotal + value > max) return;
-
-                            updateColorQuantity(resolvedColorId, value);
-                          }}
-                          genStyle="my-0!"
-                          styling="rounded-none p-2! w-15! text-center!"
-                        />
-
-                        <Button
-                          className="rounded-l-none rounded-r-xl! py-2! px-4! bg-(--primary)"
-                          onClick={() => increaseColorQty(activeColorId)}
-                          primary
-                        >
-                          +
-                        </Button>
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            </>
-            )}
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
@@ -543,7 +536,7 @@ const AllocationModal = (
         )}
         {buyDirectly ? (
           <div className="flex gap-2">
-            <Button
+            {/* <Button
               primary
               isFullWidth
               className={`uppercase  gap-2 items-center`}
@@ -552,11 +545,11 @@ const AllocationModal = (
             >
               <RiBankCardFill className="hidden md:block" />
               Buy
-            </Button>
+            </Button> */}
             <Button
               primary
               isFullWidth
-              className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+              className={`uppercase  gap-2 items-center`}
               disabled={totalAllocatedQuantity < maxDirectAllowedQuantity}
               onClick={handleAddToCart}
             >

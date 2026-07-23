@@ -23,8 +23,9 @@ export const useProductAllocation = ({
   const [activeColorId, setActiveColorId] = useState<number | null>(null);
 
   const hasSizes = baleData!?.product?.productSizes?.length > 0;
-  const hasColors = baleData!?.product?.colors.length > 0
-  const DEFAULT_COLOR_ID = 0
+  const hasColors = baleData!?.product?.colors.length > 0;
+  const DEFAULT_COLOR_ID = 0;
+  const availableStock = baleData?.quantity ?? 0;
 
   const totalAllocatedQuantity = Object.values(allocations).reduce(
     (sum, color) => {
@@ -106,7 +107,11 @@ export const useProductAllocation = ({
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (currentTotal >= maxAllowedQuantity) return;
+    if (buyDirectly) {
+      if (currentTotal >= availableStock) return;
+    } else {
+      if (currentTotal >= maxAllowedQuantity) return;
+    }
 
     const currentQty =
       allocations[resolvedColorId]?.sizes?.[sizeId]?.quantity ?? 0;
@@ -133,7 +138,11 @@ export const useProductAllocation = ({
     const resolvedColorId = hasColors ? colorId : DEFAULT_COLOR_ID;
 
     const currentTotal = totalAllocatedQuantity;
-    if (currentTotal >= maxAllowedQuantity) return;
+    if (buyDirectly) {
+      if (currentTotal >= availableStock) return;
+    } else {
+      if (currentTotal >= maxAllowedQuantity) return;
+    }
 
     const currentQty = allocations[resolvedColorId]?.quantity ?? 0;
 

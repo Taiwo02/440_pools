@@ -34,7 +34,8 @@ export type SingleBale = {
   isSpecial?: boolean;
   createdAt: string;
   updatedAt: string;
-  product: Product;
+  product: ProductTwo;
+  paidJoinCount?: number;
 };
 
 export type Product = {
@@ -66,6 +67,43 @@ export type Product = {
   variants: any[];
   productSizes: ProductSize[];
   colors: ProductColorVariant[];
+};
+
+export type ProductTwo = {
+  images: string[];
+  productAttributes: ProductSubItem | null;
+  packageInfo: ProductSubItem;
+  prices: {}[] | null;
+  evaluatePanelSummary: string | null;
+  id: number;
+  supplierId: number;
+  subCategoryId?: number;
+  productTypeId?: number;
+  price: number;
+  oldPrice: number;
+  originalPrice: number | null;
+  name: string;
+  description: string;
+  status: boolean;
+  isSpecial: boolean;
+  platform?: string;
+  link?: string | null;
+  currency?: string;
+  relistPriceCapPercent?: null;
+  relistMinQuantity?: null;
+  shippingFee: number;
+  moq: number;
+  createdBy: string | null;
+  rate?: number;
+  positiveFeedbackRate?: null;
+  reviewsNumber?: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+  variants: any[];
+  productSizes: ProductSize[];
+  colors: ProductColorVariant[];
+  reviews?: ProductReview[];
 };
 
 export type ProductRow = Record<string, string>;

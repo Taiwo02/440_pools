@@ -187,7 +187,7 @@ const ProductLogin = ({ baleData, totalAllocatedQuantity, maxAllowedQuantity, ma
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100 flex items-center justify-center">
       <Card className='w-full md:w-150 md:p-12!'>
         <form onSubmit={handleSubmit}>
           <div className="flex items-start justify-between mb-4">

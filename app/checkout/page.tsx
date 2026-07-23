@@ -55,9 +55,11 @@ type ShipmentGroupEntry = [number, CartItem[]];
 function CheckoutShipmentCards({
   cartItems,
   shipmentGroups,
+  buyDirectly,
 }: {
   cartItems: CartItem[];
   shipmentGroups: ShipmentGroupEntry[];
+  buyDirectly: boolean;
 }) {
   if (cartItems.length === 0) {
     return (
@@ -101,7 +103,9 @@ function CheckoutShipmentCards({
                   aria-hidden
                 />
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-gray-900">Door delivery</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    Door delivery
+                  </p>
                   <p className="mt-1 text-xs leading-relaxed text-gray-500">
                     Delivery is scheduled after payment confirmation. You will
                     receive updates on dispatch and tracking.
@@ -110,10 +114,7 @@ function CheckoutShipmentCards({
               </div>
               <div className="divide-y divide-gray-100">
                 {items.map((item) => (
-                  <div
-                    key={item.cartItemId}
-                    className="flex gap-3 px-4 py-3"
-                  >
+                  <div key={item.cartItemId} className="flex gap-3 px-4 py-3">
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                       <img
                         src={item.image}
@@ -130,7 +131,11 @@ function CheckoutShipmentCards({
                       </p>
                       <p className="mt-1.5 text-sm font-bold tabular-nums text-gray-900">
                         ₦{" "}
-                        {(item.price * item.quantity * item.slots).toLocaleString()}
+                        {(
+                          item.price *
+                          item.quantity *
+                          item.slots
+                        ).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -140,14 +145,16 @@ function CheckoutShipmentCards({
           </div>
         ))}
       </div>
-      <div className="px-4 pb-4 pt-3 text-center">
-        <Link
-          href="/cart"
-          className="text-sm font-semibold text-(--primary) hover:underline"
-        >
-          Modify cart
-        </Link>
-      </div>
+      {buyDirectly && (
+        <div className="px-4 pb-4 pt-3 text-center">
+          <Link
+            href="/cart"
+            className="text-sm font-semibold text-(--primary) hover:underline"
+          >
+            Modify cart
+          </Link>
+        </div>
+      )}
     </>
   );
 }
@@ -1110,270 +1117,279 @@ const Checkout = () => {
 
           <div className="flex flex-col items-stretch gap-6 lg:flex-row lg:items-start lg:gap-8">
             <div className="order-2 w-full min-w-0 lg:order-1 lg:max-w-[calc(100%-26rem)] lg:flex-1">
-              {
-                deliveries.length <= 0 ? 
-                  <div className="space-y-6">
-                    {
-                      isDeliveriesLoading ?
-                      <div className="rounded-lg bg-white border border-gray-200 flex justify-center items-center w-full h-100 mb-5">
-                        <RiLoader5Line size={48} className="animate-spin text-(--primary)" />
-                      </div> : 
-                        <div className="rounded-md bg-white border border-gray-100 p-5 sm:p-6">
-                          <div className="flex items-center gap-3 mb-5">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <RiTruckLine className="text-blue-600 text-lg" />
+              {deliveries.length <= 0 ? (
+                <div className="space-y-6">
+                  {isDeliveriesLoading ? (
+                    <div className="rounded-lg bg-white border border-gray-200 flex justify-center items-center w-full h-100 mb-5">
+                      <RiLoader5Line
+                        size={48}
+                        className="animate-spin text-(--primary)"
+                      />
+                    </div>
+                  ) : (
+                    <div className="rounded-md bg-white border border-gray-100 p-5 sm:p-6">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <RiTruckLine className="text-blue-600 text-lg" />
+                        </div>
+                        <h2 className="text-lg font-medium text-gray-900">
+                          Shipping Information
+                        </h2>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              First Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input
+                                type="text"
+                                name="firstName"
+                                value={formData.firstName}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="John"
+                              />
                             </div>
-                            <h2 className="text-lg font-medium text-gray-900">
-                              Shipping Information
-                            </h2>
                           </div>
-
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  First Name <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                  <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                  <input
-                                    type="text"
-                                    name="firstName"
-                                    value={formData.firstName}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                    placeholder="John"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  Last Name <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                  <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                  <input
-                                    type="text"
-                                    name="LastName"
-                                    value={formData.LastName}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                    placeholder="Doe"
-                                  />
-                                </div>
-                              </div>
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              Last Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <RiUser3Line className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input
+                                type="text"
+                                name="LastName"
+                                value={formData.LastName}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="Doe"
+                              />
                             </div>
+                          </div>
+                        </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  Email Address <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                  <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                  <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                    placeholder="john.doe@example.com"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  Phone Number <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative flex gap-2">
-                                  <select
-                                    name="countryCode"
-                                    value={formData.countryCode}
-                                    onChange={handleInputChange}
-                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  >
-                                    <option value="+234">+234</option>
-                                    <option value="+1">+1</option>
-                                    <option value="+44">+44</option>
-                                  </select>
-                                  <div className="relative flex-1">
-                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                    <input
-                                      type="tel"
-                                      name="phone"
-                                      value={formData.phone}
-                                      onChange={handleInputChange}
-                                      required
-                                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                      placeholder="8102637956"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              Email Address{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="john.doe@example.com"
+                              />
                             </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  Additional Phone (Optional)
-                                </label>
-                                <div className="relative flex gap-2">
-                                  <select
-                                    name="additionalCountryCode"
-                                    value={formData.additionalCountryCode}
-                                    onChange={handleInputChange}
-                                    className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  >
-                                    <option value="+234">+234</option>
-                                    <option value="+1">+1</option>
-                                    <option value="+44">+44</option>
-                                  </select>
-                                  <div className="relative flex-1">
-                                    <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                    <input
-                                      type="tel"
-                                      name="additionalPhone"
-                                      value={formData.additionalPhone}
-                                      onChange={handleInputChange}
-                                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                      placeholder="9063786452"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="block text-sm font-normal text-gray-700 mb-2">
-                                Street Address <span className="text-red-500">*</span>
-                              </label>
-                              <div className="relative">
-                                <RiMapPinLine className="absolute left-3 top-3 text-gray-400" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              Phone Number{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative flex gap-2">
+                              <select
+                                name="countryCode"
+                                value={formData.countryCode}
+                                onChange={handleInputChange}
+                                className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              >
+                                <option value="+234">+234</option>
+                                <option value="+1">+1</option>
+                                <option value="+44">+44</option>
+                              </select>
+                              <div className="relative flex-1">
+                                <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
-                                  type="text"
-                                  name="address"
-                                  value={formData.address}
+                                  type="tel"
+                                  name="phone"
+                                  value={formData.phone}
                                   onChange={handleInputChange}
                                   required
                                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="123 Main Street, Apartment 4B"
+                                  placeholder="8102637956"
                                 />
                               </div>
                             </div>
+                          </div>
+                        </div>
 
-                            <div>
-                              <label className="block text-sm font-normal text-gray-700 mb-2">
-                                Additional Information (Optional)
-                              </label>
-                              <input
-                                type="text"
-                                name="additionalInfo"
-                                value={formData.additionalInfo}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              Additional Phone (Optional)
+                            </label>
+                            <div className="relative flex gap-2">
+                              <select
+                                name="additionalCountryCode"
+                                value={formData.additionalCountryCode}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Landmark, special instructions, etc."
-                              />
+                                className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              >
+                                <option value="+234">+234</option>
+                                <option value="+1">+1</option>
+                                <option value="+44">+44</option>
+                              </select>
+                              <div className="relative flex-1">
+                                <RiPhoneLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                  type="tel"
+                                  name="additionalPhone"
+                                  value={formData.additionalPhone}
+                                  onChange={handleInputChange}
+                                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  placeholder="9063786452"
+                                />
+                              </div>
                             </div>
+                          </div>
+                        </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  City <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                  type="text"
-                                  name="city"
-                                  value={formData.city}
-                                  onChange={handleInputChange}
-                                  required
-                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="Lagos"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  State <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                  type="text"
-                                  name="state"
-                                  value={formData.state}
-                                  onChange={handleInputChange}
-                                  required
-                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="Lagos"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-normal text-gray-700 mb-2">
-                                  Region <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                  type="text"
-                                  name="region"
-                                  value={formData.region}
-                                  onChange={handleInputChange}
-                                  required
-                                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                  placeholder="Gbagada"
-                                />
-                              </div>
-                            </div>
+                        <div>
+                          <label className="block text-sm font-normal text-gray-700 mb-2">
+                            Street Address{" "}
+                            <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <RiMapPinLine className="absolute left-3 top-3 text-gray-400" />
+                            <input
+                              type="text"
+                              name="address"
+                              value={formData.address}
+                              onChange={handleInputChange}
+                              required
+                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="123 Main Street, Apartment 4B"
+                            />
                           </div>
                         </div>
-                    }
-                    
-                  </div> :
-                  <>
-                    {/* Desktop: Jumia-style steps */}
-                    <div className="hidden flex-col gap-4 lg:flex">
-                      <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                              <RiCheckLine size={14} aria-hidden />
-                            </span>
-                            <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
-                              1. CUSTOMER ADDRESS
-                            </h2>
-                          </div>
-                          <Link
-                            href={addressChangeHref}
-                            className="shrink-0 text-sm font-semibold text-blue-600 hover:underline"
-                          >
-                            Change &gt;
-                          </Link>
+
+                        <div>
+                          <label className="block text-sm font-normal text-gray-700 mb-2">
+                            Additional Information (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            name="additionalInfo"
+                            value={formData.additionalInfo}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder="Landmark, special instructions, etc."
+                          />
                         </div>
-                        <div className="px-4 py-4 text-sm text-gray-700">
-                          {isDeliveriesLoading || !selectedDelivery?.id ? (
-                            <div className="flex justify-center py-6">
-                              <RiLoader5Line
-                                size={32}
-                                className="animate-spin text-(--primary)"
-                              />
-                            </div>
-                          ) : (
-                            <>
-                              <p className="font-semibold text-gray-900">
-                                {selectedDelivery.firstName}{" "}
-                                {selectedDelivery.LastName}
-                              </p>
-                              <p className="mt-2 leading-relaxed text-gray-600">
-                                {selectedDelivery.address} | {selectedDelivery.city}{" "}
-                                — {selectedDelivery.region} |{" "}
-                                {selectedDelivery.countryCode}{" "}
-                                {selectedDelivery.phone}
-                              </p>
-                              <div className="mt-3 flex flex-wrap items-center gap-2">
-                                {selectedDelivery.setDefault && (
-                                  <Badge variant="secondary" className="font-bold">
-                                    Default address
-                                  </Badge>
-                                )}
-                                {/* <Button
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              City <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              name="city"
+                              value={formData.city}
+                              onChange={handleInputChange}
+                              required
+                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="Lagos"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              State <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              name="state"
+                              value={formData.state}
+                              onChange={handleInputChange}
+                              required
+                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="Lagos"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-normal text-gray-700 mb-2">
+                              Region <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              name="region"
+                              value={formData.region}
+                              onChange={handleInputChange}
+                              required
+                              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              placeholder="Gbagada"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* Desktop: Jumia-style steps */}
+                  <div className="hidden flex-col gap-4 lg:flex">
+                    <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                            <RiCheckLine size={14} aria-hidden />
+                          </span>
+                          <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
+                            1. CUSTOMER ADDRESS
+                          </h2>
+                        </div>
+                        <Link
+                          href={addressChangeHref}
+                          className="shrink-0 text-sm font-semibold text-blue-600 hover:underline"
+                        >
+                          Change &gt;
+                        </Link>
+                      </div>
+                      <div className="px-4 py-4 text-sm text-gray-700">
+                        {isDeliveriesLoading || !selectedDelivery?.id ? (
+                          <div className="flex justify-center py-6">
+                            <RiLoader5Line
+                              size={32}
+                              className="animate-spin text-(--primary)"
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-semibold text-gray-900">
+                              {selectedDelivery.firstName}{" "}
+                              {selectedDelivery.LastName}
+                            </p>
+                            <p className="mt-2 leading-relaxed text-gray-600">
+                              {selectedDelivery.address} |{" "}
+                              {selectedDelivery.city} —{" "}
+                              {selectedDelivery.region} |{" "}
+                              {selectedDelivery.countryCode}{" "}
+                              {selectedDelivery.phone}
+                            </p>
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              {selectedDelivery.setDefault && (
+                                <Badge
+                                  variant="secondary"
+                                  className="font-bold"
+                                >
+                                  Default address
+                                </Badge>
+                              )}
+                              {/* <Button
                                   type="button"
                                   className="px-4 py-2 text-xs"
                                   primary
@@ -1381,110 +1397,154 @@ const Checkout = () => {
                                 >
                                   Add new address
                                 </Button> */}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </section>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </section>
 
-                      <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                              <RiCheckLine size={14} aria-hidden />
-                            </span>
-                            <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
-                              2. DELIVERY DETAILS
-                            </h2>
-                          </div>
+                    <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                            <RiCheckLine size={14} aria-hidden />
+                          </span>
+                          <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
+                            2. DELIVERY DETAILS
+                          </h2>
+                        </div>
+                        <button
+                          type="button"
+                          className="text-sm font-semibold text-blue-600 hover:underline"
+                          onClick={() =>
+                            toast.info(
+                              "Delivery options will be available soon.",
+                            )
+                          }
+                        >
+                          Change &gt;
+                        </button>
+                      </div>
+                      <div className="border-b border-gray-100 px-4 py-4 text-sm text-gray-700">
+                        <p className="text-base font-bold text-gray-900">
+                          Door Delivery
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          {deliveryDateRangeLabel}
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                          <span className="font-medium">
+                            Pick up from a station to save on delivery fees.
+                          </span>
                           <button
                             type="button"
-                            className="text-sm font-semibold text-blue-600 hover:underline"
+                            className="shrink-0 font-semibold text-blue-600 hover:underline"
                             onClick={() =>
-                              toast.info("Delivery options will be available soon.")
+                              toast.info("Pickup stations coming soon.")
                             }
                           >
                             Change &gt;
                           </button>
                         </div>
-                        <div className="border-b border-gray-100 px-4 py-4 text-sm text-gray-700">
-                          <p className="text-base font-bold text-gray-900">
-                            Door Delivery
-                          </p>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {deliveryDateRangeLabel}
-                          </p>
-                          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
-                            <span className="font-medium">
-                              Pick up from a station to save on delivery fees.
-                            </span>
-                            <button
-                              type="button"
-                              className="shrink-0 font-semibold text-blue-600 hover:underline"
-                              onClick={() =>
-                                toast.info("Pickup stations coming soon.")
-                              }
-                            >
-                              Change &gt;
-                            </button>
+                      </div>
+                      <CheckoutShipmentCards
+                        cartItems={cartItems}
+                        shipmentGroups={shipmentGroups}
+                        buyDirectly={directOrder === "true"}
+                      />
+                    </section>
+
+                    <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                          <RiCheckLine size={14} aria-hidden />
+                        </span>
+                        <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
+                          3. PAYMENT METHOD
+                        </h2>
+                      </div>
+                      <div className="space-y-2.5 px-4 py-4">
+                        {/* Wallet option */}
+                        <label
+                          className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "WALLET" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="payment-method-desktop"
+                            value="WALLET"
+                            checked={paymentMethod === "WALLET"}
+                            onChange={() => setPaymentMethod("WALLET")}
+                            className="sr-only"
+                          />
+                          <RiWallet3Line className="shrink-0 text-xl text-blue-600" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-gray-900">
+                              440 Wallet
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-500">
+                              Balance:{" "}
+                              {isWalletPending ? (
+                                <span className="text-gray-400">Loading…</span>
+                              ) : walletData?.wallet_balance != null ? (
+                                <span
+                                  className={`font-medium ${walletData.wallet_balance < total ? "text-red-600" : "text-green-600"}`}
+                                >
+                                  ₦{" "}
+                                  {walletData.wallet_balance.toLocaleString(
+                                    "en-NG",
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    },
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </p>
                           </div>
-                        </div>
-                        <CheckoutShipmentCards
-                          cartItems={cartItems}
-                          shipmentGroups={shipmentGroups}
-                        />
-                      </section>
-
-                      <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                        <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <RiCheckLine size={14} aria-hidden />
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "WALLET" ? "border-(--primary)" : "border-gray-300"}`}
+                          >
+                            {paymentMethod === "WALLET" && (
+                              <span className="h-2 w-2 rounded-full bg-(--primary)" />
+                            )}
                           </span>
-                          <h2 className="text-xs font-bold tracking-wide text-gray-900 sm:text-sm">
-                            3. PAYMENT METHOD
-                          </h2>
-                        </div>
-                        <div className="space-y-2.5 px-4 py-4">
-                          {/* Wallet option */}
-                          <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "WALLET" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}>
-                            <input type="radio" name="payment-method-desktop" value="WALLET" checked={paymentMethod === "WALLET"} onChange={() => setPaymentMethod("WALLET")} className="sr-only" />
-                            <RiWallet3Line className="shrink-0 text-xl text-blue-600" />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold text-gray-900">440 Wallet</p>
-                              <p className="mt-0.5 text-xs text-gray-500">
-                                Balance:{" "}
-                                {isWalletPending ? (
-                                  <span className="text-gray-400">Loading…</span>
-                                ) : walletData?.wallet_balance != null ? (
-                                  <span className={`font-medium ${walletData.wallet_balance < total ? "text-red-600" : "text-green-600"}`}>
-                                    ₦ {walletData.wallet_balance.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </span>
-                                ) : (
-                                  <span className="text-gray-400">—</span>
-                                )}
-                              </p>
-                            </div>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "WALLET" ? "border-(--primary)" : "border-gray-300"}`}>
-                              {paymentMethod === "WALLET" && <span className="h-2 w-2 rounded-full bg-(--primary)" />}
-                            </span>
-                          </label>
-                          {/* Card option */}
-                          <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "CARD" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}>
-                            <input type="radio" name="payment-method-desktop" value="CARD" checked={paymentMethod === "CARD"} onChange={() => setPaymentMethod("CARD")} className="sr-only" />
-                            <RiBankCardLine className="shrink-0 text-xl text-gray-600" />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold text-gray-900">Pay with Card</p>
-                              <p className="mt-0.5 text-xs text-gray-500">Paystack — Visa, Mastercard, Verve</p>
-                            </div>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "CARD" ? "border-(--primary)" : "border-gray-300"}`}>
-                              {paymentMethod === "CARD" && <span className="h-2 w-2 rounded-full bg-(--primary)" />}
-                            </span>
-                          </label>
-                        </div>
-                      </section>
-                    </div>
+                        </label>
+                        {/* Card option */}
+                        <label
+                          className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "CARD" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="payment-method-desktop"
+                            value="CARD"
+                            checked={paymentMethod === "CARD"}
+                            onChange={() => setPaymentMethod("CARD")}
+                            className="sr-only"
+                          />
+                          <RiBankCardLine className="shrink-0 text-xl text-gray-600" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-gray-900">
+                              Pay with Card
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-500">
+                              Paystack — Visa, Mastercard, Verve
+                            </p>
+                          </div>
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "CARD" ? "border-(--primary)" : "border-gray-300"}`}
+                          >
+                            {paymentMethod === "CARD" && (
+                              <span className="h-2 w-2 rounded-full bg-(--primary)" />
+                            )}
+                          </span>
+                        </label>
+                      </div>
+                    </section>
+                  </div>
 
-                    <div className="flex flex-col gap-4 lg:hidden">
+                  <div className="flex flex-col gap-4 lg:hidden">
                     <section className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                       <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
@@ -1496,38 +1556,79 @@ const Checkout = () => {
                       </div>
                       <div className="space-y-2.5 px-4 py-4">
                         {/* Wallet option */}
-                        <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "WALLET" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}>
-                          <input type="radio" name="payment-method-mobile" value="WALLET" checked={paymentMethod === "WALLET"} onChange={() => setPaymentMethod("WALLET")} className="sr-only" />
+                        <label
+                          className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "WALLET" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="payment-method-mobile"
+                            value="WALLET"
+                            checked={paymentMethod === "WALLET"}
+                            onChange={() => setPaymentMethod("WALLET")}
+                            className="sr-only"
+                          />
                           <RiWallet3Line className="shrink-0 text-xl text-blue-600" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-gray-900">440 Wallet</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              440 Wallet
+                            </p>
                             <p className="mt-0.5 text-xs text-gray-500">
                               Balance:{" "}
                               {isWalletPending ? (
                                 <span className="text-gray-400">Loading…</span>
                               ) : walletData?.wallet_balance != null ? (
-                                <span className={`font-medium ${walletData.wallet_balance < total ? "text-red-600" : "text-green-600"}`}>
-                                  ₦ {walletData.wallet_balance.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <span
+                                  className={`font-medium ${walletData.wallet_balance < total ? "text-red-600" : "text-green-600"}`}
+                                >
+                                  ₦{" "}
+                                  {walletData.wallet_balance.toLocaleString(
+                                    "en-NG",
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    },
+                                  )}
                                 </span>
                               ) : (
                                 <span className="text-gray-400">—</span>
                               )}
                             </p>
                           </div>
-                          <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "WALLET" ? "border-(--primary)" : "border-gray-300"}`}>
-                            {paymentMethod === "WALLET" && <span className="h-2 w-2 rounded-full bg-(--primary)" />}
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "WALLET" ? "border-(--primary)" : "border-gray-300"}`}
+                          >
+                            {paymentMethod === "WALLET" && (
+                              <span className="h-2 w-2 rounded-full bg-(--primary)" />
+                            )}
                           </span>
                         </label>
                         {/* Card option */}
-                        <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "CARD" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}>
-                          <input type="radio" name="payment-method-mobile" value="CARD" checked={paymentMethod === "CARD"} onChange={() => setPaymentMethod("CARD")} className="sr-only" />
+                        <label
+                          className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition ${paymentMethod === "CARD" ? "border-(--primary) bg-(--primary-soft)/10 ring-1 ring-(--primary)" : "border-gray-200 hover:border-gray-300"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="payment-method-mobile"
+                            value="CARD"
+                            checked={paymentMethod === "CARD"}
+                            onChange={() => setPaymentMethod("CARD")}
+                            className="sr-only"
+                          />
                           <RiBankCardLine className="shrink-0 text-xl text-gray-600" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-gray-900">Pay with Card</p>
-                            <p className="mt-0.5 text-xs text-gray-500">Paystack — Visa, Mastercard, Verve</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              Pay with Card
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-500">
+                              Paystack — Visa, Mastercard, Verve
+                            </p>
                           </div>
-                          <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "CARD" ? "border-(--primary)" : "border-gray-300"}`}>
-                            {paymentMethod === "CARD" && <span className="h-2 w-2 rounded-full bg-(--primary)" />}
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${paymentMethod === "CARD" ? "border-(--primary)" : "border-gray-300"}`}
+                          >
+                            {paymentMethod === "CARD" && (
+                              <span className="h-2 w-2 rounded-full bg-(--primary)" />
+                            )}
                           </span>
                         </label>
                       </div>
@@ -1561,8 +1662,9 @@ const Checkout = () => {
                               {selectedDelivery.LastName}
                             </p>
                             <p className="mt-2 leading-relaxed text-gray-600">
-                              {selectedDelivery.address} | {selectedDelivery.city}{" "}
-                              — {selectedDelivery.region} |{" "}
+                              {selectedDelivery.address} |{" "}
+                              {selectedDelivery.city} —{" "}
+                              {selectedDelivery.region} |{" "}
                               {selectedDelivery.countryCode}{" "}
                               {selectedDelivery.phone}
                             </p>
@@ -1604,7 +1706,9 @@ const Checkout = () => {
                             type="button"
                             className="text-sm font-semibold text-(--primary) hover:underline"
                             onClick={() =>
-                              toast.info("Delivery options will be available soon.")
+                              toast.info(
+                                "Delivery options will be available soon.",
+                              )
                             }
                           >
                             Change &gt;
@@ -1635,18 +1739,17 @@ const Checkout = () => {
                         <CheckoutShipmentCards
                           cartItems={cartItems}
                           shipmentGroups={shipmentGroups}
+                          buyDirectly={directOrder === "true"}
                         />
                       </section>
                     </div>
-                    </div>
-                  </>
-              }
-              
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="order-1 flex w-full flex-col lg:order-2 lg:w-96 lg:shrink-0">
               <div className="h-fit space-y-4 lg:sticky lg:top-24">
-
                 <div className="overflow-hidden rounded-lg border border-gray-200 bg-white p-5 sm:p-6">
                   <div className="-mx-5 -mt-5 mb-4 border-b border-gray-200 bg-[#F2F2F2] px-4 py-2.5 sm:-mx-6 sm:-mt-6 lg:hidden">
                     <p className="text-[11px] font-bold tracking-wide text-gray-700">
@@ -1679,7 +1782,10 @@ const Checkout = () => {
                         Tax (7.5%)
                       </p>
                       <p className="text-sm font-medium text-gray-900">
-                        ₦ {tax.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        ₦{" "}
+                        {tax.toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -1690,7 +1796,10 @@ const Checkout = () => {
                         Total
                       </p>
                       <p className="text-2xl font-medium text-gray-900">
-                        ₦ {total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        ₦{" "}
+                        {total.toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -1731,7 +1840,9 @@ const Checkout = () => {
                   <Button
                     primary
                     onClick={handleConfirmOrder}
-                    isLoading={directOrder ? isPlacingDirectOrder : isPlacingOrder}
+                    isLoading={
+                      directOrder ? isPlacingDirectOrder : isPlacingOrder
+                    }
                     className="hidden w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-normal transition-colors disabled:cursor-not-allowed disabled:opacity-50 lg:flex"
                   >
                     {isPlacingOrder || isPlacingDirectOrder
@@ -1745,13 +1856,13 @@ const Checkout = () => {
 
                   <div className="mt-5 space-y-3 pt-5 border-t border-gray-200">
                     <div className="flex gap-3 items-start">
-                      <RiShieldCheckLine className='text-green-600 text-lg shrink-0 mt-0.5' />
+                      <RiShieldCheckLine className="text-green-600 text-lg shrink-0 mt-0.5" />
                       <p className="text-xs text-gray-600 leading-relaxed">
                         Secure checkout with SSL encryption
                       </p>
                     </div>
                     <div className="flex gap-3 items-start">
-                      <RiSecurePaymentLine className='text-blue-600 text-lg shrink-0 mt-0.5' />
+                      <RiSecurePaymentLine className="text-blue-600 text-lg shrink-0 mt-0.5" />
                       <p className="text-xs text-gray-600 leading-relaxed">
                         Your payment information is safe
                       </p>
@@ -1786,21 +1897,22 @@ const Checkout = () => {
         </Button>
       </div>
 
-      {
-        isModalOpen &&
+      {isModalOpen && (
         <MyModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}>
           <DeliveryForm setIsModalOpen={setIsModalOpen} />
         </MyModal>
-      }
+      )}
 
       {/* Wallet PIN Modal */}
       <WalletPinModal
         open={pinOpen}
-        amount={`₦ ${(
-          pendingFlow === "DIRECT_PSS"
-            ? Math.round((pendingPercent / 100) * subtotal)
-            : total
-        ).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        amount={`₦ ${(pendingFlow === "DIRECT_PSS"
+          ? Math.round((pendingPercent / 100) * subtotal)
+          : total
+        ).toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
         isLoading={isPlacingOrder || isPlacingDirectOrder}
         onConfirm={handlePinConfirm}
         onClose={() => setPinOpen(false)}
@@ -1813,7 +1925,9 @@ const Checkout = () => {
             <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
               <div className="flex items-center gap-2">
                 <RiErrorWarningLine className="shrink-0 text-xl text-amber-500" />
-                <h3 className="text-base font-bold text-gray-900">Insufficient balance</h3>
+                <h3 className="text-base font-bold text-gray-900">
+                  Insufficient balance
+                </h3>
               </div>
               <button
                 type="button"
@@ -1827,9 +1941,15 @@ const Checkout = () => {
               <p className="text-sm text-gray-600 leading-relaxed">
                 Your 440 wallet balance{" "}
                 <span className="font-semibold text-gray-900">
-                  (₦ {walletBalance.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                  (₦{" "}
+                  {walletBalance.toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  )
                 </span>{" "}
-                is not enough to cover this payment. You can top up your wallet or pay with card instead.
+                is not enough to cover this payment. You can top up your wallet
+                or pay with card instead.
               </p>
               <div className="mt-5 flex flex-col gap-2.5">
                 <button
@@ -1857,8 +1977,7 @@ const Checkout = () => {
         </div>
       )}
 
-      {
-        isPaymentOpen &&
+      {isPaymentOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-(--bg-surface) rounded-xl p-6 w-[90%] max-w-md">
             <div className="flex items-center justify-between mb-4">
@@ -1872,16 +1991,23 @@ const Checkout = () => {
                 <RiCloseLine size={24} />
               </button>
             </div>
-            {
-              upfrontPercent < 100 ?
-                <p className="mt-2 text-sm">
-                   Pay <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> now and pay the remaining within the next 2 months
-                </p> :
-                <p className="mt-2 text-sm">
-                  You are paying <span className='font-bold text-(--primary)'>₦{upfrontAmount.toLocaleString()}</span> in full without any other payments
-                </p>
-            }
-            
+            {upfrontPercent < 100 ? (
+              <p className="mt-2 text-sm">
+                Pay{" "}
+                <span className="font-bold text-(--primary)">
+                  ₦{upfrontAmount.toLocaleString()}
+                </span>{" "}
+                now and pay the remaining within the next 2 months
+              </p>
+            ) : (
+              <p className="mt-2 text-sm">
+                You are paying{" "}
+                <span className="font-bold text-(--primary)">
+                  ₦{upfrontAmount.toLocaleString()}
+                </span>{" "}
+                in full without any other payments
+              </p>
+            )}
 
             <div className="w-full max-w-md mt-4 mb-8">
               <Slider.Root
@@ -1945,10 +2071,9 @@ const Checkout = () => {
             </Button>
           </div>
         </div>
-      }
+      )}
     </>
-    
-  )
+  );
 }
 
 export default Checkout
