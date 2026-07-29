@@ -20,7 +20,7 @@ const RFQMobile = () => {
 
   return (
     <>
-      <Card className="flex items-center md:hidden gap-3 mx-3 p-3! border border-(--border-default) -mt-6 mb-4 shadow-none">
+      <Card className="flex items-center md:hidden gap-3 mx-3 p-3! border border-(--border-default) -mt-6 mb-4 shadow-none ">
         <img
           src={Img.src}
           alt=""

@@ -11,9 +11,10 @@ export function generateStaticParams() {
 export default async function AccountOrdersListPage({
   params,
 }: {
-  params: Promise<{ list: string }>;
+  params: any;
 }) {
-  const { list } = await params;
+  const { list } = params;
+
   if (!(VALID as readonly string[]).includes(list)) notFound();
 
   return <OrdersListClient list={list as OrdersListKind} />;
