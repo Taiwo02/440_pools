@@ -550,7 +550,7 @@ export type FormValues = {
   sizes: string[];
   colors: string[];
   slots: number;
-  directQty: number;
+  directQty?: number;
 };
 
 type SizeAllocation = {

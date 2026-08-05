@@ -67,7 +67,6 @@ const ProductDetails = () => {
     sizes: [],
     colors: [],
     slots: 1,
-    directQty: 30,
   });
 
   // State for switch

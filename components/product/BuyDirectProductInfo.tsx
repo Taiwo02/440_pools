@@ -224,7 +224,7 @@ const BuyDirectProductInfo = (
         </>
       )}
 
-      <div className="pt-8 my-4">
+      {/* <div className="pt-8 my-4">
         <p className="uppercase text-sm font-semibold text-(--text-muted)">
           Direct Order Quantity
         </p>
@@ -258,7 +258,7 @@ const BuyDirectProductInfo = (
             +
           </Button>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
