@@ -100,11 +100,11 @@ export const DealsAndTrending = ({ dailyDeals }: Props) => {
                     className="snap-start shrink-0 w-[min(42vw,9.5rem)] sm:w-[min(38vw,10rem)] block"
                   >
                     <div className="rounded-lg border border-(--border-default) bg-(--bg-surface) overflow-hidden shadow-sm h-full flex flex-col">
-                      <div className="relative h-[6.25rem] min-h-[6.25rem] max-h-[6.25rem] w-full overflow-hidden bg-(--bg-muted)">
+                      <div className="relative h-25 min-h-25 max-h-25 w-full overflow-hidden bg-(--bg-muted)">
                         <ProductThumbPlaceholder
                           images={item.product.images}
                           productName={item.product.name}
-                          className="h-full w-full min-h-[6.25rem] object-cover"
+                          className="h-full w-full min-h-25 object-cover"
                           previewMaxChars={12}
                         />
                         {pct != null && (
