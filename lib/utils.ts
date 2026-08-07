@@ -1,9 +1,14 @@
-import { CartItem, CartItemResponse, CartObject, SingleCartItemPayload } from "@/types/types";
+import {
+  CartItem,
+  CartItemResponse,
+  CartObject,
+  SingleCartItemPayload,
+} from "@/types/types";
 
 export const setCrossSubdomainCookie = (
   name: string,
   value: string,
-  days?: number
+  days?: number,
 ): void => {
   if (typeof window === "undefined") return;
   const expires = days
@@ -61,4 +66,17 @@ export const getStoredBuyCart = (): CartItemResponse[] => {
 export const setStoredBuyCart = (buy: CartItemResponse[]) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(BUY_KEY, JSON.stringify(buy));
+};
+
+// For guest cart
+const GUEST_PHONE_KEY = "guest_phone_number";
+
+export const getStoredPhone = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(GUEST_PHONE_KEY);
+};
+
+export const setStoredPhone = (phone: string) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(GUEST_PHONE_KEY, phone);
 };

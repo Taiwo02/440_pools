@@ -17,14 +17,22 @@ import {
   getCrossSubdomainCookie,
   getStoredBuyCart,
   setStoredBuyCart,
+  getStoredPhone,
+  setStoredPhone,
 } from "@/lib/utils";
 import { useAuth } from "./use-auth";
 import { useSendAnalytics } from "@/api/analytics";
 import {
   useAddCartItem,
+  useAddPublicCartItem,
   useClearCart,
+  useClearPublicCart,
   useGetCart,
+  useGetPublicCart,
   useRemoveCartItem,
+  useRemovePublicCartItem,
+  useUpdateCartItem,
+  useUpdatePublicCartItem,
 } from "@/api/cart";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
@@ -32,6 +40,7 @@ import { AxiosError } from "axios";
 type BuyContextType = {
   buyCart: CartItemResponse[];
   hasSynced: boolean;
+  guestPhone: string;
   addToBuyCart: (item: SingleCartItemPayload) => void;
   removeFromBuyCart: (productId: number) => void;
   clearBuyCart: () => void;
@@ -42,10 +51,30 @@ const BuyContext = createContext<BuyContextType | undefined>(undefined);
 export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
   const [buyCart, setBuyCart] = useState<CartItemResponse[]>(getStoredBuyCart);
   const [hasSynced, setHasSynced] = useState(false);
-  const { data: serverCart } = useGetCart();
+  // mirrors localStorage phone so public-cart hooks (which take
+  // `phone` as a hook param, not a mutate-time arg) stay in sync
+  const [guestPhone, setGuestPhone] = useState<string>(
+    () => getStoredPhone() ?? "",
+  );
+
+  const token = getCrossSubdomainCookie("440_token");
+
+  const { data: serverCart } = useGetCart({ enabled: !!token });
+  const { data: publicServerCart } = useGetPublicCart(
+    { phone: guestPhone },
+    { enabled: !token && !!guestPhone },
+  );
+
   const { mutateAsync: deleteItem } = useRemoveCartItem();
+  const { mutateAsync: deletePublicItem } = useRemovePublicCartItem({
+    phone: guestPhone,
+  });
   const { mutateAsync: clearCart } = useClearCart();
+  const { mutateAsync: clearPublicCart } = useClearPublicCart({
+    phone: guestPhone,
+  });
   const { mutateAsync: addCartItem } = useAddCartItem();
+  const { mutateAsync: addPublicCartItem } = useAddPublicCartItem();
   const { mutateAsync: sendAnalytics } = useSendAnalytics();
   const { user } = useAuth();
 
@@ -53,17 +82,51 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
     setStoredBuyCart(buyCart);
   }, [buyCart]);
 
+  // hydrate from the authenticated server cart
   useEffect(() => {
-    if (serverCart?.data?.items) {
+    if (token && serverCart?.data?.items) {
       setBuyCart(serverCart.data.items);
       setStoredBuyCart(serverCart.data.items);
       setHasSynced(true);
     }
-  }, [serverCart]);
+  }, [serverCart, token]);
+
+  // hydrate from the guest/public server cart once we know their phone
+  useEffect(() => {
+    if (!token && publicServerCart?.data?.items) {
+      setBuyCart(publicServerCart.data.items);
+      setStoredBuyCart(publicServerCart.data.items);
+      setHasSynced(true);
+    }
+  }, [publicServerCart, token]);
+
+  const rememberPhone = useCallback((phone: string) => {
+    setStoredPhone(phone);
+    setGuestPhone(phone);
+  }, []);
 
   const addToBuyCart = useCallback(
     (item: SingleCartItemPayload) => {
-      addCartItem(item)
+      const token = getCrossSubdomainCookie("440_token");
+      const mutation = token ? addCartItem : addPublicCartItem;
+
+      let payload = item;
+
+      if (!token) {
+        // fall back to whatever phone number we've already got on file
+        // for this guest, so callers don't have to keep re-passing it
+        const phone = item.phone || guestPhone || getStoredPhone();
+
+        if (!phone) {
+          toast.error("Phone number required to add item to cart");
+          return;
+        }
+
+        rememberPhone(phone);
+        payload = { ...item, phone };
+      }
+
+      mutation(payload)
         .then((res) => {
           const newItem: CartItemResponse = res.data.data;
           setBuyCart((prev) => {
@@ -83,20 +146,29 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
           toast.error("Could not add item to cart");
         });
     },
-    [addCartItem],
+    [addCartItem, addPublicCartItem, guestPhone, rememberPhone],
   );
 
   const removeFromBuyCart = async (productId: number) => {
+    const token = getCrossSubdomainCookie("440_token");
     const previousCart = buyCart;
     const target = buyCart.find((item) => item.product_id === productId);
     if (!target) return;
+
+    if (!token && !guestPhone) {
+      toast.error("Phone number required to remove item from cart");
+      return;
+    }
 
     const updatedCart = buyCart.filter((item) => item.product_id !== productId);
     setBuyCart(updatedCart);
     setStoredBuyCart(updatedCart);
 
     try {
-      const res = await deleteItem(String(target.id));
+      const res = token
+        ? await deleteItem(String(target.id))
+        : await deletePublicItem(String(target.id));
+
       if (res.status === 200 || res.status === 201) {
         toast.success("Cart item deleted");
       }
@@ -115,6 +187,13 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const clearBuyCart = async () => {
+    const token = getCrossSubdomainCookie("440_token");
+
+    if (!token && !guestPhone) {
+      toast.error("Phone number required to clear cart");
+      return;
+    }
+
     if (user) {
       const session_id = getCrossSubdomainCookie("440_session_id");
       const payload: AnalyticsPayload = {
@@ -135,7 +214,8 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
     setStoredBuyCart([]);
 
     try {
-      const res = await clearCart();
+      const res = token ? await clearCart() : await clearPublicCart();
+
       if (res.status === 200 || res.status === 201) {
         toast.success("Cart cleared");
       }
@@ -158,6 +238,7 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         buyCart,
         hasSynced,
+        guestPhone,
         addToBuyCart,
         removeFromBuyCart,
         clearBuyCart,

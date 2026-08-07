@@ -33,6 +33,7 @@ import * as fbq from "@/lib/fpixel";
 import { useAuth } from "@/hooks/use-auth";
 import { useSendAnalytics } from "@/api/analytics";
 import { useAddCartItem } from "@/api/cart";
+import PhoneNumber from "@/components/product/PhoneNumber";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -80,6 +81,9 @@ const ProductDetails = () => {
 
   // For login modal display
   const [notLoggedIn, setNotLoggedIn] = useState(false);
+
+  // For phone number modal display
+  const [isPhoneNotRegistered, setIsPhoneNotRegistered] = useState(false);
 
   // If the product has already been saved
   const [isProductSaved, setIsProductSaved] = useState(false);
@@ -544,13 +548,6 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = async () => {
-    // if (isAllocationExceeded) {
-    //   toast.error(
-    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-    //   )
-    //   return
-    // }
-
     if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
       toast.error(
         `You must allocate at least ${maxDirectAllowedQuantity} items.`,
@@ -561,9 +558,12 @@ const ProductDetails = () => {
     setShowBuyModal(false);
 
     const token = getCrossSubdomainCookie("440_token");
+    const clientPhone = localStorage.getItem("440_client_phone");
 
-    if (!token) {
-      setNotLoggedIn(true);
+    // Only guests need a phone number on file — authenticated users
+    // resolve identity from the token instead.
+    if (!token && !clientPhone) {
+      setIsPhoneNotRegistered(true);
       return;
     }
 
@@ -571,7 +571,8 @@ const ProductDetails = () => {
       addToBuyCart({
         productId: baleData.productId,
         quantity: totalAllocatedQuantity,
-        ...items
+        ...(!token && { phone: clientPhone! }),
+        ...items,
       });
 
       if (user) {
@@ -608,13 +609,17 @@ const ProductDetails = () => {
         analytics();
       }
 
-      fbq.event("AddToCart", {
-        category: "cart",
-        content_ids: [baleData.id],
-        content_type: "product",
-        value: baleData.product.price,
-        currency: "NGN",
-      }, false);
+      fbq.event(
+        "AddToCart",
+        {
+          category: "cart",
+          content_ids: [baleData.id],
+          content_type: "product",
+          value: baleData.product.price,
+          currency: "NGN",
+        },
+        false,
+      );
 
       toast.success("Added to cart");
     }
@@ -1023,6 +1028,13 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
           items={items}
           buyDirectly={buyDirectly}
           setNotLoggedIn={setNotLoggedIn}
+        />
+      )}
+
+      {isPhoneNotRegistered && (
+        <PhoneNumber 
+          setIsPhoneNotRegistered={setIsPhoneNotRegistered}
+          onPhoneSaved={handleAddToCart}
         />
       )}
 
