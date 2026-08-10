@@ -10,6 +10,7 @@ import UserBubbles from "./UserBubble";
 import Countdown from "../shared/Countdown";
 import CardJoinToast from "./CardJoinToast";
 import type { SingleBale } from "@/types/baletype";
+import { BogoBadge } from "../ui/bogobadge";
 
 type Props = {
   bale: SingleBale | Bale;
@@ -38,6 +39,10 @@ const ProductCard = ({ bale }: Props) => {
             className="w-full h-28 md:h-44 rounded-t-2xl"
             previewMaxChars={40}
           />
+          {bale.product.isBogoPromo && (
+            <BogoBadge className="absolute top-2 left-2" />
+          )}
+
           <Countdown
             endDate={bale.endIn}
             className="left-auto! right-2 top-2"
@@ -45,9 +50,7 @@ const ProductCard = ({ bale }: Props) => {
           <CardJoinToast cardId={bale.id} />
           <span
             className={`absolute right-2 bottom-2 z-20 inline-flex rounded-full bg-white/90 p-1 shadow-sm cursor-pointer transition-colors ${
-              liked
-                ? "text-red-500"
-                : "text-(--text-muted) hover:text-red-500"
+              liked ? "text-red-500" : "text-(--text-muted) hover:text-red-500"
             }`}
             aria-label={liked ? "Unlike" : "Like"}
             title={liked ? "Unlike" : "Like"}
