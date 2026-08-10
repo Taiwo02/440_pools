@@ -9,6 +9,7 @@ import { queryClient } from "@/lib/queryClient";
 
 type PublicCartParams = {
   phone: string;
+  name: string;
 };
 
 type PublicCartOptions = {
@@ -23,7 +24,7 @@ export const useGetCart = (options?: CartOptions) => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
-      const res = await http.get("/cart");
+      const res = await stagingHttp.get("/cart");
       return res.data;
     },
     enabled: options?.enabled ?? true,
@@ -37,7 +38,7 @@ export const useGetCart = (options?: CartOptions) => {
 export const useClearCart = () => {
   return useMutation({
     mutationFn: () => {
-      return http.delete("/cart");
+      return stagingHttp.delete("/cart");
     },
   });
 };
@@ -45,7 +46,7 @@ export const useClearCart = () => {
 export const useRemoveCartItem = () => {
   return useMutation({
     mutationFn: (itemId: string) => {
-      return http.delete(`/cart/items/${itemId}`);
+      return stagingHttp.delete(`/cart/items/${itemId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -56,7 +57,7 @@ export const useRemoveCartItem = () => {
 export const useAddCartItem = () => {
   return useMutation({
     mutationFn: (body: SingleCartItemPayload) => {
-      return http.post(`/cart/items`, body);
+      return stagingHttp.post(`/cart/items`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -68,7 +69,7 @@ export const useUpdateCartItem = (itemId: string) => {
   return useMutation({
     mutationKey: ["updateCartItem", itemId],
     mutationFn: (body: UpdateCartItemPayload) => {
-      return http.patch(`/cart/items/${itemId}`, body);
+      return stagingHttp.patch(`/cart/items/${itemId}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -93,7 +94,7 @@ export const useGetPublicCart = (
   options?: PublicCartOptions,
 ) => {
   return useQuery<CartResponse>({
-    queryKey: ["public-cart", params.phone],
+    queryKey: ["public-cart", params],
     queryFn: async () => {
       const res = await stagingHttp.get("/public/cart", { params });
       return res.data;

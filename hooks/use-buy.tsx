@@ -19,6 +19,7 @@ import {
   setStoredBuyCart,
   getStoredPhone,
   setStoredPhone,
+  getStoredName,
 } from "@/lib/utils";
 import { useAuth } from "./use-auth";
 import { useSendAnalytics } from "@/api/analytics";
@@ -41,6 +42,7 @@ type BuyContextType = {
   buyCart: CartItemResponse[];
   hasSynced: boolean;
   guestPhone: string;
+  guestName: string;
   addToBuyCart: (item: SingleCartItemPayload) => void;
   removeFromBuyCart: (productId: number) => void;
   clearBuyCart: () => void;
@@ -56,22 +58,27 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
   const [guestPhone, setGuestPhone] = useState<string>(
     () => getStoredPhone() ?? "",
   );
+  const [guestName, setGuestName] = useState<string>(
+    () => getStoredName() ?? "",
+  );
 
   const token = getCrossSubdomainCookie("440_token");
 
   const { data: serverCart } = useGetCart({ enabled: !!token });
   const { data: publicServerCart } = useGetPublicCart(
-    { phone: guestPhone },
+    { phone: guestPhone, name: guestName },
     { enabled: !token && !!guestPhone },
   );
 
   const { mutateAsync: deleteItem } = useRemoveCartItem();
   const { mutateAsync: deletePublicItem } = useRemovePublicCartItem({
     phone: guestPhone,
+    name: guestName,
   });
   const { mutateAsync: clearCart } = useClearCart();
   const { mutateAsync: clearPublicCart } = useClearPublicCart({
     phone: guestPhone,
+    name: guestName,
   });
   const { mutateAsync: addCartItem } = useAddCartItem();
   const { mutateAsync: addPublicCartItem } = useAddPublicCartItem();
@@ -239,6 +246,7 @@ export const BuyProvider = ({ children }: { children: React.ReactNode }) => {
         buyCart,
         hasSynced,
         guestPhone,
+        guestName,
         addToBuyCart,
         removeFromBuyCart,
         clearBuyCart,

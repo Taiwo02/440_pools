@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { FormValues } from "@/types/types";
 import { SingleBale } from "@/types/baletype";
+import { setStoredName, setStoredPhone } from "@/lib/utils";
 
 type Props = {
   setIsPhoneNotRegistered: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,12 +18,14 @@ const PhoneNumber = ({
   onPhoneSaved
 }: Props) => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [name, setName] = useState<string>("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     if (phoneNumber.trim() !== "") {
-      localStorage.setItem("440_client_phone", phoneNumber.trim());
+      setStoredPhone(phoneNumber.trim());
+      setStoredName(name.trim());
       setIsPhoneNotRegistered(false);
       toast.success("Phone number saved successfully!");
       onPhoneSaved(); // <- resumes the add-to-cart flow
@@ -56,6 +59,16 @@ const PhoneNumber = ({
             name="phone"
             value={phoneNumber}
             handler={(e) => setPhoneNumber(e.target.value)}
+            required
+          />
+          <Input
+            input_type="text"
+            element="input"
+            placeholder="Enter your name"
+            tag="Name"
+            name="name"
+            value={name}
+            handler={(e) => setName(e.target.value)}
             required
           />
           <Button type="submit" isFullWidth primary>

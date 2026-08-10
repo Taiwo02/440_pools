@@ -6,7 +6,7 @@ import Countdown from "@/components/shared/Countdown";
 import { Badge, Button, Progress, StarRating } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/use-cart";
-import { getCrossSubdomainCookie } from "@/lib/utils";
+import { getCrossSubdomainCookie, getStoredName, getStoredPhone } from "@/lib/utils";
 import { AnalyticsPayload, FormValues, SaveProductPayload } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -558,7 +558,7 @@ const ProductDetails = () => {
     setShowBuyModal(false);
 
     const token = getCrossSubdomainCookie("440_token");
-    const clientPhone = localStorage.getItem("440_client_phone");
+    const clientPhone = getStoredPhone();
 
     // Only guests need a phone number on file — authenticated users
     // resolve identity from the token instead.

@@ -190,7 +190,8 @@ stagingHttp.interceptors.response.use(
 );
 
 export const noToken = axios.create({
-  baseURL
+  // baseURL: stagingUrl,
+  baseURL,
 })
 
 noToken.interceptors.request.use((config) => {

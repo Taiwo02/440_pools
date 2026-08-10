@@ -370,6 +370,7 @@ export type SingleCartItemPayload = {
   sizes?: CartSizes[];
   colorSelections?: CartColorObject[];
   phone?: string;
+  name?: string;
 };
 
 export type CartItemResponse = {

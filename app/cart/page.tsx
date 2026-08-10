@@ -29,7 +29,7 @@ const Cart = () => {
       {},
     );
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-    const { buyCart, removeFromBuyCart, clearBuyCart, hasSynced, guestPhone } =
+    const { buyCart, removeFromBuyCart, clearBuyCart, hasSynced, guestPhone, guestName } =
       useBuy();
 
     const accessToken = getCrossSubdomainCookie("440_token");
@@ -39,7 +39,7 @@ const Cart = () => {
     });
     const { data: publicCartData, isPending: isPublicCartPending } =
       useGetPublicCart(
-        { phone: guestPhone },
+        { phone: guestPhone, name: guestName },
         { enabled: !accessToken && !!guestPhone },
       );
 
@@ -206,7 +206,7 @@ const Cart = () => {
                             <div className="flex gap-3 mt-3">
                               <button
                                 className="flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md"
-                                onClick={() => removeItem(String(item.id))}
+                                onClick={() => removeItem(String(item.product_id))}
                               >
                                 <RiDeleteBinLine className="text-base" />
                                 Remove
