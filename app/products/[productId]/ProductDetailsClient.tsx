@@ -34,6 +34,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSendAnalytics } from "@/api/analytics";
 import { useAddCartItem } from "@/api/cart";
 import PhoneNumber from "@/components/product/PhoneNumber";
+import { BogoBadge } from "@/components/ui/bogobadge";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -831,7 +832,12 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                     </span>
                   </div>
 
-                  <Button primary className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!" disabled={isProductSaved} onClick={bookmark}>
+                  <Button
+                    primary
+                    className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!"
+                    disabled={isProductSaved}
+                    onClick={bookmark}
+                  >
                     <span>Save</span>
                     <RiBookmark2Fill />
                   </Button>
@@ -846,6 +852,9 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                       &#8358;{formatPrice(baleData.oldPrice)}
                     </p>
                   </div>
+                  {baleData.product.isBogoPromo && (
+                    <BogoBadge variant="banner" className="mt-2" />
+                  )}
                 </div>
 
                 <div className="">
@@ -1032,7 +1041,7 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
       )}
 
       {isPhoneNotRegistered && (
-        <PhoneNumber 
+        <PhoneNumber
           setIsPhoneNotRegistered={setIsPhoneNotRegistered}
           onPhoneSaved={handleAddToCart}
         />
