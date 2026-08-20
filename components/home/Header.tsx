@@ -10,30 +10,33 @@ import { CategoryDetails } from "@/types/types";
 import { RiLoader5Line } from "react-icons/ri";
 import MobileMarketplaceStrip from "./MobileMarketplaceStrip";
 import HeaderBannerCarousel from "./HeaderBannerCarousel";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const Header = () => {
+type HeaderProps = {
+  openRfq: () => void,
+  setIsRfqModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const Header = ({ openRfq, setIsRfqModalOpen }: HeaderProps) => {
   const searchParams = useSearchParams();
-  const isRfqParam = searchParams.has('RFQ');
-  const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
-  const { data: categories, isPending: isCategoriesPending, error: isCategoriesError } = useGetCategories();
+  const isRfqParam = searchParams.has("RFQ");
+  const {
+    data: categories,
+    isPending: isCategoriesPending,
+    error: isCategoriesError,
+  } = useGetCategories();
+  const router = useRouter();
 
   useEffect(() => {
     if (isRfqParam) {
-      setIsRfqModalOpen(true);
+      openRfq();
+
+      // remove RFQ param
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("RFQ");
+      router.replace(`?${params.toString()}`);
     }
   }, [isRfqParam]);
-
-  useEffect(() => {
-    if (isRfqModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isRfqModalOpen]);
 
   return (
     <>
@@ -45,13 +48,14 @@ const Header = () => {
               <h4 className="text-xl">Categories</h4>
             </div>
             <div className="overflow-y-auto h-full pb-4">
-              {
-                isCategoriesPending && (
-                  <div className="flex items-center justify-center z-10 h-full">
-                    <RiLoader5Line className="animate-spin text-(--primary)" size={32} />
-                  </div>
-                )
-              }
+              {isCategoriesPending && (
+                <div className="flex items-center justify-center z-10 h-full">
+                  <RiLoader5Line
+                    className="animate-spin text-(--primary)"
+                    size={32}
+                  />
+                </div>
+              )}
 
               {categories?.map((category: CategoryDetails, index: number) => (
                 <Link
@@ -72,7 +76,7 @@ const Header = () => {
         </div>
       </header>
 
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {isRfqModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -94,7 +98,7 @@ const Header = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </>
   );
 };

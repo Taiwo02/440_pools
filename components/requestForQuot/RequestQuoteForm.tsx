@@ -79,22 +79,27 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
   const handleAddOrUpdateProduct = () => {
     if (!currentProduct.name.trim()) {
       showToast("error", "Enter product name first");
-      return;
+      return null;
     }
+
+    let updatedProducts;
+
     if (editIndex !== null) {
-      const updated = [...products];
-      updated[editIndex] = { ...currentProduct };
-      setProducts(updated);
-      handleImageUpload(updated);
+      updatedProducts = [...products];
+      updatedProducts[editIndex] = { ...currentProduct };
+      setProducts(updatedProducts);
       setEditIndex(null);
       showToast("success", "Item updated successfully ✅");
     } else {
-      const newProducts = [...products, { ...currentProduct }];
-      setProducts(newProducts);
-      handleImageUpload(newProducts);
+      updatedProducts = [...products, { ...currentProduct }];
+      setProducts(updatedProducts);
       showToast("success", "Item added to cart ✅");
     }
+
+    handleImageUpload(updatedProducts);
     setCurrentProduct(initialProduct);
+
+    return updatedProducts;
   };
 
   const handleEditProduct = (index: number) => {
@@ -109,10 +114,14 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
   };
 
   const handleNext = () => {
-    if (step === 1 && products.length === 0) {
-      showToast("error", "Add at least one product first");
-      return;
+    if (step === 1) {
+      const updated = handleAddOrUpdateProduct();
+      if (!updated || updated.length === 0) {
+        showToast("error", "Add at least one product first");
+        return;
+      }
     }
+
     setStep((s) => Math.min(3, s + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -263,15 +272,15 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
                     />
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 justify-between mt-4">
-                    <Button
+                  <div className="flex flex-col sm:flex-row gap-3 justify-end mt-4">
+                    {/* <Button
                       type="button"
                       primary
                       onClick={handleAddOrUpdateProduct}
                       className="w-full sm:w-auto flex items-center justify-center gap-2"
                     >
                       <RiAddLine /> {editIndex !== null ? "Update Product" : "Add to Cart"}
-                    </Button>
+                    </Button> */}
                     <Button
                       type="button"
                       onClick={handleNext}
