@@ -24,7 +24,7 @@ export const useGetCart = (options?: CartOptions) => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
-      const res = await stagingHttp.get("/cart");
+      const res = await http.get("/cart");
       return res.data;
     },
     enabled: options?.enabled ?? true,
@@ -38,7 +38,7 @@ export const useGetCart = (options?: CartOptions) => {
 export const useClearCart = () => {
   return useMutation({
     mutationFn: () => {
-      return stagingHttp.delete("/cart");
+      return http.delete("/cart");
     },
   });
 };
@@ -46,7 +46,7 @@ export const useClearCart = () => {
 export const useRemoveCartItem = () => {
   return useMutation({
     mutationFn: (itemId: string) => {
-      return stagingHttp.delete(`/cart/items/${itemId}`);
+      return http.delete(`/cart/items/${itemId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -57,7 +57,7 @@ export const useRemoveCartItem = () => {
 export const useAddCartItem = () => {
   return useMutation({
     mutationFn: (body: SingleCartItemPayload) => {
-      return stagingHttp.post(`/cart/items`, body);
+      return http.post(`/cart/items`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -69,7 +69,7 @@ export const useUpdateCartItem = (itemId: string) => {
   return useMutation({
     mutationKey: ["updateCartItem", itemId],
     mutationFn: (body: UpdateCartItemPayload) => {
-      return stagingHttp.patch(`/cart/items/${itemId}`, body);
+      return http.patch(`/cart/items/${itemId}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -81,7 +81,7 @@ export const useUpdateCartItem = (itemId: string) => {
 export const useAddPublicCartItem = () => {
   return useMutation({
     mutationFn: (body: SingleCartItemPayload) => {
-      return stagingHttp.post(`/public/cart/items`, body);
+      return http.post(`/public/cart/items`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["public-cart"] });
@@ -96,7 +96,7 @@ export const useGetPublicCart = (
   return useQuery<CartResponse>({
     queryKey: ["public-cart", params],
     queryFn: async () => {
-      const res = await stagingHttp.get("/public/cart", { params });
+      const res = await http.get("/public/cart", { params });
       return res.data;
     },
     enabled: options?.enabled ?? true,
@@ -110,7 +110,7 @@ export const useGetPublicCart = (
 export const useClearPublicCart = (params: PublicCartParams) => {
   return useMutation({
     mutationFn: () => {
-      return stagingHttp.delete("/public/cart", { params });
+      return http.delete("/public/cart", { params });
     },
   });
 };
@@ -118,7 +118,7 @@ export const useClearPublicCart = (params: PublicCartParams) => {
 export const useRemovePublicCartItem = (params: PublicCartParams) => {
   return useMutation({
     mutationFn: (itemId: string) => {
-      return stagingHttp.delete(`/public/cart/items/${itemId}`, { params });
+      return http.delete(`/public/cart/items/${itemId}`, { params });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["public-cart"] });
@@ -130,7 +130,7 @@ export const useUpdatePublicCartItem = (itemId: string) => {
   return useMutation({
     mutationKey: ["updateCartItem", itemId],
     mutationFn: (body: UpdateCartItemPayload) => {
-      return stagingHttp.patch(`/public/cart/items/${itemId}`, body);
+      return http.patch(`/public/cart/items/${itemId}`, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["public-cart"] });
