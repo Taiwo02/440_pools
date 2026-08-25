@@ -6,7 +6,7 @@ import Countdown from "@/components/shared/Countdown";
 import { Badge, Button, Progress, StarRating } from "@/components/ui";
 import { Tabs } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/use-cart";
-import { getCrossSubdomainCookie } from "@/lib/utils";
+import { getCrossSubdomainCookie, getStoredName, getStoredPhone } from "@/lib/utils";
 import { AnalyticsPayload, FormValues, SaveProductPayload } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,6 +33,8 @@ import * as fbq from "@/lib/fpixel";
 import { useAuth } from "@/hooks/use-auth";
 import { useSendAnalytics } from "@/api/analytics";
 import { useAddCartItem } from "@/api/cart";
+import PhoneNumber from "@/components/product/PhoneNumber";
+import { BogoBadge } from "@/components/ui/bogobadge";
 
 const PRODUCT_RATING_FALLBACKS = [4, 4.5, 5] as const;
 
@@ -67,7 +69,6 @@ const ProductDetails = () => {
     sizes: [],
     colors: [],
     slots: 1,
-    directQty: 30,
   });
 
   // State for switch
@@ -81,6 +82,9 @@ const ProductDetails = () => {
 
   // For login modal display
   const [notLoggedIn, setNotLoggedIn] = useState(false);
+
+  // For phone number modal display
+  const [isPhoneNotRegistered, setIsPhoneNotRegistered] = useState(false);
 
   // If the product has already been saved
   const [isProductSaved, setIsProductSaved] = useState(false);
@@ -545,13 +549,6 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = async () => {
-    // if (isAllocationExceeded) {
-    //   toast.error(
-    //     `You selected ${totalAllocatedQuantity} items, but only ${maxDirectAllowedQuantity} are allowed for ${formValues.slots} slot(s).`
-    //   )
-    //   return
-    // }
-
     if (totalAllocatedQuantity < maxDirectAllowedQuantity) {
       toast.error(
         `You must allocate at least ${maxDirectAllowedQuantity} items.`,
@@ -562,9 +559,12 @@ const ProductDetails = () => {
     setShowBuyModal(false);
 
     const token = getCrossSubdomainCookie("440_token");
+    const clientPhone = getStoredPhone();
 
-    if (!token) {
-      setNotLoggedIn(true);
+    // Only guests need a phone number on file — authenticated users
+    // resolve identity from the token instead.
+    if (!token && !clientPhone) {
+      setIsPhoneNotRegistered(true);
       return;
     }
 
@@ -572,7 +572,8 @@ const ProductDetails = () => {
       addToBuyCart({
         productId: baleData.productId,
         quantity: totalAllocatedQuantity,
-        ...items
+        ...(!token && { phone: clientPhone! }),
+        ...items,
       });
 
       if (user) {
@@ -609,13 +610,17 @@ const ProductDetails = () => {
         analytics();
       }
 
-      fbq.event("AddToCart", {
-        category: "cart",
-        content_ids: [baleData.id],
-        content_type: "product",
-        value: baleData.product.price,
-        currency: "NGN",
-      }, false);
+      fbq.event(
+        "AddToCart",
+        {
+          category: "cart",
+          content_ids: [baleData.id],
+          content_type: "product",
+          value: baleData.product.price,
+          currency: "NGN",
+        },
+        false,
+      );
 
       toast.success("Added to cart");
     }
@@ -827,7 +832,12 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                     </span>
                   </div>
 
-                  <Button primary className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!" disabled={isProductSaved} onClick={bookmark}>
+                  <Button
+                    primary
+                    className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!"
+                    disabled={isProductSaved}
+                    onClick={bookmark}
+                  >
                     <span>Save</span>
                     <RiBookmark2Fill />
                   </Button>
@@ -842,6 +852,9 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                       &#8358;{formatPrice(baleData.oldPrice)}
                     </p>
                   </div>
+                  {baleData.product.isBogoPromo && (
+                    <BogoBadge variant="banner" className="mt-2" />
+                  )}
                 </div>
 
                 <div className="">
@@ -1024,6 +1037,13 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
           items={items}
           buyDirectly={buyDirectly}
           setNotLoggedIn={setNotLoggedIn}
+        />
+      )}
+
+      {isPhoneNotRegistered && (
+        <PhoneNumber
+          setIsPhoneNotRegistered={setIsPhoneNotRegistered}
+          onPhoneSaved={handleAddToCart}
         />
       )}
 
