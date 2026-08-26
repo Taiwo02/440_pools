@@ -1,15 +1,33 @@
-import http from "@/lib/http";
-import { CartResponse, SingleCartItemPayload, UpdateCartItemPayload } from "@/types/types";
+import http, { stagingHttp } from "@/lib/http";
+import {
+  CartResponse,
+  SingleCartItemPayload,
+  UpdateCartItemPayload,
+} from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 
-export const useGetCart = () => {
+type PublicCartParams = {
+  phone: string;
+  name: string;
+};
+
+type PublicCartOptions = {
+  enabled?: boolean;
+};
+
+type CartOptions = {
+  enabled?: boolean;
+};
+
+export const useGetCart = (options?: CartOptions) => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
       const res = await http.get("/cart");
       return res.data;
     },
+    enabled: options?.enabled ?? true,
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
@@ -55,6 +73,67 @@ export const useUpdateCartItem = (itemId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+};
+
+// Guest cart APIs
+export const useAddPublicCartItem = () => {
+  return useMutation({
+    mutationFn: (body: SingleCartItemPayload) => {
+      return http.post(`/public/cart/items`, body);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["public-cart"] });
+    },
+  });
+};
+
+export const useGetPublicCart = (
+  params: PublicCartParams,
+  options?: PublicCartOptions,
+) => {
+  return useQuery<CartResponse>({
+    queryKey: ["public-cart", params],
+    queryFn: async () => {
+      const res = await http.get("/public/cart", { params });
+      return res.data;
+    },
+    enabled: options?.enabled ?? true,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  });
+};
+
+export const useClearPublicCart = (params: PublicCartParams) => {
+  return useMutation({
+    mutationFn: () => {
+      return http.delete("/public/cart", { params });
+    },
+  });
+};
+
+export const useRemovePublicCartItem = (params: PublicCartParams) => {
+  return useMutation({
+    mutationFn: (itemId: string) => {
+      return http.delete(`/public/cart/items/${itemId}`, { params });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["public-cart"] });
+    },
+  });
+};
+
+export const useUpdatePublicCartItem = (itemId: string) => {
+  return useMutation({
+    mutationKey: ["updateCartItem", itemId],
+    mutationFn: (body: UpdateCartItemPayload) => {
+      return http.patch(`/public/cart/items/${itemId}`, body);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["public-cart"] });
     },
   });
 };

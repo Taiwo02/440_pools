@@ -20,52 +20,68 @@ import {
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import { getCrossSubdomainCookie } from '@/lib/utils';
 import { useBuy } from '@/hooks/use-buy';
-import { useGetCart } from "@/api/cart";
+import { useGetCart, useGetPublicCart } from "@/api/cart";
 
 const Cart = () => {
-  const router = useRouter();
+    const router = useRouter();
 
-  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
-  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-  const { buyCart, removeFromBuyCart, clearBuyCart, hasSynced } = useBuy();
-  const { data: cartData, isPending: isCartPending, error: cartError } = useGetCart();
+    const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>(
+      {},
+    );
+    const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+    const { buyCart, removeFromBuyCart, clearBuyCart, hasSynced, guestPhone, guestName } =
+      useBuy();
 
-  const cartItems = buyCart;
-  console.log(cartItems);
+    const accessToken = getCrossSubdomainCookie("440_token");
 
-  const isEmpty = cartItems.length < 1;
-  const showLoading = isCartPending && !hasSynced;
+    const { data: authCartData, isPending: isAuthCartPending } = useGetCart({
+      enabled: !!accessToken,
+    });
+    const { data: publicCartData, isPending: isPublicCartPending } =
+      useGetPublicCart(
+        { phone: guestPhone, name: guestName },
+        { enabled: !accessToken && !!guestPhone },
+      );
 
-  const handleCheckOut = async () => {
-    const accessToken = getCrossSubdomainCookie('440_token');
+    // pick whichever summary applies to the current session
+    const cartData = accessToken ? authCartData : publicCartData;
+    const isCartPending = accessToken
+      ? isAuthCartPending
+      : !!guestPhone && isPublicCartPending;
 
-    if (!accessToken) {
-      localStorage.setItem('redirectAfterLogin', '/checkout');
+    const cartItems = buyCart;
 
-      toast.warning(`Authentication required`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+    const isEmpty = cartItems.length < 1;
+    const showLoading = isCartPending && !hasSynced;
 
-      router.push('/account');
-    } else {
-      setIsCheckoutLoading(true);
+    const handleCheckOut = async () => {
+      if (!accessToken) {
+        localStorage.setItem("redirectAfterLogin", "/checkout");
 
-      setTimeout(() => {
-        router.push('/checkout?direct_order=true');
-      }, 1000)
-    }
-  };
-  
-  const subtotal = cartData?.data?.subtotal || 0;
-  // const totalSaved = calculateTotalSaved();
-  const bulkSavings = subtotal > 0 ? 225.50 : 0;
-  const shipping = cartData?.data?.totalShippingFee || 0;
-  const total = subtotal - bulkSavings + shipping;
+        toast.warning(`Authentication required`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        router.push("/account");
+      } else {
+        setIsCheckoutLoading(true);
+
+        setTimeout(() => {
+          router.push("/checkout?direct_order=true");
+        }, 1000);
+      }
+    };
+
+    const subtotal = cartData?.data?.subtotal || 0;
+    // const totalSaved = calculateTotalSaved();
+    const bulkSavings = subtotal > 0 ? 225.5 : 0;
+    const shipping = cartData?.data?.totalShippingFee || 0;
+    const total = subtotal - bulkSavings + shipping;
 
   return (
     <>
@@ -190,7 +206,7 @@ const Cart = () => {
                             <div className="flex gap-3 mt-3">
                               <button
                                 className="flex items-center cursor-pointer gap-1.5 text-sm font-normal text-orange-600 hover:text-orange-800 hover:bg-orange-100/80 backdrop-blur-sm transition-all px-3 py-1.5 rounded-md"
-                                onClick={() => removeItem(String(item.id))}
+                                onClick={() => removeItem(String(item.product_id))}
                               >
                                 <RiDeleteBinLine className="text-base" />
                                 Remove

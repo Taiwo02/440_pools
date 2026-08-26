@@ -369,6 +369,8 @@ export type SingleCartItemPayload = {
   quantity: number;
   sizes?: CartSizes[];
   colorSelections?: CartColorObject[];
+  phone?: string;
+  name?: string;
 };
 
 export type CartItemResponse = {
@@ -550,7 +552,7 @@ export type FormValues = {
   sizes: string[];
   colors: string[];
   slots: number;
-  directQty: number;
+  directQty?: number;
 };
 
 type SizeAllocation = {
