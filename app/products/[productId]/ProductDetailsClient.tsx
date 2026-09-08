@@ -943,12 +943,13 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
 
               {/* Buttons for pool and cart */}
               <div className="mt-8 mb-4 flex gap-4 items-center">
-                <div className="relative w-fit">
+                <div className={`relative ${baleData.product.isSingleSlot! ? 'w-full' : 'w-fit'}`}>
                   <Button
                     primary
                     className={`uppercase gap-2 items-center`}
                     disabled={Boolean(formValues.slots == 0)}
                     onClick={openBuy}
+                    isFullWidth={baleData.product.isSingleSlot!}
                   >
                     <RiBankCardFill className="block" />
                     Buy
@@ -957,7 +958,9 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                     {baleData.oldPrice.toLocaleString()}
                   </div>
                 </div>
-                <div className="relative w-fit">
+                <div
+                  className={`relative w-fit ${baleData.product.isSingleSlot! && "hidden"}`}
+                >
                   <Button
                     primary
                     className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}

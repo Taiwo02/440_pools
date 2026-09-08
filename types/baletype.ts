@@ -87,6 +87,7 @@ export type ProductTwo = {
   status: boolean;
   isSpecial: boolean;
   isBogoPromo?: boolean;
+  isSingleSlot?: boolean;
   platform?: string;
   link?: string | null;
   currency?: string;
