@@ -626,8 +626,12 @@ const ProductDetails = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const formatPrice = (price?: number | null) => {
+    const safePrice = typeof price === "number" && isFinite(price) ? price : 0;
+
+    return safePrice.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    });
   };
 
   const cleanedAllocations = Object.fromEntries(
@@ -791,232 +795,231 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                 {/* Packaging Info */}
                 <PackagingInfo packageInfo={baleData.product.packageInfo} />
               </div>
-              {/* {
-                baleData?.product?.supplier &&
-                <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
-                  <div className="flex items-center gap-4">
-                    <img src={baleData?.product?.supplier?.image} alt="" className="w-16 aspect-square rounded-full" />
-                    <div>
-                      <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
-                      {
-                        baleData?.product?.supplier?.status &&
-                        <Badge variant="primary" className="font-semibold">Verified</Badge>
-                      }
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Button primary className="py-2! rounded-xl!">
-                      View Profile
-                    </Button>
-                  </div>
-                </div>
-              } */}
             </div>
 
             {/* RIGHT */}
-            <div className="w-full md:basis-1/3 md:min-w-0 bg-(--bg-surface) p-4 md:p-6 rounded-none md:rounded-xl md:sticky md:top-20 border-0 md:border border-(--border-default)">
-              <div>
-                <h1 className="text-2xl font-bold">{baleData.product.name}</h1>
-                <div className="flex justify-between items-center">
-                  <div
-                    className="mt-2 flex flex-wrap items-center gap-2"
-                    aria-label={`Product rating ${productDisplayRating.toFixed(1)} out of 5`}
-                  >
-                    <StarRating
-                      rating={productDisplayRating}
-                      size={18}
-                      className="shrink-0"
-                    />
-                    <span className="text-sm font-semibold text-(--primary) tabular-nums">
-                      {productDisplayRating.toFixed(1)}
-                    </span>
-                  </div>
-
-                  <Button
-                    primary
-                    className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!"
-                    disabled={isProductSaved}
-                    onClick={bookmark}
-                  >
-                    <span>Save</span>
-                    <RiBookmark2Fill />
-                  </Button>
-                </div>
-
-                <div className="my-4">
-                  <div className="flex flex-wrap items-end gap-2">
-                    <p className="text-3xl md:text-4xl text-(--primary) font-bold">
-                      &#8358;{formatPrice(baleData.price)}
-                    </p>
-                    <p className="text-(--text-muted) line-through">
-                      &#8358;{formatPrice(baleData.oldPrice)}
-                    </p>
-                  </div>
-                  {baleData.product.isBogoPromo && (
-                    <BogoBadge variant="banner" className="mt-2" />
-                  )}
-                </div>
-
-                <div className="">
-                  <h3 className="text-lg font-bold mb-2">Variations</h3>
-
-                  {colorsList.length > 0 && (
-                    <div className="mb-4">
-                      <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                        Colors
-                      </p>
-                      {/* Color selection (unchanged UI, just wired) */}
-                      <div
-                        className={`flex flex-wrap items-stretch gap-2 mt-1`}
-                      >
-                        {colorsList.slice(0, 4).map((color, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className={`relative flex gap-2 items-center rounded-lg border p-2 transition border-(--border-default) h-fit`}
-                            >
-                              {color.node != null && color.node}
-                              {color.node == null && color.label}
-                            </div>
-                          );
-                        })}
-
-                        {remainingColors > 0 && (
-                          <div className="px-4 rounded-lg bg-(--primary-soft) text-(--primary) flex items-center justify-center text-xl font-medium border border-white">
-                            +{remainingColors}
-                          </div>
-                        )}
-                      </div>
+            <div className="md:sticky md:top-20 w-full md:basis-1/3 md:min-w-0">
+              <div className="bg-(--bg-surface) p-4 md:p-6 rounded-none md:rounded-xl border-0 md:border border-(--border-default) md:max-h-[calc(100vh-5rem)] overflow-y-auto no-scrollbar">
+                <div>
+                  <h1 className="text-2xl font-bold">
+                    {baleData.product.name}
+                  </h1>
+                  <div className="flex justify-between items-center">
+                    <div
+                      className="mt-2 flex flex-wrap items-center gap-2"
+                      aria-label={`Product rating ${productDisplayRating.toFixed(1)} out of 5`}
+                    >
+                      <StarRating
+                        rating={productDisplayRating}
+                        size={18}
+                        className="shrink-0"
+                      />
+                      <span className="text-sm font-semibold text-(--primary) tabular-nums">
+                        {productDisplayRating.toFixed(1)}
+                      </span>
                     </div>
-                  )}
 
-                  <div className="flex flex-col h-full gap-3 overflow-y-auto mb-3">
-                    {hasSizes && (
-                      <>
-                        <p className="uppercase text-sm font-semibold text-(--text-muted)">
-                          Sizes
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {sizesList.map((size) => (
-                            <span
-                              key={size.id}
-                              className="px-2 py-1 rounded bg-(--primary-soft)"
-                            >
-                              {size.label}
-                            </span>
-                          ))}
-                        </div>
-                      </>
+                    <Button
+                      primary
+                      className="flex gap-2 items-center rounded-lg cursor-pointer px-2! py-1!"
+                      disabled={isProductSaved}
+                      onClick={bookmark}
+                    >
+                      <span>Save</span>
+                      <RiBookmark2Fill />
+                    </Button>
+                  </div>
+
+                  <div className="my-4">
+                    <div className="flex flex-wrap items-end gap-2">
+                      <p className="text-3xl md:text-4xl text-(--primary) font-bold">
+                        &#8358;
+                        {baleData.product.isSingleSlot
+                          ? formatPrice(baleData.oldPrice)
+                          : formatPrice(baleData.price)}
+                      </p>
+                      <p className="text-(--text-muted) line-through">
+                        &#8358;
+                        {baleData.product.isSingleSlot
+                          ? baleData.originalPrice != null ? formatPrice(baleData.originalPrice) : formatPrice(baleData.oldPrice)
+                          : formatPrice(baleData.oldPrice)}
+                      </p>
+                    </div>
+                    {baleData.product.isBogoPromo && (
+                      <BogoBadge variant="banner" className="mt-2" />
                     )}
                   </div>
 
-                  {hasSizes && baleData.slot > 0 && (
-                    <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg border border-(--border-default)">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-(--primary)">
-                          <RiGroup2Fill className="shrink-0" />
-                          <h3 className="text-lg font-bold uppercase">
-                            Pool Progress
-                          </h3>
-                        </div>
-                        <UserBubbles count={baleData.filledSlot} />
-                      </div>
+                  <div className="">
+                    <h3 className="text-lg font-bold mb-2">Variations</h3>
 
-                      <div className="mt-2 flex justify-between items-center">
-                        <p className="text-(--text-muted) text-sm">
-                          <span className="text-lg md:text-2xl text-(--primary) font-bold">
-                            {baleData.filledSlot}
-                          </span>{" "}
-                          / {baleData.slot} slots reserved
+                    {colorsList.length > 0 && (
+                      <div className="mb-4">
+                        <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                          Colors
                         </p>
+                        {/* Color selection (unchanged UI, just wired) */}
+                        <div
+                          className={`flex flex-wrap items-stretch gap-2 mt-1`}
+                        >
+                          {colorsList.slice(0, 4).map((color, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className={`relative flex gap-2 items-center rounded-lg border p-2 transition border-(--border-default) h-fit`}
+                              >
+                                {color.node != null && color.node}
+                                {color.node == null && color.label}
+                              </div>
+                            );
+                          })}
+
+                          {remainingColors > 0 && (
+                            <div className="px-4 rounded-lg bg-(--primary-soft) text-(--primary) flex items-center justify-center text-xl font-medium border border-white">
+                              +{remainingColors}
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    )}
 
-                      <Progress
-                        totalQty={baleData.slot}
-                        currentQty={baleData.filledSlot}
-                        className="my-0!"
-                      />
+                    <div className="flex flex-col h-full gap-3 overflow-y-auto mb-3">
+                      {hasSizes && (
+                        <>
+                          <p className="uppercase text-sm font-semibold text-(--text-muted)">
+                            Sizes
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {sizesList.map((size) => (
+                              <span
+                                key={size.id}
+                                className="px-2 py-1 rounded bg-(--primary-soft)"
+                              >
+                                {size.label}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* Buttons for pool and cart */}
-              <div className="mt-8 mb-4 flex gap-4 items-center">
-                <div className="relative w-fit">
-                  <Button
-                    primary
-                    className={`uppercase gap-2 items-center`}
-                    disabled={Boolean(formValues.slots == 0)}
-                    onClick={openBuy}
-                  >
-                    <RiBankCardFill className="block" />
-                    Buy
-                  </Button>
-                  <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
-                    {baleData.oldPrice.toLocaleString()}
+                    {hasSizes &&
+                      baleData.slot > 0 &&
+                      !baleData.product.isSingleSlot && (
+                        <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg border border-(--border-default)">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-(--primary)">
+                              <RiGroup2Fill className="shrink-0" />
+                              <h3 className="text-lg font-bold uppercase">
+                                Pool Progress
+                              </h3>
+                            </div>
+                            <UserBubbles count={baleData.filledSlot} />
+                          </div>
+
+                          <div className="mt-2 flex justify-between items-center">
+                            <p className="text-(--text-muted) text-sm">
+                              <span className="text-lg md:text-2xl text-(--primary) font-bold">
+                                {baleData.filledSlot}
+                              </span>{" "}
+                              / {baleData.slot} slots reserved
+                            </p>
+                          </div>
+
+                          <Progress
+                            totalQty={baleData.slot}
+                            currentQty={baleData.filledSlot}
+                            className="my-0!"
+                          />
+                        </div>
+                      )}
                   </div>
                 </div>
-                <div className="relative w-fit">
-                  <Button
-                    primary
-                    className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
-                    disabled={Boolean(formValues.slots == 0)}
-                    onClick={openPool}
+
+                {/* Buttons for pool and cart */}
+                <div className="mt-8 mb-4 flex gap-4 items-center">
+                  <div
+                    className={`relative ${baleData.product.isSingleSlot! ? "w-full" : "w-fit"}`}
                   >
-                    <RiGroup2Fill className="block" />
-                    Join Pool
-                  </Button>
-                  <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
-                    {baleData.price.toLocaleString()}
+                    <Button
+                      primary
+                      className={`uppercase gap-2 items-center`}
+                      disabled={Boolean(formValues.slots == 0)}
+                      onClick={openBuy}
+                      isFullWidth={baleData.product.isSingleSlot!}
+                    >
+                      <RiBankCardFill className="block" />
+                      Buy
+                    </Button>
+                    <div className="absolute -top-1 -right-2 bg-(--bg-surface) ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                      {baleData.oldPrice.toLocaleString()}
+                    </div>
+                  </div>
+                  <div
+                    className={`relative w-fit ${baleData.product.isSingleSlot! && "hidden"}`}
+                  >
+                    <Button
+                      primary
+                      className={`uppercase ring-2 ring-(--primary) ring-inset text-(--primary)! bg-transparent`}
+                      disabled={Boolean(formValues.slots == 0)}
+                      onClick={openPool}
+                    >
+                      <RiGroup2Fill className="block" />
+                      Join Pool
+                    </Button>
+                    <div className="absolute -top-1 -right-2 bg-(--primary) text-white ring-2 ring-(--primary) rounded-full text-[10px] w-fit px-1 py-.5">
+                      {baleData.price.toLocaleString()}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Mobile Tab List */}
-              <div className="block md:hidden rounded-2xl bg-(--bg-surface) w-full mb-8">
-                <Tabs defaultValue="reviews">
-                  <Tabs.List className="border-b border-(--border-default)">
-                    <Tabs.Trigger
-                      value="reviews"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Reviews</span>
-                      <span className="md:block hidden">Product Reviews</span>
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="specs"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Specs</span>
-                      <span className="hidden md:block">Specifications</span>
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="shipping"
-                      className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
-                    >
-                      <span className="block md:hidden">Packaging</span>
-                      <span className="md:block hidden">
-                        Packaging Information
-                      </span>
-                    </Tabs.Trigger>
-                  </Tabs.List>
+                {/* Mobile Tab List */}
+                <div className="block md:hidden rounded-2xl bg-(--bg-surface) w-full mb-8">
+                  <Tabs defaultValue="reviews">
+                    <Tabs.List className="border-b border-(--border-default)">
+                      <Tabs.Trigger
+                        value="reviews"
+                        className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
+                      >
+                        <span className="block md:hidden">Reviews</span>
+                        <span className="md:block hidden">Product Reviews</span>
+                      </Tabs.Trigger>
+                      <Tabs.Trigger
+                        value="specs"
+                        className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
+                      >
+                        <span className="block md:hidden">Specs</span>
+                        <span className="hidden md:block">Specifications</span>
+                      </Tabs.Trigger>
+                      <Tabs.Trigger
+                        value="shipping"
+                        className="px-4 py-2 data-[state=active]:border-b-3 data-[state=active]:border-(--primary) data-[state=active]:text-(--primary)"
+                      >
+                        <span className="block md:hidden">Packaging</span>
+                        <span className="md:block hidden">
+                          Packaging Information
+                        </span>
+                      </Tabs.Trigger>
+                    </Tabs.List>
 
-                  <Tabs.Content value="reviews" className="pt-4">
-                    <ProductReviewsSection
-                      reviews={baleData.product.reviews}
-                      productId={baleData.id}
-                    />
-                  </Tabs.Content>
-                  <Tabs.Content value="specs" className="pt-4">
-                    <ProductAttributes
-                      productAttributes={baleData.product.productAttributes}
-                    />
-                  </Tabs.Content>
-                  <Tabs.Content value="shipping" className="pt-4">
-                    <PackagingInfo packageInfo={baleData.product.packageInfo} />
-                  </Tabs.Content>
-                </Tabs>
+                    <Tabs.Content value="reviews" className="pt-4">
+                      <ProductReviewsSection
+                        reviews={baleData.product.reviews}
+                        productId={baleData.id}
+                      />
+                    </Tabs.Content>
+                    <Tabs.Content value="specs" className="pt-4">
+                      <ProductAttributes
+                        productAttributes={baleData.product.productAttributes}
+                      />
+                    </Tabs.Content>
+                    <Tabs.Content value="shipping" className="pt-4">
+                      <PackagingInfo
+                        packageInfo={baleData.product.packageInfo}
+                      />
+                    </Tabs.Content>
+                  </Tabs>
+                </div>
               </div>
             </div>
           </div>
