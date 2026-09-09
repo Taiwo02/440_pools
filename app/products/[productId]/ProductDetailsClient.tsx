@@ -626,8 +626,12 @@ const ProductDetails = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  const formatPrice = (price?: number | null) => {
+    const safePrice = typeof price === "number" && isFinite(price) ? price : 0;
+
+    return safePrice.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    });
   };
 
   const cleanedAllocations = Object.fromEntries(
@@ -791,26 +795,6 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                 {/* Packaging Info */}
                 <PackagingInfo packageInfo={baleData.product.packageInfo} />
               </div>
-              {/* {
-                baleData?.product?.supplier &&
-                <div className="p-4 rounded-lg bg-(--bg-surface) flex flex-col md:flex-row justify-between gap-4 items-center w-full mb-4">
-                  <div className="flex items-center gap-4">
-                    <img src={baleData?.product?.supplier?.image} alt="" className="w-16 aspect-square rounded-full" />
-                    <div>
-                      <h2 className="text-xl">{baleData?.product?.supplier?.name}</h2>
-                      {
-                        baleData?.product?.supplier?.status &&
-                        <Badge variant="primary" className="font-semibold">Verified</Badge>
-                      }
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Button primary className="py-2! rounded-xl!">
-                      View Profile
-                    </Button>
-                  </div>
-                </div>
-              } */}
             </div>
 
             {/* RIGHT */}
@@ -849,10 +833,16 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                   <div className="my-4">
                     <div className="flex flex-wrap items-end gap-2">
                       <p className="text-3xl md:text-4xl text-(--primary) font-bold">
-                        &#8358;{formatPrice(baleData.price)}
+                        &#8358;
+                        {baleData.product.isSingleSlot
+                          ? formatPrice(baleData.oldPrice)
+                          : formatPrice(baleData.price)}
                       </p>
                       <p className="text-(--text-muted) line-through">
-                        &#8358;{formatPrice(baleData.oldPrice)}
+                        &#8358;
+                        {baleData.product.isSingleSlot
+                          ? baleData.originalPrice != null ? formatPrice(baleData.originalPrice) : formatPrice(baleData.oldPrice)
+                          : formatPrice(baleData.oldPrice)}
                       </p>
                     </div>
                     {baleData.product.isBogoPromo && (
@@ -913,34 +903,36 @@ const items: CartItemVariant[] = Object.values(allocations).flatMap((color) => {
                       )}
                     </div>
 
-                    {hasSizes && baleData.slot > 0 && (
-                      <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg border border-(--border-default)">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-(--primary)">
-                            <RiGroup2Fill className="shrink-0" />
-                            <h3 className="text-lg font-bold uppercase">
-                              Pool Progress
-                            </h3>
+                    {hasSizes &&
+                      baleData.slot > 0 &&
+                      !baleData.product.isSingleSlot && (
+                        <div className="mb-4 bg-(--bg-surface) p-4 rounded-lg border border-(--border-default)">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-(--primary)">
+                              <RiGroup2Fill className="shrink-0" />
+                              <h3 className="text-lg font-bold uppercase">
+                                Pool Progress
+                              </h3>
+                            </div>
+                            <UserBubbles count={baleData.filledSlot} />
                           </div>
-                          <UserBubbles count={baleData.filledSlot} />
-                        </div>
 
-                        <div className="mt-2 flex justify-between items-center">
-                          <p className="text-(--text-muted) text-sm">
-                            <span className="text-lg md:text-2xl text-(--primary) font-bold">
-                              {baleData.filledSlot}
-                            </span>{" "}
-                            / {baleData.slot} slots reserved
-                          </p>
-                        </div>
+                          <div className="mt-2 flex justify-between items-center">
+                            <p className="text-(--text-muted) text-sm">
+                              <span className="text-lg md:text-2xl text-(--primary) font-bold">
+                                {baleData.filledSlot}
+                              </span>{" "}
+                              / {baleData.slot} slots reserved
+                            </p>
+                          </div>
 
-                        <Progress
-                          totalQty={baleData.slot}
-                          currentQty={baleData.filledSlot}
-                          className="my-0!"
-                        />
-                      </div>
-                    )}
+                          <Progress
+                            totalQty={baleData.slot}
+                            currentQty={baleData.filledSlot}
+                            className="my-0!"
+                          />
+                        </div>
+                      )}
                   </div>
                 </div>
 

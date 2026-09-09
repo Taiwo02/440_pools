@@ -136,7 +136,7 @@ const AllocationModal = (
             {buyDirectly ? (
               <div>
                 <p className="text-3xl text-(--primary) font-bold">
-                  &#8358;{formatPrice(baleData.oldPrice)}
+                  &#8358;{formatPrice(totalAllocatedQuantity == 0 ? baleData.oldPrice : baleData.oldPrice * totalAllocatedQuantity)}
                 </p>
                 <span className="relative -top-2 text-xs text-(--text-muted)">
                   Direct Buy Price per Unit
@@ -145,7 +145,7 @@ const AllocationModal = (
             ) : (
               <div>
                 <p className="text-3xl text-(--primary) font-bold">
-                  &#8358;{formatPrice(baleData.price)}
+                  &#8358;{formatPrice(baleData.price * productsPerSlot * formValues.slots)}
                 </p>
                 <span className="relative -top-2 text-xs text-(--text-muted)">
                   Pooled Price per Unit
