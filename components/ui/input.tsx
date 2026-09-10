@@ -84,13 +84,15 @@ const Input = React.memo(({
           required={required}
           disabled={disabled}
           className={cn(
-            "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary) placeholder:text-(--muted)",
+            "w-full p-3 bg-(--bg-surface) rounded-lg border border-slate-200 focus:border focus:outline-(--primary) placeholder:text-(--muted) capitalize",
             styling
           )}
         >
           <option value="">{placeholder}</option>
           {selectOptions.map(opt => (
-            <option key={opt} value={opt}>{opt}</option>
+            <option key={opt} value={opt} className="capitalize">
+              {opt}
+            </option>
           ))}
         </select>
       </div>

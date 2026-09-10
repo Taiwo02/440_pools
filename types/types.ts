@@ -745,3 +745,61 @@ export type AnalyticsPayload = {
 export type AnalyticsBatch = {
   events: AnalyticsPayload[];
 };
+
+// Market Types
+export type SupplierParams = {
+  page: number;
+  limit: number;
+  marketId?: number;
+  search?: string;
+};
+
+export type MarketParams = {
+  page: number;
+  limit: number;
+  cityId?: number;
+  country?: string;
+  search?: string;
+};
+
+export type SingleMarket = {
+  id: number;
+  name: string;
+  category: string;
+  country: string;
+  address: string;
+  image: string;
+};
+
+export type SingleSupplier = {
+  id: number;
+  clubCode: string;
+  name: string;
+  image: string;
+  profile: string;
+  location: string;
+  description: string;
+  year: string;
+  returnRate: number;
+  rate: number;
+  supplierType: string;
+  medal: string;
+  marketId: number;
+  market: SingleMarket;
+};
+
+export type SupplierResponse = {
+  suppliers: SingleSupplier[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type MarketResponse = {
+  markets: SingleMarket[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
