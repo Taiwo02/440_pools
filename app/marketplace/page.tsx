@@ -3,9 +3,10 @@ import { useGetMarkets, useGetSuppliers } from "@/api/market";
 import MarketCard from "@/components/marketplace/MarketCard";
 import SupplierCard from "@/components/marketplace/SupplierCard";
 import { Button, Input } from "@/components/ui";
+import { Accordion } from "@/components/ui/accordion";
 import { MarketParams, SupplierParams } from "@/types/types";
 import React, { useState } from "react";
-import { RiArrowLeftSFill, RiArrowLeftSLine, RiArrowRightSFill, RiArrowRightSLine, RiLoader5Fill } from "react-icons/ri";
+import { RiArrowDownSLine, RiArrowLeftSFill, RiArrowLeftSLine, RiArrowRightSFill, RiArrowRightSLine, RiFilter2Line, RiListUnordered, RiLoader5Fill } from "react-icons/ri";
 
 const defaultMarketFilters: MarketParams = { page: 1, limit: 10 };
 const defaultSupplierFilters: SupplierParams = { page: 1, limit: 10 };
@@ -86,7 +87,7 @@ const MarketPage = () => {
   return (
     <section className="pt-16 lg:pt-24 mb-12">
       <div className="mx-3 md:mx-10 lg:mx-20">
-        <div className="p-4 rounded-xl bg-(--bg-surface) mb-4">
+        <div className="p-4 rounded-xl bg-(--bg-surface) mb-4 hidden md:block">
           <p className="font-bold mb-3">Filters:-</p>
           <div className="flex gap-2 items-end">
             <Input
@@ -166,6 +167,101 @@ const MarketPage = () => {
               Apply
             </Button>
           </div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-(--bg-surface) mb-4 block md:hidden">
+          <Accordion>
+            <Accordion.Item id="filter">
+              <Accordion.Trigger id="filter">
+                <div className="flex items-center gap-2">
+                  <RiFilter2Line />
+                  <span>Filters</span>
+                </div>
+                <RiArrowDownSLine className="transition-transform data-[state=open]:rotate-180" />
+              </Accordion.Trigger>
+              <Accordion.Content id="filter">
+                <div className="flex flex-col gap-2">
+                  <Input
+                    element="select"
+                    name="activeTab"
+                    value={activeTab}
+                    handler={(e) =>
+                      setActiveTab(e.target.value as "suppliers" | "markets")
+                    }
+                    selectOptions={["suppliers", "markets"]}
+                    tag="Request"
+                    genStyle="my-0! flex-1"
+                  />
+
+                  {activeTab === "markets" ? (
+                    <>
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="cityId"
+                        value={tempMarketFilters.cityId ?? ""}
+                        handler={handleMarketChange}
+                        placeholder="City ID"
+                        tag="City ID"
+                        genStyle="my-0! flex-1"
+                      />
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="country"
+                        value={tempMarketFilters.country ?? ""}
+                        handler={handleMarketChange}
+                        placeholder="Country"
+                        tag="Country"
+                        genStyle="my-0! flex-1"
+                      />
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="search"
+                        value={tempMarketFilters.search ?? ""}
+                        handler={handleMarketChange}
+                        placeholder="Search"
+                        tag="Search"
+                        genStyle="my-0! flex-1"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="marketId"
+                        value={tempSupplierFilters.marketId ?? ""}
+                        handler={handleSupplierChange}
+                        placeholder="Market ID"
+                        tag="Market ID"
+                        genStyle="my-0! flex-1"
+                      />
+                      <Input
+                        element="input"
+                        input_type="text"
+                        name="search"
+                        value={tempSupplierFilters.search ?? ""}
+                        handler={handleSupplierChange}
+                        placeholder="Search"
+                        tag="Search"
+                        genStyle="my-0! flex-1"
+                      />
+                    </>
+                  )}
+                  <div className="flex gap-2">
+                    <Button onClick={handleClear} className="bg-red-500">
+                      Clear
+                    </Button>
+                    <Button primary onClick={handleApply}>
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion>
         </div>
 
         <div className="p-4 rounded-xl bg-(--bg-surface)">
