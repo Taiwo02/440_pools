@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 export const formatNumber = (value: number): string => {
   if (value >= 1_000_000_000) {
     return (value / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
@@ -30,4 +32,14 @@ export const openPaystackPopup = async (
     onSuccess,
     onCancel
   });
+};
+
+export const showToast = (
+  type: "success" | "error" | "warning" | "info",
+  message: string,
+) => {
+  if (type === "success") toast.success(message);
+  else if (type === "error") toast.error(message);
+  else if (type === "info") toast.info(message);
+  else toast.warning(message);
 };

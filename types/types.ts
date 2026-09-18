@@ -54,15 +54,15 @@ export type Bale = {
 export type Login = {
   phone: string;
   password: string;
-}
+};
 
 export type Merchant = {
-  id: number,
-  name: string,
-  email: string,
-  phone: string,
-  picture: string | null,
-  address: string
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  picture: string | null;
+  address: string;
 };
 
 export type RegisterPayload = {
@@ -325,31 +325,31 @@ export type ProfileResponse = {
 };
 
 export type CartItem = {
-  cartItemId: string,
-  productId: number,
-  baleId: number,
-  name: string,
-  image: string,
-  supplierId: number,
-  price: number,
-  originalPrice: number,
-  discount: number,
-  currency: string,
-  slots: number,
-  totalSlots: number,
-  totalShippingFee: number,
-  quantity: number,
-  unit: string,
-  createdAt: string,
-  updatedAt: string,
-  description: string,
-  status: boolean,
-  endIn: string,
-  items: {}[],
+  cartItemId: string;
+  productId: number;
+  baleId: number;
+  name: string;
+  image: string;
+  supplierId: number;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  currency: string;
+  slots: number;
+  totalSlots: number;
+  totalShippingFee: number;
+  quantity: number;
+  unit: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
+  status: boolean;
+  endIn: string;
+  items: {}[];
   variants: Record<string, string | string[]>;
-  minOrder?: number,
-  subtotal?: number,
-  inStock: boolean
+  minOrder?: number;
+  subtotal?: number;
+  inStock: boolean;
 };
 
 export type CartSizes = {
@@ -480,24 +480,24 @@ export type VariantAllocation = {
 
 // For delivery form
 export type DeliveryPayload = {
-  id?: number
-  firstName: string
-  LastName: string
-  countryCode: string
-  phone: string
-  additionalCountryCode: string
-  additionalPhone: string
-  address: string
-  additionalInfo: string
-  region: string
-  city: string
-  state: string
-  setDefault: boolean
-  status?: boolean,
-  createdAt?: string | null
-  updatedAt?: string | null
-  merchantId?: number
-}
+  id?: number;
+  firstName: string;
+  LastName: string;
+  countryCode: string;
+  phone: string;
+  additionalCountryCode: string;
+  additionalPhone: string;
+  address: string;
+  additionalInfo: string;
+  region: string;
+  city: string;
+  state: string;
+  setDefault: boolean;
+  status?: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  merchantId?: number;
+};
 
 // For order history
 type OrderStatus = "shipped" | "delivered" | "processing" | "canceled";
@@ -523,30 +523,30 @@ export type Order = {
 };
 
 export type SizeItem = {
-  sizeId: number,
-  quantity: number
-}
+  sizeId: number;
+  quantity: number;
+};
 
 export type BaleSlotItem = {
-  baleId: number,
-  slotQuantity: number,
+  baleId: number;
+  slotQuantity: number;
   items: {
-    colorId?: number | null,
-    productSizes?: SizeItem[],
-    productId: number,
-    quantity?: number
-  }[]
-}
+    colorId?: number | null;
+    productSizes?: SizeItem[];
+    productId: number;
+    quantity?: number;
+  }[];
+};
 
 export type BaleSlot = {
-  deliveryAddressId: number | null,
-  bales: BaleSlotItem[]
-}
+  deliveryAddressId: number | null;
+  bales: BaleSlotItem[];
+};
 
 export type Initiate = {
-  checkoutId: number,
-  type: "lock"
-}
+  checkoutId: number;
+  type: "lock";
+};
 
 export type FormValues = {
   sizes: string[];
@@ -556,39 +556,38 @@ export type FormValues = {
 };
 
 type SizeAllocation = {
-  sizeId: number
-  sizeLabel: string
-  quantity: number
-}
+  sizeId: number;
+  sizeLabel: string;
+  quantity: number;
+};
 
 type ColorAllocation = {
-  colorId: number
-  colorLabel: string
-  colorImages: string[]
-  quantity?: number
-  sizes: Record<number, SizeAllocation>
-}
+  colorId: number;
+  colorLabel: string;
+  colorImages: string[];
+  quantity?: number;
+  sizes: Record<number, SizeAllocation>;
+};
 
-
-export type AllocationState = Record<number, ColorAllocation>
+export type AllocationState = Record<number, ColorAllocation>;
 
 // Categories
 export type CategoryDetails = {
-  id: number,
-  name: string,
-  categorySlug: string | null,
-  priority: number | string,
-  image: string,
-  description: string,
-  createdAt: string,
-  updatedAt: string
-}
+  id: number;
+  name: string;
+  categorySlug: string | null;
+  priority: number | string;
+  image: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export interface BaleFilters {
   page?: number;
   limit?: number;
   search?: string;
-  productId?: number
+  productId?: number;
   isSpecial?: boolean;
   status?: "OPEN" | "CLOSED";
   shipmentId?: number;
@@ -607,8 +606,6 @@ export interface BaleFilters {
   subCategories?: number[];
 }
 
-
-
 // Inspection Types ------------
 export type InspectionDepth = "BASIC" | "STANDARD" | "COMPREHENSIVE";
 
@@ -619,7 +616,26 @@ export type InspectionProductDetails = {
   specifications?: string;
 };
 
-export type InspectionStatus = "SUBMITTED" | "SCHEDULED" | "IN_PROGRESS" | "REPORT_READY" | "COMPLETED" | "REJECTED" | "REJECTED" | "REFUNDED" | "CANCELLED";
+export type InspectionStatus =
+  | "SUBMITTED"
+  | "SCHEDULED"
+  | "IN_PROGRESS"
+  | "REPORT_READY"
+  | "COMPLETED"
+  | "REJECTED"
+  | "REJECTED"
+  | "REFUNDED"
+  | "CANCELLED";
+
+export type AttachmentKind =
+  | "INVOICE"
+  | "QUOTATION"
+  | "RECEIPT"
+  | "SCREENSHOT"
+  | "PHOTO"
+  | "VIDEO"
+  | "REPORT"
+  | "OTHER";
 
 export type InspectionRequestType = {
   depth: InspectionDepth;
@@ -632,7 +648,7 @@ export type InspectionRequestType = {
   pin: string;
   attachments?: {
     url: string;
-    kind: string;
+    kind: AttachmentKind;
     note: string;
   }[];
 };
@@ -642,7 +658,7 @@ export type InspectionParams = {
   depth: InspectionDepth;
   page: number;
   limit: number;
-}
+};
 
 export type SingleInspection = {
   id: number;
@@ -684,6 +700,29 @@ export type SingleInspection = {
   updatedAt: string;
 };
 
+type SupplierDetails = {
+  supplierName: string;
+  supplierAddress: string;
+  contactInformation: string;
+};
+
+type ProductDetails = {
+  productDescription: string;
+  quantity: number;
+  specifications?: string;
+};
+
+type InspectionAttachment = {
+  invoiceOrPO?: string | null;
+};
+
+export type OrderInspectionPayload = SupplierDetails &
+  ProductDetails &
+  InspectionAttachment & {
+    inspectionDepth: InspectionDepth | "";
+    acceptedTerms: boolean;
+  };
+
 // Review ----------------
 export type ReviewPayload = {
   buyerId: number;
@@ -699,7 +738,11 @@ export type SaveProductPayload = {
 };
 
 // Analytics ----------------
-export type AnalyticsSource = "web" | "mobile_ios" | "mobile_android" | "server";
+export type AnalyticsSource =
+  | "web"
+  | "mobile_ios"
+  | "mobile_android"
+  | "server";
 
 export type AnalyticsPlatform = "ios" | "android" | "web";
 
@@ -709,21 +752,43 @@ export type ProductAnalyticsEvent = "PRODUCT_VIEWED" | "PRODUCT_LIST_VIEWED";
 
 export type WishListAnalyticsEvent = "PRODUCT_SAVED" | "PRODUCT_UNSAVED";
 
-export type CartAnalyticsEvent = "CART_ITEM_ADDED" | "CART_ITEM_REMOVED" | "CART_CLEARED";
+export type CartAnalyticsEvent =
+  | "CART_ITEM_ADDED"
+  | "CART_ITEM_REMOVED"
+  | "CART_CLEARED";
 
 export type SearchAnalyticsEvent = "SEARCH_PERFORMED";
 
 export type CheckoutAnalyticsEvent = "CHECKOUT_CREATED" | "CHECKOUT_ABANDONED";
 
-export type PaymentAnalyticsEvent = "PAYMENT_INITIATED" | "PAYMENT_COMPLETED" | "PAYMENT_FAILED";
+export type PaymentAnalyticsEvent =
+  | "PAYMENT_INITIATED"
+  | "PAYMENT_COMPLETED"
+  | "PAYMENT_FAILED";
 
-export type OrderAnalyticsEvent = "ORDER_CREATED" | "ORDER_STATUS_CHANGED" | "ORDER_DELIVERED" | "ORDER_CANCELLED" | "REVIEW_SUBMITTED" | "INSTALLMENT_PAYMENT_INITIATED";
+export type OrderAnalyticsEvent =
+  | "ORDER_CREATED"
+  | "ORDER_STATUS_CHANGED"
+  | "ORDER_DELIVERED"
+  | "ORDER_CANCELLED"
+  | "REVIEW_SUBMITTED"
+  | "INSTALLMENT_PAYMENT_INITIATED";
 
 export type BaleAnalyticsEvent = "BALE_JOINED";
 
 export type RFQAnalyticsEvent = "RFQ_CREATED" | "RFQ_VIEWED";
 
-export type AnalyticsEvent = UserAnalyticsEvent | ProductAnalyticsEvent | WishListAnalyticsEvent | CartAnalyticsEvent | SearchAnalyticsEvent | CheckoutAnalyticsEvent | PaymentAnalyticsEvent | OrderAnalyticsEvent | BaleAnalyticsEvent | RFQAnalyticsEvent;
+export type AnalyticsEvent =
+  | UserAnalyticsEvent
+  | ProductAnalyticsEvent
+  | WishListAnalyticsEvent
+  | CartAnalyticsEvent
+  | SearchAnalyticsEvent
+  | CheckoutAnalyticsEvent
+  | PaymentAnalyticsEvent
+  | OrderAnalyticsEvent
+  | BaleAnalyticsEvent
+  | RFQAnalyticsEvent;
 
 export type AnalyticsPayload = {
   event_id: string;
@@ -803,3 +868,54 @@ export type MarketResponse = {
   limit: number;
   totalPages: number;
 };
+
+export type LogisticsFormPayload = {
+  images: string[];
+  description: string;
+  currentAddress: string;
+  destination: string;
+  phone: string;
+  email: string;
+  fullName: string;
+  shippingMode: "SEA" | "AIR";
+  shippingOption: string;
+};
+
+// Supplier Verification
+type VerificationType = "basic" | "standard" | "physical";
+
+type SupplierInformation = {
+  supplierName: string;
+  productType: string;
+};
+
+type LocationDetails = {
+  city: string;
+  address: string;
+  country: string;
+};
+
+type ContactDetails = {
+  contactPerson: string;
+  phoneNumber: string;
+  wechatId?: string;
+  email?: string;
+};
+
+type SupplierDocuments = {
+  quotation?: File | null;
+  invoice?: File | null;
+};
+
+export type VerifySupplierPayload = SupplierInformation &
+  LocationDetails &
+  ContactDetails &
+  SupplierDocuments & {
+    verificationType: VerificationType | "";
+    acceptedTerms: boolean;
+  };
+
+  export type InspectionRates = {
+    tier: InspectionDepth;
+    feeKobo: number;
+  };
