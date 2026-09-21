@@ -8,12 +8,16 @@ import {
   RiCloseLine,
   RiFile2Line,
 } from "react-icons/ri";
+import axios from "axios";
 
 type FileType = "image" | "document" | "custom";
 
 type UploadFile = {
+  id: string;
   file: File;
+  preview: string;
   progress: number;
+  url?: string;
   error?: string;
 };
 
@@ -24,7 +28,8 @@ type Props = {
   fileType?: FileType;
   accept?: string;
   maxSizeMB?: number;
-  onFilesChange: (files: File[]) => void;
+  onFilesChange: (files: UploadedFile[]) => void;
+  initialUrls?: string[];
 };
 
 const fileTypeMap: Record<FileType, string> = {
@@ -32,6 +37,8 @@ const fileTypeMap: Record<FileType, string> = {
   document: ".pdf,.doc,.docx,.txt",
   custom: "",
 };
+
+type UploadedFile = { url: string; file: File };
 
 const FileUpload = ({
   label,
@@ -41,9 +48,18 @@ const FileUpload = ({
   accept,
   maxSizeMB = 5,
   onFilesChange,
+  initialUrls = [],
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [files, setFiles] = useState<UploadFile[]>([]);
+  const [files, setFiles] = useState<UploadFile[]>(() =>
+    initialUrls.map((url) => ({
+      id: crypto.randomUUID(),
+      file: new File([], url.split("/").pop() || "file"), // dummy file
+      preview: url,
+      progress: 100,
+      url,
+    })),
+  );
   const [dragging, setDragging] = useState(false);
 
   const acceptedTypes = accept || fileTypeMap[fileType];
@@ -51,55 +67,128 @@ const FileUpload = ({
   // Cleanup URLs to avoid memory leaks
   useEffect(() => {
     return () => {
-      files.forEach((f) => URL.revokeObjectURL(f.file.name));
+      files.forEach((f) => URL.revokeObjectURL(f.preview));
     };
   }, [files]);
+
+  useEffect(() => {
+    const uploaded = files
+      .filter((f) => f.progress === 100 && f.url)
+      .map((f) => ({ url: f.url as string, file: f.file }));
+
+    onFilesChange(uploaded);
+  }, [files]);
+
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
   const handleFiles = (fileList: FileList | null) => {
     if (!fileList) return;
 
-    const selected: UploadFile[] = Array.from(fileList)
-      .filter((file) => {
-        if (file.size / 1024 / 1024 > maxSizeMB) {
-          console.warn(`File ${file.name} exceeds max size of ${maxSizeMB}MB`);
-          return false;
-        }
-        return true;
-      })
-      .map((file) => ({ file, progress: 0 }));
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-    if (!multiple) setFiles([]); // clear existing if not multiple
+    const selected: UploadFile[] = [];
+
+    Array.from(fileList).forEach((file) => {
+      if (file.size > maxSizeBytes) {
+        // File too large → add with error (or skip entirely)
+        selected.push({
+          id: crypto.randomUUID(),
+          file,
+          preview: URL.createObjectURL(file),
+          progress: 0,
+          error: `Max size is ${maxSizeMB}MB`,
+        });
+      } else {
+        // Valid file
+        selected.push({
+          id: crypto.randomUUID(),
+          file,
+          preview: URL.createObjectURL(file),
+          progress: 0,
+        });
+      }
+    });
+
     setFiles((prev) => {
       const updated = multiple ? [...prev, ...selected] : selected;
-      selected.forEach((_, idx) => simulateUpload(multiple ? prev.length + idx : idx));
+
+      // only upload valid files
+      selected.forEach((f) => {
+        if (!f.error) {
+          uploadFile(f.id, f.file);
+        }
+      });
+
       return updated;
     });
   };
 
-  const simulateUpload = (index: number) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setFiles((prev) => {
-        const updated = prev.map((f, i) =>
-          i === index ? { ...f, progress } : f
+  const uploadImage = async (
+    file: File,
+    onProgress: (progress: number) => void,
+  ) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_IMAGE_URL}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (event) => {
+          if (!event.total) return;
+
+          const percent = Math.round((event.loaded * 100) / event.total);
+          onProgress(percent);
+        },
+      },
+    );
+    return res.data.filename;
+  };
+
+  const uploadFile = async (id: string, file: File) => {
+    try {
+      const url = await uploadImage(file, (progress) => {
+        setFiles((prev) =>
+          prev.map((f) => (f.id === id ? { ...f, progress } : f)),
         );
-
-        // Call onFilesChange with fully uploaded files
-        onFilesChange(updated.filter((f) => f.progress === 100).map((f) => f.file));
-
-        return updated;
       });
 
-      if (progress >= 100) clearInterval(interval);
-    }, 250);
+      setFiles((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, progress: 100, url } : f)),
+      );
+    } catch (err) {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id ? { ...f, error: "Upload failed", progress: 0 } : f,
+        ),
+      );
+    }
+  };
+
+  const retryUpload = (id: string) => {
+    const fileToRetry = files.find((f) => f.id === id);
+    if (!fileToRetry) return;
+
+    // reset state before retry
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id ? { ...f, progress: 0, error: undefined } : f,
+      ),
+    );
+
+    uploadFile(id, fileToRetry.file);
   };
 
   const removeFile = (index: number) => {
     setFiles((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      onFilesChange(updated.filter((f) => f.progress === 100).map((f) => f.file));
-      return updated;
+      const fileToRemove = prev[index];
+      if (fileToRemove) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+      return prev.filter((_, i) => i !== index);
     });
   };
 
@@ -111,13 +200,17 @@ const FileUpload = ({
 
   const uploadedFiles = files.filter((f) => f.progress === 100);
 
+  const truncateText = (str: string, words: number) => {
+    return str.slice(0, words) + "...";
+  };
+
   return (
     <div className="space-y-3">
       {label && <label className="font-semibold block mb-1">{label}</label>}
 
       {/* DROP ZONE */}
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-slate-500 text-center cursor-pointer
+        className={`border-2 border-dashed rounded-lg p-6 text-slate-500 text-center cursor-pointer flex flex-col gap-1 justify-center items-center
           ${dragging ? "border-black bg-gray-100" : "border-gray-300"} hover:border-(--primary) hover:text-(--primary)`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -131,8 +224,29 @@ const FileUpload = ({
         }}
         onClick={() => inputRef.current?.click()}
       >
-        <RiFile2Line size={36} className="mx-auto mb-2" />
-        Drag & drop files or <span className="underline">click to upload</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-10 h-10 text-(--primary) mb-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 16l3.586-3.586a2 2 0 012.828 0L12 16m0 0l3.586-3.586a2 2 0 012.828 0L21 16m-9-5V4m0 7v7"
+          />
+        </svg>
+        <p className="text-sm">
+          <span className="font-semibold text-(--primary)">
+            Click to upload
+          </span>{" "}
+          or drag and drop
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          {fileType == 'image' ? 'PNG, JPG' : 'PDF, docx'} up to {maxSizeMB}MB each
+        </p>
       </div>
 
       <input
@@ -146,23 +260,38 @@ const FileUpload = ({
       />
 
       {/* UPLOADING LIST */}
-      {files.some((f) => f.progress < 100) && (
-        <div className="space-y-2">
-          {files
-            .filter((f) => f.progress < 100)
-            .map((f, i) => (
-              <div key={i} className="border rounded p-2">
-                <p className="text-sm truncate">{f.file.name}</p>
-                <div className="h-2 bg-gray-200 rounded mt-1">
-                  <div
-                    className="h-full bg-black rounded"
-                    style={{ width: `${f.progress}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+      {files.map((f) => (
+        <div
+          key={f.id}
+          className="border border-(--border-default) rounded-lg p-2"
+        >
+          <p className="text-xs">{truncateText(f.file.name, 30)}</p>
+
+          {f.error ? (
+            <div className="flex justify-between items-center">
+              <span className="text-red-500 text-sm">{f.error}</span>
+              <button
+                type="button"
+                onClick={() => retryUpload(f.id)}
+                className="text-xs underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : f.progress < 100 ? (
+            // ONLY show progress if still uploading
+            <div className="h-2 bg-gray-200 rounded mt-1">
+              <div
+                className="h-full bg-black rounded"
+                style={{ width: `${f.progress}%` }}
+              />
+            </div>
+          ) : (
+            // Uploaded state
+            <span className="text-green-600 text-xs">Uploaded</span>
+          )}
         </div>
-      )}
+      ))}
 
       {/* ICON PREVIEW (BOTTOM) */}
       {uploadedFiles.length > 0 && (
@@ -170,11 +299,11 @@ const FileUpload = ({
           {uploadedFiles.map((item, index) => (
             <div
               key={index}
-              className="relative w-14 h-14 border rounded-lg flex items-center justify-center"
+              className="relative w-14 h-14 border border-(--border-default) rounded-lg flex items-center justify-center"
             >
-              {item.file.type.startsWith("image") ? (
+              {item.file.type.startsWith("image") || item.url ? (
                 <img
-                  src={URL.createObjectURL(item.file)}
+                  src={item.url || URL.createObjectURL(item.file)}
                   alt=""
                   className="w-full h-full object-cover rounded-lg"
                 />

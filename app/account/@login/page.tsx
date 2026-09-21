@@ -20,6 +20,24 @@ const AccountLogin = () => {
   const { authenticate } = useAuth();
   const router = useRouter();
 
+  // Redirect URLs
+  const redirectUrl = localStorage.getItem("redirectAfterLogin");
+  const rfqRedirect = localStorage.getItem("redirectToServicePopup");
+
+  useEffect(() => {
+    if (rfqRedirect) {
+      toast.warning(`Login before checking out services`, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [rfqRedirect])
+  
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -59,17 +77,17 @@ const AccountLogin = () => {
 
         authenticate({ user, token, refreshToken });
 
-        const redirectUrl = localStorage.getItem('redirectAfterLogin');
-        
-        if (redirectUrl) {
-          localStorage.removeItem('redirectAfterLogin');
-          
-          router.replace(redirectUrl);
-        } else {
-          router.replace("/account");
+        let destination = "/account";
+        if (rfqRedirect) {
+          destination = "/?RFQ";
+        } else if (redirectUrl) {
+          destination = redirectUrl;
         }
-        
-        window.location.reload();
+
+        localStorage.removeItem("redirectAfterLogin");
+        localStorage.removeItem("redirectToServicePopup");
+
+        window.location.href = destination;
       } else {
         toast.success(`Something went wrong`, {
           position: "top-right",
