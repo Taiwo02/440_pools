@@ -277,7 +277,7 @@ const MarketPage = () => {
           {!isLoading && activeTab === "markets" && (
             <>
               <h2 className="text-xl font-bold mb-4">Markets</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {marketsData?.markets.map((market, index) => (
                   <MarketCard key={index} market={market} />
                 ))}
@@ -320,7 +320,7 @@ const MarketPage = () => {
           {!isLoading && activeTab === "suppliers" && (
             <>
               <h2 className="text-xl font-bold mb-4">Suppliers</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {suppliersData?.suppliers.map((supplier, index) => (
                   <SupplierCard key={index} supplier={supplier} />
                 ))}

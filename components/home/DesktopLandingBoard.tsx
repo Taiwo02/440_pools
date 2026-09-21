@@ -15,7 +15,7 @@ import {
   RiArrowRightSLine,
 } from "react-icons/ri";
 import ProductThumbPlaceholder from "../product/ProductThumbPlaceholder";
-import { RequestQuoteForm } from "@/components/requestForQuot";
+import { RequestQuoteForm } from "@/components/services/requestForQuot";
 import { useBuy } from "@/hooks/use-buy";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";

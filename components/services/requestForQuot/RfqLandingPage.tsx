@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { RequestQuoteForm } from "@/components/requestForQuot";
+import { RequestQuoteForm } from "@/components/services/requestForQuot";
 
 /** Landing experience: RFQ modal open immediately (e.g. /request-quote/, /rfq/). */
 export default function RfqLandingPage() {

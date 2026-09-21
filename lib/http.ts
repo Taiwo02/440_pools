@@ -57,13 +57,14 @@ http.interceptors.request.use((config) => {
   const token = getCrossSubdomainCookie("440_token");
   if (token) config.headers.authorization = `Bearer ${token}`;
 
-  // Only generate a key if it's the specific endpoint AND one doesn't exist yet
-  if (
-    config.method === 'post' &&
-    config.url?.includes("/buyer/initiate-payment") &&
-    !config.headers['Idempotency-Key'] // Check if key is already there
-  ) {
-    config.headers['Idempotency-Key'] = uuidv4();
+  const needsIdempotencyKey =
+    config.method === "post" &&
+    (config.url?.includes("/buyer/initiate-payment") ||
+      config.url?.includes("/inspection/requests") ||
+      config.url?.includes("/supplier-verification/requests"));
+
+  if (needsIdempotencyKey && !config.headers["Idempotency-Key"]) {
+    config.headers["Idempotency-Key"] = uuidv4();
   }
 
   return config;
