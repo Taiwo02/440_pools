@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import RfqLandingPage from "@/components/requestForQuot/RfqLandingPage";
+import RfqLandingPage from "@/components/services/requestForQuot/RfqLandingPage";
 
 export const metadata: Metadata = {
   title: "Request a quote",
