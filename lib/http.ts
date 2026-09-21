@@ -60,7 +60,8 @@ http.interceptors.request.use((config) => {
   const needsIdempotencyKey =
     config.method === "post" &&
     (config.url?.includes("/buyer/initiate-payment") ||
-      config.url?.includes("/inspection/requests"));
+      config.url?.includes("/inspection/requests") ||
+      config.url?.includes("/supplier-verification/requests"));
 
   if (needsIdempotencyKey && !config.headers["Idempotency-Key"]) {
     config.headers["Idempotency-Key"] = uuidv4();

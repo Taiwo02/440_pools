@@ -32,9 +32,9 @@ const Header = ({ openRfq, setIsRfqModalOpen }: HeaderProps) => {
       openRfq();
 
       // remove RFQ param
-      // const params = new URLSearchParams(searchParams.toString());
-      // params.delete("RFQ");
-      // router.replace(`?${params.toString()}`);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("RFQ");
+      router.replace(`?${params.toString()}`);
     }
   }, [isRfqParam]);
 

@@ -919,3 +919,27 @@ export type VerifySupplierPayload = SupplierInformation &
     tier: InspectionDepth;
     feeKobo: number;
   };
+
+export type VerifySupplierRequest = {
+  supplier: {
+    name: string;
+    productType: string;
+    location: {
+      city: string;
+      address: string;
+      country: string;
+    };
+    contact: {
+      person: string;
+      phone: string;
+      wechat: string;
+      email: string;
+    };
+  };
+  pin: string;
+  attachments: {
+    url: string;
+    kind: AttachmentKind;
+    note: string;
+  }[];
+};

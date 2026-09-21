@@ -43,3 +43,17 @@ export const showToast = (
   else if (type === "info") toast.info(message);
   else toast.warning(message);
 };
+
+export const isObjectComplete = (
+  obj: Record<string, unknown>,
+  excludeKeys: string[] = [],
+): boolean => {
+  return Object.entries(obj).every(([key, value]) => {
+    if (excludeKeys.includes(key)) return true;
+
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "number") return value !== 0;
+    if (typeof value === "string") return value.trim() !== "";
+    return value !== null && value !== undefined;
+  });
+};
