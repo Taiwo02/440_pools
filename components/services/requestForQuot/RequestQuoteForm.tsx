@@ -88,11 +88,14 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
       handleImageUpload(updated);
       setEditIndex(null);
       showToast("success", "Item updated successfully ✅");
+      handleNext();
     } else {
       const newProducts = [...products, { ...currentProduct }];
       setProducts(newProducts);
       handleImageUpload(newProducts);
       showToast("success", "Item added to cart ✅");
+      setStep((s) => Math.min(3, s + 1));
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
     setCurrentProduct(initialProduct);
   };
@@ -108,8 +111,8 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
     setProducts((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleNext = () => {
-    if (step === 1 && products.length === 0) {
+  const handleNext = (productCount = products.length) => {
+    if (step === 1 && productCount === 0) {
       showToast("error", "Add at least one product first");
       return;
     }
@@ -150,17 +153,15 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
   const stepLabels = ["Products", "Summary", "Customer Info"];
 
   return (
-    <div className="text-black w-full max-w-4xl px-0 z-50 relative rounded-none md:rounded-2xl shadow-lg">
+    <div className="text-black w-full px-0 z-50 relative mt-3">
       <div className="relative flex flex-col order-2 md:order-1">
-        <div className="w-full sm:max-w-4xl mx-auto bg-white shadow-lg rounded-none md:rounded-2xl p-4 sm:p-8 justify-self-center">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+        <div className="w-full sm:max-w-4xl mx-auto rounded-none md:rounded-2xl justify-self-center">
+          {/* <div className="flex items-center justify-between border-b border-gray-200 pb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
               Request for Quotation
               <span className="relative inline-flex">
                 <RiShoppingCart2Line className="text-(--primary) text-xl" />
-                <span className="absolute -top-2 -right-2 bg-(--primary) text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {products.length}
-                </span>
+                
               </span>
             </h2>
             <button
@@ -171,17 +172,19 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
             >
               <RiCloseLine size={28} />
             </button>
-          </div>
+          </div> */}
 
           <div className="flex flex-row items-center justify-center gap-3 sm:gap-6 mb-6 pt-5">
             {stepLabels.map((label, idx) => {
               const n = idx + 1;
               const active = step >= n;
               return (
-                <div key={label} className="flex items-center">
+                <div key={label} className="flex items-center relative">
                   <div
                     className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-sm font-bold ${
-                      active ? "bg-(--primary) text-white" : "bg-gray-200 text-gray-600"
+                      active
+                        ? "bg-(--primary) text-white"
+                        : "bg-gray-200 text-gray-600"
                     }`}
                   >
                     {n}
@@ -192,6 +195,11 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
                     }`}
                   >
                     {label}
+                    {idx == 0 && (
+                      <span className="absolute -top-2 right-10 bg-(--primary) text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {products.length}
+                      </span>
+                    )}
                   </span>
                   {idx < 2 && (
                     <div
@@ -274,7 +282,7 @@ export default function RequestQuoteForm({ handleRfqPopup }: RequestQuoteFormPro
                     </Button>
                     <Button
                       type="button"
-                      onClick={handleNext}
+                      onClick={() => handleNext()}
                       className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700"
                     >
                       Next <RiArrowRightLine />
