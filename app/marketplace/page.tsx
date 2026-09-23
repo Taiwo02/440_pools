@@ -84,6 +84,11 @@ const MarketPage = () => {
 
   const isLoading = activeTab === "markets" ? marketsLoading : suppliersLoading;
 
+  const selectOptions = [
+    { label: 'Suppliers', value: 'suppliers' },
+    { label: 'Markets', value: 'markets' },
+  ];
+
   return (
     <section className="pt-16 lg:pt-24 mb-12">
       <div className="mx-3 md:mx-10 lg:mx-20">
@@ -97,7 +102,7 @@ const MarketPage = () => {
               handler={(e) =>
                 setActiveTab(e.target.value as "suppliers" | "markets")
               }
-              selectOptions={["suppliers", "markets"]}
+              selectOptions={selectOptions}
               tag="Request"
               genStyle="my-0! flex-1"
             />
@@ -188,7 +193,7 @@ const MarketPage = () => {
                     handler={(e) =>
                       setActiveTab(e.target.value as "suppliers" | "markets")
                     }
-                    selectOptions={["suppliers", "markets"]}
+                    selectOptions={selectOptions}
                     tag="Request"
                     genStyle="my-0! flex-1"
                   />

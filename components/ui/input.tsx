@@ -26,7 +26,8 @@ type Props = {
     | "radio"
     | "checkbox"
     | "number"
-    | "date";
+    | "date"
+    | "search";
   name: string;
   value: string | string[] | number | number[] | null;
   handler: (e: React.ChangeEvent<any>) => void;

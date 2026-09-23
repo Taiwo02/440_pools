@@ -233,7 +233,7 @@ const BuyDirectProductInfo = (
             className="rounded-r-none rounded-l-xl! py-2!"
             disabled={formValues.directQty === 1}
             onClick={() =>
-              setFormValues(p => ({ ...p, directQty: p.directQty - 1 }))
+              setFormValues(p => ({ ...p, directQty: p.directQty! - 1 }))
             }
             primary
           >
@@ -243,7 +243,7 @@ const BuyDirectProductInfo = (
             element="input"
             input_type="text"
             name="quantity"
-            value={formValues.directQty}
+            value={formValues.directQty!}
             handler={handleChange}
             genStyle="my-0!"
             styling="rounded-none p-2! focus:outline-none! disabled w-30! text-center"
@@ -251,7 +251,7 @@ const BuyDirectProductInfo = (
           <Button
             className="rounded-l-none rounded-r-xl! py-2!"
             onClick={() =>
-              setFormValues(p => ({ ...p, directQty: p.directQty + 1 }))
+              setFormValues(p => ({ ...p, directQty: p.directQty! + 1 }))
             }
             primary
           >
