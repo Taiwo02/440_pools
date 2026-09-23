@@ -6,10 +6,10 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev": "node -e \"try{require('fs').unlinkSync('.next/dev/lock')}catch(e){}\" && next dev",
-    "build": "next build --webpack",
+    "dev": "node init && node -e \"try{require('fs').unlinkSync('.next/dev/lock')}catch(e){}\" && next dev",
+    "build": "node init && next build --webpack",
     "serve:out": "npx --yes serve out",
-    "start": "next start",
+    "start": "node init && next start",
     "lint": "eslint"
   },
   "dependencies": {
