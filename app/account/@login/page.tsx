@@ -15,14 +15,18 @@ const AccountLogin = () => {
     phone: '',
     password: ''
   });
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+  const [rfqRedirect, setRfqRedirect] = useState<string | null>(null);
 
   const { mutateAsync: loginUser, isPending: isLoginLoading } = useLoginMutation();
   const { authenticate } = useAuth();
   const router = useRouter();
 
   // Redirect URLs
-  const redirectUrl = localStorage.getItem("redirectAfterLogin");
-  const rfqRedirect = localStorage.getItem("redirectToServicePopup");
+  useEffect(() => {
+    setRedirectUrl(localStorage.getItem("redirectAfterLogin"));
+    setRfqRedirect(localStorage.getItem("redirectToServicePopup"));
+  }, []);
 
   useEffect(() => {
     if (rfqRedirect) {
@@ -78,6 +82,7 @@ const AccountLogin = () => {
         authenticate({ user, token, refreshToken });
 
         let destination = "/account";
+
         if (rfqRedirect) {
           destination = "/?RFQ";
         } else if (redirectUrl) {

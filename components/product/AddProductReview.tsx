@@ -132,7 +132,10 @@ const AddProductReview = ({ isOpen, setModalOpen, productId }: Props) => {
             name="rating"
             value={formValues.rating}
             handler={handleChange}
-            selectOptions={["1", "2", "3", "4", "5"]}
+            selectOptions={["1", "2", "3", "4", "5"].map((el) => ({
+              label: el,
+              value: el,
+            }))}
             required
           />
           <Input

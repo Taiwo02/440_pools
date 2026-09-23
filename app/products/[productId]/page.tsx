@@ -12,10 +12,9 @@ export async function generateStaticParams() {
     "";
 
   if (!baseURL) {
-    console.warn(
-      "[generateStaticParams] NEXT_PUBLIC_BASE_URL (or API_ORIGIN) is unset; no product pages will be pre-rendered."
-    );
-    return [];
+    console.warn("[generateStaticParams] returning fallback static route");
+
+    return [{ productId: "preview" }];
   }
 
   try {
